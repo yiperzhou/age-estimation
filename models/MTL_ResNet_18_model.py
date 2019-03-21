@@ -12,9 +12,9 @@ from copy import deepcopy
 import numpy as np
 
 
-class MTLModel(torch.nn.Module):
+class MTL_ResNet_18_model(torch.nn.Module):
   def __init__(self):
-    super(MTLModel, self).__init__()
+    super(MTL_ResNet_18_model, self).__init__()
     self.resNet = models.resnet18(pretrained=True)
 
     self.use_gpu = torch.cuda.is_available()
@@ -30,6 +30,7 @@ class MTLModel(torch.nn.Module):
     self.gen_cls_pred = nn.Linear(512, 2)
 
     # emotion branch
+    self.dropout      = nn.Dropout(p=0.5, inplace=False)
     self.fc3          = nn.Linear(512, 512)
     self.emo_cls_pred = nn.Linear(512, 7)
 
@@ -58,13 +59,13 @@ class MTLModel(torch.nn.Module):
 
     # print("last_conv_out: ", last_conv_out.size())
 
-    age_pred = F.relu(self.fc1(last_conv_out))
+    age_pred = F.relu(self.dropout(self.fc1(last_conv_out)))
     age_pred = F.softmax(self.age_cls_pred(age_pred), 1)
 
-    gen_pred = F.relu(self.fc2(last_conv_out))
+    gen_pred = F.relu(self.dropout(self.fc2(last_conv_out)))
     gen_pred = self.gen_cls_pred(gen_pred)
 
-    emo_pred = F.relu(self.fc3(last_conv_out))
+    emo_pred = F.relu(self.dropout(self.fc3(last_conv_out)))
     emo_pred = self.emo_cls_pred(emo_pred)
 
     return gen_pred, age_pred, emo_pred

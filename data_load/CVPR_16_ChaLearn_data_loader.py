@@ -12,139 +12,30 @@ from skimage import io
 from torchvision import transforms
 from torch.utils.data import Dataset
 import torchvision
-
-# from config import parser
+import accimage
 import h5py
+from torchvision.datasets import DatasetFolder
+# from config import parser
+
 # from config import config, parser
+# FER2013 Data, resize image from 48*48 to 224*224
 
-
-# age_cls_unit = int(parser['RacNet']['age_cls_unit'])
-# # age_cls_unit = 60
-
-# # distribution of IMDB-WIKi dataset I: IMDB-Wiki
-# imdb_distr = [25, 63, 145, 54, 46, 113, 168, 232, 455, 556,
-#               752, 1089, 1285, 1654, 1819, 1844, 2334, 2828,
-#               3346, 4493, 6279, 7414, 7706, 9300, 9512, 11489,
-#               10481, 12483, 11280, 13096, 12766, 14346, 13296,
-#               12525, 12568, 12278, 12694, 11115, 12089, 11994,
-#               9960, 9599, 9609, 8967, 7940, 8267, 7733, 6292,
-#               6235, 5596, 5129, 4864, 4466, 4278, 3515, 3644,
-#               3032, 2841, 2917, 2755, 2853, 2380, 2169, 2084,
-#               1763, 1671, 1556, 1343, 1320, 1121, 1196, 949,
-#               912, 710, 633, 581, 678, 532, 491, 428, 367,
-#               339, 298, 203, 258, 161, 136, 134, 121, 63, 63,
-#               82, 40, 37, 24, 16, 18, 11, 4, 9]
-# imdb_distr[age_cls_unit - 1] = sum(imdb_distr[age_cls_unit - 1:])
-# imdb_distr = imdb_distr[:age_cls_unit]
-# imdb_distr = np.array(imdb_distr, dtype='float')
-
-# # distribution of test dataset: FG-NET
-# fg_distr = [10, 10, 10, 10, 10, 10, 10, 10, 10, 9, 10, 10, 10, 10, 10, 10, 10, 10, 10,
-#             9, 8, 8, 9, 9, 5, 7, 6, 6, 7, 6, 9, 5, 4, 6, 5, 7, 6, 3, 3, 5, 5, 4, 4, 2,
-#             3, 5, 2, 2, 2, 3, 2, 3, 3, 2, 2, 2, 0, 0, 1, 0, 1, 3, 1, 1, 0, 0, 0, 1, 0, 0]
-# fg_distr[age_cls_unit - 1] = sum(fg_distr[age_cls_unit - 1:])
-# fg_distr = fg_distr[:age_cls_unit]
-# fg_distr = np.array(fg_distr, dtype='float') + 1
-
-# # step 1: correct different distribution between datasets
-# loss_weight = fg_distr / imdb_distr
-
-# # step 2: normalize the weight so that the expected weight for a random sample
-# #         from training dataset equals to 1, i.e. sum(weight * 1/imdb_distr ) = 1
-# loss_weight = loss_weight / sum(loss_weight / imdb_distr)
-
-# # >>> (loss_weight * 100).astype('int')
-# # array([1398,  554,  241,  647,  760,  309,  208,  150,   76,   57,   46,
-# #          32,   27,   21,   19,   18,   14,   12,   10,    7,    4,    3,
-# #           4,    3,    2,    2,    2,    1,    2,    1,    2,    1,    1,
-# #           1,    1,    2,    1,    1,    1,    1,    1,    1,    1,    1,
-# #           1,    2,    1,    1,    1,    2,    1,    2,    2,    2,    2,
-# #           2,    1,    1,    2,    0])
-
-
-# loss_weight = torch.from_numpy(np.array(loss_weight, dtype='float'))
-# loss_weight = loss_weight.type(torch.FloatTensor)
-
-
-# class FaceDataset(Dataset):
-
-#   def __init__(self, datapath, transformer):
-#     """
-#     init function
-#     :param datapath: datapath to aligned folder
-#     :param transformer: image transformer
-#     """
-#     if datapath[-1] != '/':
-#       print("[WARNING] PARAM: datapath SHOULD END WITH '/'")
-#       datapath += '/'
-#     self.datapath = datapath
-#     self.pics = [f[len(datapath):] for f in
-#                  glob.glob(datapath + "*.jpg")]
-#     self.transformer = transformer
-#     self.age_divde = float(parser['DATA']['age_divide'])
-#     self.age_cls_unit = int(parser['RacNet']['age_cls_unit'])
-
-#     self.age_cls = {x: self.GaussianProb(x)
-#                     for x in range(1, self.age_cls_unit + 1)}
-#     self.age_cls_zeroone = {x: self.ZeroOneProb(
-#         x) for x in range(1, self.age_cls_unit + 1)}
-
-#   def __len__(self):
-#     return len(self.pics)
-
-#   def GaussianProb(self, true, var=2.5):
-#     x = np.array(range(1, self.age_cls_unit + 1), dtype='float')
-#     probs = np.exp(-np.square(x - true) / (2 * var ** 2)) / \
-#         (var * (2 * np.pi ** .5))
-#     return probs / probs.max()
-
-#   def ZeroOneProb(self, true):
-#     x = np.zeros(shape=(self.age_cls_unit, ))
-#     x[true - 1] = 1
-#     return x
-
-#   def __getitem__(self, idx):
-#     """
-#     get images and labels
-#     :param idx: image index
-#     :return: image: transformed image, gender: torch.LongTensor, age: torch.FloatTensor
-#     """
-#     # read image and labels
-#     img_name = self.datapath + self.pics[idx]
-#     img = io.imread(img_name)
-#     if len(img.shape) == 2:  # gray image
-#       img = np.repeat(img[:, :, np.newaxis], 3, axis=2)
-#     (age, gender) = re.findall(r"([^_]*)_([^_]*)_[^_]*.jpg", self.pics[idx])[0]
-#     age = max(1., min(float(age), float(self.age_cls_unit)))
-
-#     # preprcess images
-#     if self.transformer:
-#       img = transforms.ToPILImage()(img)
-#       image = self.transformer(img)
-#     else:
-#       image = torch.from_numpy(img)
-
-#     # preprocess labels
-#     gender = float(gender)
-#     gender = torch.from_numpy(np.array([gender], dtype='float'))
-#     gender = gender.type(torch.LongTensor)
-
-#     age_rgs_label = torch.from_numpy(
-#         np.array([age / self.age_divde], dtype='float'))
-#     age_rgs_label = age_rgs_label.type(torch.FloatTensor)
-
-#     age_cls_label = self.age_cls[int(age)]
-#     # age_cls_label = self.age_cls_zeroone[int(age)]
-
-#     age_cls_label = torch.from_numpy(np.array([age_cls_label], dtype='float'))
-#     age_cls_label = age_cls_label.type(torch.FloatTensor)
-
-#     # image of shape [256, 256]
-#     # gender of shape [,1] and value in {0, 1}
-#     # age of shape [,1] and value in [0 ~ 10)
-#     return image, gender, age_rgs_label, age_cls_label
-#     # return image, gender
-
+emotion_transform = {
+    "emotion_transform_train": transforms.Compose([
+        # transforms.RandomCrop(44),
+        # transforms.RandomHorizontalFlip(),
+        transforms.Resize(224),
+        transforms.ToTensor(),
+    ]),
+    "emotion_transform_valid": transforms.Compose([
+        transforms.Resize(224),
+        transforms.ToTensor(),
+    ]),
+    "emotion_transform_test": transforms.Compose([
+        transforms.Resize(224),
+        transforms.ToTensor(),
+    ])
+}
 
 class Mix_Age_Gender_Emotion_Dataset(Dataset):
 
@@ -280,8 +171,6 @@ class Mix_Age_Gender_Emotion_Dataset(Dataset):
           self.emotion_imgs.append(img)
 
       assert len(self.emotion_imgs) == len(self.emotion_img_labels)
-
-
 
 
 
@@ -438,12 +327,26 @@ def CVPE_AGE_load_dataset(data_path, transforms):
     return train_dataset
 
 
-def get_model_data(args):
-    transform = transforms.Compose([
-        transforms.Resize(224),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-    ])
+def get_CVPR_Age_Gender_Smile_data(args):
+
+    augment = False
+
+    if augment:
+        transform = transforms.Compose([
+            transforms.RandomCrop(224, padding=4),
+            transforms.RandomHorizontalFlip(),
+            transforms.Resize(224),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        ])
+
+    else:
+        transform = transforms.Compose([
+            transforms.Resize(224),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        ])
+
 
     age_train_dataloader = CVPE_AGE_load_dataset("/home/yi/narvi_MLG/AGE_ESTIMATION/CVPR_AGE_5_points/TRAIN/", transform)
     age_test_dataloader = CVPE_AGE_load_dataset("/home/yi/narvi_MLG/AGE_ESTIMATION/CVPR_AGE_5_points/VALID/", transform)
@@ -470,5 +373,117 @@ def get_model_data(args):
     
     # model_dataloader
     return [age_train_loader, age_test_loader, gender_train_loader, gender_test_loader, smile_train_loader, smile_test_loader]
+
+
+
+def pil_loader(path):
+    # open path as file to avoid ResourceWarning (https://github.com/python-pillow/Pillow/issues/835)
+    with open(path, 'rb') as f:
+        img = Image.open(f)
+        return img.convert('RGB')
+
+
+def accimage_loader(path):
+    try:
+        return accimage.Image(path)
+    except IOError:
+        # Potentially a decoding problem, fall back to PIL.Image
+        return pil_loader(path)
+
+
+def default_loader(path):
+    from torchvision import get_image_backend
+    if get_image_backend() == 'accimage':
+        return accimage_loader(path)
+    else:
+        return pil_loader(path)
+
+
+class AGE_ImageFolder(DatasetFolder):
+    """A generic data loader where the images are arranged in this way: ::
+        root/dog/xxx.png
+        root/dog/xxy.png
+        root/dog/xxz.png
+        root/cat/123.png
+        root/cat/nsdf3.png
+        root/cat/asd932_.png
+    Args:
+        root (string): Root directory path.
+        transform (callable, optional): A function/transform that  takes in an PIL image
+            and returns a transformed version. E.g, ``transforms.RandomCrop``
+        target_transform (callable, optional): A function/transform that takes in the
+            target and transforms it.
+        loader (callable, optional): A function to load an image given its path.
+     Attributes:
+        classes (list): List of the class names.
+        class_to_idx (dict): Dict with items (class_name, class_index).
+        imgs (list): List of (image path, class_index) tuples
+    """
+    def __init__(self, root, transform=None, target_transform=None,
+                 loader=default_loader):
+        super(AGE_ImageFolder, self).__init__(root, loader, IMG_EXTENSIONS,
+                                          transform=transform,
+                                          target_transform=target_transform)
+        self.imgs = self.samples
+
+
+def load_chalearn_dataset(data_dir,resize=(224,224)):
+
+    data_transforms = {
+        'TRAIN': transforms.Compose([
+            transforms.RandomSizedCrop(max(resize)),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        ]),
+        'VALID': transforms.Compose([
+            transforms.RandomCrop(224),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        ]),
+        'TEST': transforms.Compose([
+            transforms.RandomCrop(224),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        ])            
+
+    }
+    dsets = {x: AGE_ImageFolder(os.path.join(data_dir, x), data_transforms[x]) for x in ['TRAIN', 'VALID', 'TEST']}
+
+    return dsets
+
+
+def getstd(csv_path):
+    std_output={}
+    for ann_file in [csv_path]:
+        with open(ann_file, "r") as fp:
+            for k, line in enumerate(fp):
+                if k == 0:  # skip header
+                    continue
+                name, age, std = line.split(",")
+                std_output[name] = float(std)
+    return std_output
+
+
+def load_raw_chalearn_age_dataset():
+    # load cvpr age dataset
+    age_folder = "/media/yi/e7036176-287c-4b18-9609-9811b8e33769/ElasticNN/data/ChaLearn_AGE_CVPR_16"
+    age_valid_folder = age_folder+ os.sep + "validation_data/valid"
+    age_train_folder = age_folder+ os.sep + "training_data/train"
+    age_test_folder = age_folder+ os.sep + "test_data/test"
+
+    age_csv_train_file = age_folder + os.sep + 'training_data/train_gt.csv'
+    age_csv_valid_file = age_folder + os.sep + 'validation_data/valid_gt.csv'
+    age_csv_test_file = age_folder + os.sep + 'test_data/test_gt.csv'
+
+    STD_VALID = getstd(age_csv_valid_file)
+    STD_TEST = getstd(age_csv_test_file)
+
+
+    return age_train_folder, age_valid_folder, age_test_folder, age_csv_train_file, age_csv_valid_file, age_csv_test_file
+
+
 
 

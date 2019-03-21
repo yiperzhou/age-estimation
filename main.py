@@ -24,50 +24,12 @@ from torch.utils.data import Dataset
 from torch.autograd import Variable
 from tensorboardX import SummaryWriter
 
+from models import *
+from data_load import *
+from utils import *
 
-
-# from emotion_preprocess import FER2013
-from dataload import Mix_Age_Gender_Emotion_Dataset, CVPE_AGE_load_dataset, get_model_data
-from model import MTLModel
 from opts import args
-from helper import emotion_transform_train, emotion_transform_valid, emotion_transform_test, LOG, getstd, load_chalearn_dataset, imdb_image_transformer, AverageMeter, accuracy, save_checkpoint, indexes_to_one_hot, calculate_age_loss
-
-
-def LOG_variables_to_board(epoch_losses, losses, losses_name, epoch_accs, accs, accs_name, phrase, folder, epoch, logFile):
-
-    global writer
-    LOG(phrase + " epoch    " + str(epoch+1) + ":", logFile)
-    for e_loss, l, l_n in zip(epoch_losses, losses, losses_name):
-        e_loss.append(l)
-        writer.add_scalar(folder + os.sep + "data" + os.sep + l_n, l, epoch)
-        LOG("          " + l_n + ": "+ str(l), logFile)
-
-    LOG("\n", logFile)
-
-    for e_acc, ac, ac_n in zip(epoch_accs, accs, accs_name):
-        e_acc.append(ac)
-        writer.add_scalar(folder + os.sep + "data" + os.sep + ac_n, ac, epoch)
-        LOG("          " + ac_n + ": "+ str(ac), logFile)
-    LOG("---------------", logFile)
-    
-
-def save_csv_logging(csv_checkpoint, epoch, lr, losses, val_losses, accs, val_accs, total_loss, total_val_loss, csv_path):
-    try:
-
-
-
-        csv_checkpoint.loc[len(csv_checkpoint)] = [str(datetime.datetime.now()), epoch, lr, 
-                                                    accs[0], accs[1], losses[0], losses[1], losses[2],
-                                                    val_accs[0], val_accs[1], val_losses[0], val_losses[1], val_losses[2], 
-                                                    total_loss, total_val_loss]
-        csv_checkpoint.to_csv(csv_path, index=False)
-
-    except:
-        LOG(
-            "Error when saving csv files! [tip]: Please check csv column names.", logFile)
-
-        # print(csv_checkpoint.columns)
-    return csv_checkpoint
+from train_methods import train_method_1, train_method_2
 
 
 def validate(model, validloader, criterion, optimizer, epoch, train_type):
@@ -311,8 +273,6 @@ def train(model, trainloader, criterion, optimizer, epoch, train_type):
     
     not_reduce_rounds = 0
 
-    # checkpoint_path = self.checkpoint_best if self.load_best else self.checkpoint_last
-
     loss = 0
 
     age_epoch_loss = AverageMeter()
@@ -414,6 +374,8 @@ def train(model, trainloader, criterion, optimizer, epoch, train_type):
             
 
     elif args.multitask_training_type == 2:
+
+        train_method_2()
         for i, (data, labels) in enumerate(gender_train_loader):
             print("i: ", i, ", inside the for loop")
 
@@ -549,37 +511,28 @@ def train(model, trainloader, criterion, optimizer, epoch, train_type):
 def parse_args(args):
 
 
-    train_type = args.multitask_weight_type
-
-    if train_type == 0:
-        args.folder_sub_name = "_only_age"
-    elif train_type == 1:
-        args.folder_sub_name = "_only_gender"
-    elif train_type == 2:
-        args.folder_sub_name = "_only_emotion"
-    elif train_type == 3:
-        args.folder_sub_name = "_age_gender_emotion"
-    else:
-        args.folder_sub_name = "_wrong"
-        exit()
-
-
     if args.multitask_weight_type == 0:
         args.weights = [1, 0, 0]                 # train only for age
+        args.folder_sub_name = "_only_age"
+
     elif args.multitask_weight_type == 1:
         args.weights = [0, 1, 0]                 # train only for gender
+        args.folder_sub_name = "_only_emotion"
+
     elif args.multitask_weight_type == 2:
         args.weights = [0, 0, 1]                 # train only for emotion
+        args.folder_sub_name = "_only_gender"
     elif args.multitask_weight_type == 3:
         args.weights = [1, 1, 1]                 # train age, gender, emotion together
+        args.folder_sub_name = "_age_gender_emotion"
     else:
         LOG("weight type should be in [0,1,2,3]", logFile)
         exit()
 
-    args.train_type = train_type
-    args.num_epochs = 50
+    args.train_type = args.multitask_weight_type
 
     return args
+
 
 
 def main(**kwargs):
@@ -593,15 +546,15 @@ def main(**kwargs):
     timestamp = datetime.datetime.now()
     ts_str = timestamp.strftime('%Y-%m-%d-%H-%M-%S')
 
-    path = "./models" + os.sep + ts_str+args.folder_sub_name
-    csv_path = "./models" + os.sep + ts_str + args.folder_sub_name + os.sep + "log.csv"
-
+    path = "./results" + os.sep + ts_str+ "_" + args.folder_sub_name + "_" + args.dataset
     tensorboard_folder = path + os.sep + "Graph"
+    csv_path = path + os.sep + "log.csv"
+    
     os.makedirs(path)
 
     global logFile
 
-    logFile = "./models" + os.sep + ts_str+args.folder_sub_name + os.sep + "log.txt"
+    logFile = path + os.sep + "log.txt"
 
     LOG("[Age, Gender, Emotion] load: start ...", logFile)
 
@@ -610,13 +563,21 @@ def main(**kwargs):
     global writer
     writer = SummaryWriter(tensorboard_folder)
 
-    age_train_loader, age_test_loader, gender_train_loader, gender_test_loader, smile_train_loader, smile_test_loader = get_model_data(args)
+    age_train_loader, age_test_loader, gender_train_loader, gender_test_loader, smile_train_loader, smile_test_loader = get_CVPR_Age_Gender_Smile_data(args)
 
 
     # load model
-    model = MTLModel()
+    model = MTL_ResNet_18_model()
+    
+    #load pretrained model 
+    if args.load_pretrained_model:
+        model = load_pretrained_model(model, "")
 
-    optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=args.lr_rate, weight_decay=args.weight_decay)
+
+    # optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=args.lr_rate, weight_decay=args.weight_decay)
+
+
+    optimizer = optim.SGD(filter(lambda p: p.requires_grad, model.parameters()), lr=args.lr_rate, weight_decay=args.weight_decay)
 
     # age_cls_criterion = nn.CrossEntropyLoss()
     age_criterion = nn.L1Loss()
@@ -658,11 +619,12 @@ def main(**kwargs):
                 'train_total_loss', 'val_total_loss']
 
     csv_checkpoint = pd.DataFrame(data=[], columns=columns)
+    
 
 
-    for epoch in range(0, args.num_epochs):
+    for epoch in range(0, args.epochs):
 
-        message = '\n\nEpoch: {}/{}: '.format(epoch + 1, args.num_epochs)
+        message = '\n\nEpoch: {}/{}: '.format(epoch + 1, args.epochs)
         LOG(message, logFile)
 
         accs, losses, lr = train(model, [gender_train_loader, age_train_loader, smile_train_loader], 
@@ -670,7 +632,7 @@ def main(**kwargs):
 
         LOG_variables_to_board([epochs_train_gender_losses, epochs_train_age_losses, epochs_train_emotion_losses], losses, ['gender_loss', 'age_loss', 'emotion_loss'],
                                 [epochs_train_gender_accs, epochs_train_emotion_accs], accs, ['gender_acc', 'emotion_acc'],
-                                "Train", tensorboard_folder, epoch, logFile)
+                                "Train", tensorboard_folder, epoch, logFile, writer)
 
 
         val_accs, val_losses = validate(model,[gender_test_loader, age_test_loader, smile_test_loader],
@@ -678,7 +640,7 @@ def main(**kwargs):
 
         LOG_variables_to_board([epochs_valid_gender_losses, epochs_valid_age_losses, epochs_valid_emotion_losses], val_losses, ['val_gender_loss', 'val_age_loss', 'val_emotion_loss'],
                                 [epochs_valid_gender_accs, epochs_valid_emotion_accs], val_accs, ['val_gender_acc', 'val_emotion_acc'],
-                                "Valid", tensorboard_folder, epoch, logFile)
+                                "Valid", tensorboard_folder, epoch, logFile, writer)
 
         LOG("\n", logFile)
 

@@ -43,10 +43,5 @@ ResNet-18 with imagenet pretrained weights
 
 
 ## reference
-1. hyperface, link, https://github.com/shashanktyagi/HyperFace-TensorFlow-implementation; 
-2. TUT-live-age-estimator, link, https://github.com/mahehu/TUT-live-age-estimator;
-3. Recursive Spatial Transformer (ReST) for Alignment-Free Face Recognition, http://vipl.ict.ac.cn/uploadfile/upload/2017122111505619.pdf
-4. Spatial Transformer Networks, https://arxiv.org/abs/1506.02025
-5. An All-In-One Convolutional Neural Network for Face Analysis, https://arxiv.org/abs/1611.00851
-6. Zhang, Kaipeng, et al. "Joint face detection and alignment using multitask cascaded convolutional networks." IEEE Signal Processing Letters 23.10 (2016): 1499-1503.
+1. age, gender, emotion, Age and gender prediction of multiple faces from an image using pytorch, https://github.com/adamzjk/Age-Gender-Pred
 

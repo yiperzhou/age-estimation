@@ -14,16 +14,28 @@ parser.add_argument('--img_path', type=str, help='[ThinkStation] CelebA aligned 
 # neural network hyperparamter
 parser.add_argument('--lr_schedule', type=float, default=5, help='learning rate schedule')
 parser.add_argument('--batch_size', type=int, default=64, metavar='N',help='input batch size for training (default: 32)')
-parser.add_argument('--epochs', type=int, help="epoch number, default 1", default=60)
+parser.add_argument('--epochs', type=int, help="epoch number, default 1", default=1)
 
-# multitask learning traing method hyperparameter
-parser.add_argument('--multitask_training_type', type=int, default = 3, help="multitask learning training type, 3--completing training task one by one")
-parser.add_argument('--multitask_weight_type', type=int, default = 3, help="multitask learning weight type, 3 = [1,1,1]")
+# [multitask learning traing method hyperparameter]
+parser.add_argument('--multitask_training_type', type=int, default = 2,
+                    help="multitask learning training type, \
+                         3: losses = loss[0], losses = loss[1], \
+                         2: losses = loss[0] + loss[1], \
+                            losses.backpropagation()")
+
+parser.add_argument('--multitask_weight_type', type=int, default = 0, help="multitask learning weight type, 3 = [1,1,1]")
 
 # training models
 parser.add_argument('--loading_jobs', type=int, default = 4, help="the number of cpu to load job")
 parser.add_argument('--weight_decay', type=float, default=1e-6)
+parser.add_argument('--load_pretrained_model', type=bool, default=False)
 
+
+
+
+parser.add_argument('--dataset', type=str, default="IMDB_WIKI")
+parser.add_argument('--model', type=str, default="pretrained_ResNet18")
+parser.add_argument('--num_workers', type=int, default=4)
 # Init Environment
 args = parser.parse_args()
 
