@@ -15,7 +15,7 @@ import os
 import os.path
 import numpy as np
 
-
+import torch
 
 def save_checkpoint(state, savedir):
     
@@ -30,8 +30,9 @@ def save_checkpoint(state, savedir):
     return
 
 
-def load_pretrained_model(initial_model, pretrained_model_path):
-    initial_model.load_state_dict(pretrained_model_path)
+def load_pretrained_model(initial_model, checkpoint_path):
+    checkpoint = torch.load(checkpoint_path)
+    initial_model.load_state_dict(checkpoint["state_dict"])
 
     return initial_model
 

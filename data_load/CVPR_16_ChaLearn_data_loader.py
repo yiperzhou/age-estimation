@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 
-from skimage import io
+# from skimage import io
 from torchvision import transforms
 from torch.utils.data import Dataset
 import torchvision
@@ -19,23 +19,10 @@ from torchvision.datasets import DatasetFolder
 
 # from config import config, parser
 # FER2013 Data, resize image from 48*48 to 224*224
+from torch.utils.data import RandomSampler
 
-emotion_transform = {
-    "emotion_transform_train": transforms.Compose([
-        # transforms.RandomCrop(44),
-        # transforms.RandomHorizontalFlip(),
-        transforms.Resize(224),
-        transforms.ToTensor(),
-    ]),
-    "emotion_transform_valid": transforms.Compose([
-        transforms.Resize(224),
-        transforms.ToTensor(),
-    ]),
-    "emotion_transform_test": transforms.Compose([
-        transforms.Resize(224),
-        transforms.ToTensor(),
-    ])
-}
+
+
 
 class Mix_Age_Gender_Emotion_Dataset(Dataset):
 
@@ -317,7 +304,9 @@ def CVPE_AGE_load_dataset(data_path, transforms):
         root=data_path,
         transform=transforms
     )
-    train_dataset.class_to_idx = {'24': 23, '25': 24, '26': 25, '27': 26, '20': 19, '21': 20, '22': 21, '23': 22, '28': 27, '29': 28, '4': 3, '8': 7, '59': 58, '58': 57, '55': 54, '54': 53, '57': 56, '56': 55, '51': 50, '50': 49, '53': 52, '52': 51, '88': 87, '89': 88, '82': 81, '83': 82, '80': 79, '81': 80, '86': 85, '87': 86, '84': 83, '85': 84, '3': 2, '7': 6, '100': 99, '39': 38, '38': 37, '33': 32, '32': 31, '31': 30, '30': 29, '37': 36, '36': 35, '35': 34, '34': 33, '60': 59, '61': 60, '62': 61, '63': 62, '64': 63, '65': 64, '66': 65, '67': 66, '68': 67, '69': 68, '2': 1, '6': 5, '99': 98, '98': 97, '91': 90, '90': 89, '93': 92, '92': 91, '95': 94, '94': 93, '97': 96, '96': 95, '11': 10, '10': 9, '13': 12, '12': 11, '15': 14, '14': 13, '17': 16, '16': 15, '19': 18, '18': 17, '48': 47, '49': 48, '46': 45, '47': 46, '44': 43, '45': 44, '42': 41, '43': 42, '40': 39, '41': 40, '1': 0, '5': 4, '9': 8, '77': 76, '76': 75, '75': 74, '74': 73, '73': 72, '72': 71, '71': 70, '70': 69, '79': 78, '78': 77}
+    # CVPR_AGE_5_POINT, train dataset has 87 classes; validation has 88 classes
+    train_dataset.class_to_idx = {'1': 0, '2': 1, '3': 2, '4': 3, '5': 4, '6': 5, '7': 6, '8': 7, '9': 8, '10': 9, '11': 10, '12': 11, '13': 12, '14': 13, '15': 14, '16': 15, '17': 16, '18': 17, '19': 18, '20': 19, '21': 20, '22': 21, '23': 22, '24': 23, '25': 24, '26': 25, '27': 26, '28': 27, '29': 28, '30': 29, '31': 30, '32': 31, '33': 32, '34': 33, '35': 34, '36': 35, '37': 36, '38': 37, '39': 38, '40': 39, '41': 40, '42': 41, '43': 42, '44': 43, '45': 44, '46': 45, '47': 46, '48': 47, '49': 48, '50': 49, '51': 50, '52': 51, '53': 52, '54': 53, '55': 54, '56': 55, '57': 56, '58': 57, '59': 58, '60': 59, '61': 60, '62': 61, '63': 62, '64': 63, '65': 64, '66': 65, '67': 66, '68': 67, '69': 68, '70': 69, '71': 70, '72': 71, '73': 72, '74': 73, '75': 74, '76': 75, '77': 76, '78': 77, '79': 78, '80': 79, '81': 80, '82': 81, '83': 82, '84': 83, '85': 84, '86': 85, '87': 86, '88':87}
+
     # train_loader = torch.utils.data.DataLoader(
     #     train_dataset,
     #     batch_size=64,
@@ -325,6 +314,15 @@ def CVPE_AGE_load_dataset(data_path, transforms):
     #     shuffle=True
     # )
     return train_dataset
+
+
+def dataset_augmentation_sampler(origin_dataset, target_num_samples):
+    
+    # randomSampler to increase the number of dataset into the target_num_samples
+    augmentation_sampler = RandomSampler(origin_dataset, replacement=True, num_samples=target_num_samples)
+
+    return augmentation_sampler
+
 
 
 def get_CVPR_Age_Gender_Smile_data(args):
@@ -348,33 +346,69 @@ def get_CVPR_Age_Gender_Smile_data(args):
         ])
 
 
-    age_train_dataloader = CVPE_AGE_load_dataset("/home/yi/narvi_MLG/AGE_ESTIMATION/CVPR_AGE_5_points/TRAIN/", transform)
-    age_test_dataloader = CVPE_AGE_load_dataset("/home/yi/narvi_MLG/AGE_ESTIMATION/CVPR_AGE_5_points/VALID/", transform)
+    age_train_dataset = CVPE_AGE_load_dataset("/home/yi/narvi_MLG/AGE_ESTIMATION/CVPR_AGE_5_points/TRAIN/", transform)
+    age_test_dataset = CVPE_AGE_load_dataset("/home/yi/narvi_MLG/AGE_ESTIMATION/CVPR_AGE_5_points/VALID/", transform)
     # age train set images: 3707; test image: 1356
 
-    gender_train_dataloader = torchvision.datasets.ImageFolder("/home/yi/narvi_MLG/AGE_ESTIMATION/CVPR_GENDER_5_points/TRAIN/", transform)
-    gender_test_dataloader = torchvision.datasets.ImageFolder("/home/yi/narvi_MLG/AGE_ESTIMATION/CVPR_GENDER_5_points/VALID/", transform)
+    gender_train_dataset = torchvision.datasets.ImageFolder("/home/yi/narvi_MLG/AGE_ESTIMATION/CVPR_GENDER_5_points/TRAIN/", transform)
+    gender_test_dataset = torchvision.datasets.ImageFolder("/home/yi/narvi_MLG/AGE_ESTIMATION/CVPR_GENDER_5_points/VALID/", transform)
     # gender train set images: 4548; test image: 2250
 
 
-    Smile_train_dataloader = torchvision.datasets.ImageFolder("/home/yi/narvi_MLG/AGE_ESTIMATION/CVPR_SMILE_5_points/TRAIN/", transform)
-    Smile_test_dataloader = torchvision.datasets.ImageFolder("/home/yi/narvi_MLG/AGE_ESTIMATION/CVPR_SMILE_5_points/VALID/", transform)
-
+    Smile_train_dataset = torchvision.datasets.ImageFolder("/home/yi/narvi_MLG/AGE_ESTIMATION/CVPR_SMILE_5_points/TRAIN/", transform)
+    Smile_test_dataset = torchvision.datasets.ImageFolder("/home/yi/narvi_MLG/AGE_ESTIMATION/CVPR_SMILE_5_points/VALID/", transform)
     # smile train set images: 4548, test image: 2250
 
-    age_train_loader = torch.utils.data.DataLoader(age_train_dataloader, batch_size=args.batch_size, shuffle=True, num_workers=args.loading_jobs)
-    age_test_loader = torch.utils.data.DataLoader(age_test_dataloader, batch_size=args.batch_size, shuffle=True, num_workers=args.loading_jobs)
 
-    gender_train_loader = torch.utils.data.DataLoader(gender_train_dataloader, batch_size=args.batch_size, shuffle=True, num_workers=args.loading_jobs)
-    gender_test_loader = torch.utils.data.DataLoader(gender_test_dataloader, batch_size=args.batch_size, shuffle=True, num_workers=args.loading_jobs)
 
-    smile_train_loader = torch.utils.data.DataLoader(Smile_train_dataloader, batch_size=args.batch_size, shuffle=True, num_workers=args.loading_jobs)
-    smile_test_loader = torch.utils.data.DataLoader(Smile_test_dataloader, batch_size=args.batch_size, shuffle=True, num_workers=args.loading_jobs)
+    age_train_loader = torch.utils.data.DataLoader(age_train_dataset, batch_size=args.batch_size, 
+                                                    shuffle=False, num_workers=args.loading_jobs, 
+                                                    sampler=dataset_augmentation_sampler(age_train_dataset, 28710))
+
+    age_test_loader = torch.utils.data.DataLoader(age_test_dataset, batch_size=args.batch_size,
+                                                    shuffle=False, num_workers=args.loading_jobs,
+                                                    sampler=dataset_augmentation_sampler(age_test_dataset, 3590))
+
+    # gender_train_loader = torch.utils.data.DataLoader(gender_train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.loading_jobs)
+    # gender_test_loader = torch.utils.data.DataLoader(gender_test_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.loading_jobs)
+
+    gender_train_loader = torch.utils.data.DataLoader(gender_train_dataset, batch_size=args.batch_size,
+                                                    shuffle=False, num_workers=args.loading_jobs,
+                                                    sampler=dataset_augmentation_sampler(gender_train_dataset, 28710))
+
+    gender_test_loader = torch.utils.data.DataLoader(gender_test_dataset, batch_size=args.batch_size,
+                                                    shuffle=False, num_workers=args.loading_jobs,
+                                                    sampler=dataset_augmentation_sampler(gender_test_dataset, 3590))
+
+
+    # smile_train_loader = torch.utils.data.DataLoader(Smile_train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.loading_jobs)
+    # smile_test_loader = torch.utils.data.DataLoader(Smile_test_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.loading_jobs)
+
+    smile_train_loader = torch.utils.data.DataLoader(Smile_train_dataset, batch_size=args.batch_size,
+                                                    shuffle=False, num_workers=args.loading_jobs,
+                                                    sampler=dataset_augmentation_sampler(Smile_train_dataset, 28710))
+
+    smile_test_loader = torch.utils.data.DataLoader(Smile_test_dataset, batch_size=args.batch_size,
+                                                shuffle=False, num_workers=args.loading_jobs,
+                                                sampler=dataset_augmentation_sampler(Smile_test_dataset, 3590))
     
+
+    # train_loader = torch.utils.data.DataLoader(
+    #             ConcatDataset(
+    #                 gender_train_dataset,
+    #                 age_train_dataset,
+    #                 Smile_train_dataset
+    #             ),
+    #             batch_size=args.batch_size, shuffle=True,
+    #             num_workers=args.workers, pin_memory=True)
+
+
     # model_dataloader
     return [age_train_loader, age_test_loader, gender_train_loader, gender_test_loader, smile_train_loader, smile_test_loader]
 
 
+def merge_multi_data_loader():
+    return 0
 
 def pil_loader(path):
     # open path as file to avoid ResourceWarning (https://github.com/python-pillow/Pillow/issues/835)
