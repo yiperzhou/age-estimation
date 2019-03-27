@@ -12,30 +12,30 @@ from copy import deepcopy
 import numpy as np
 
 
-class MTL_ResNet_18_model(torch.nn.Module):
+class MTL_ResNet_50_model(torch.nn.Module):
   def __init__(self):
-    super(MTL_ResNet_18_model, self).__init__()
-    self.resNet = models.resnet18(pretrained=True)
+    super(MTL_ResNet_50_model, self).__init__()
+    self.resNet = models.resnet50(pretrained=True)
 
     self.use_gpu = torch.cuda.is_available()
     # self.age_divide = float(parser['DATA']['age_divide'])
     # self.age_cls_unit = int(parser['RacNet']['age_cls_unit'])
 
     # age branch
-    self.fc1          = nn.Linear(512, 512)
+    self.fc1          = nn.Linear(2048, 512)
     self.age_cls_pred = nn.Linear(512, 100)
 
     # gender branch
-    self.fc2          = nn.Linear(512, 512)
+    self.fc2          = nn.Linear(2048, 512)
     self.gen_cls_pred = nn.Linear(512, 2)
 
     # emotion branch
     self.dropout      = nn.Dropout(p=0.5, inplace=False)
-    self.fc3          = nn.Linear(512, 512)
+    self.fc3          = nn.Linear(2048, 512)
     self.emo_cls_pred = nn.Linear(512, 7)
 
     # smile branch
-    self.fc4          = nn.Linear(512, 512)
+    self.fc4          = nn.Linear(2048, 512)
     self.smile_cls_pred = nn.Linear(512, 2)
 
 
@@ -77,43 +77,47 @@ class MTL_ResNet_18_model(torch.nn.Module):
     smile_pred   = self.smile_cls_pred(smile_pred)
 
     return gen_pred, age_pred, emo_pred, smile_pred
-  
+
+
   def forward(self, x, return_atten_info = False):
     last1 = self.get_resnet_convs_out(x)
+    
     gen_pred, age_pred, emo_pred, smile_pred = self.get_age_gender_emotion(last1)
+
     return gen_pred, age_pred, emo_pred, smile_pred
 
 
 
-  # def evaluate(self, faces):
-  #   preds = []
-  #   weigh = np.linspace(1, self.age_cls_unit, self.age_cls_unit)
+#   def evaluate(self, faces):
+#     preds = []
+#     weigh = np.linspace(1, self.age_cls_unit, self.age_cls_unit)
 
-  #   for face in faces:
-  #     face = Variable(torch.unsqueeze(face, 0)).cuda()
-  #     # face = torch.autograd.Variable(torch.unsqueeze(face, 0))
-  #     # age_out shape, [1, 60]; gen_out shape, [1,3]
-  #     # gen_out, age_out = self.forward(face)
-  #     gen_out, age_out, emo_out = self.forward(face)
+#     for face in faces:
+#       face = Variable(torch.unsqueeze(face, 0)).cuda()
+#       # face = torch.autograd.Variable(torch.unsqueeze(face, 0))
+#       # age_out shape, [1, 60]; gen_out shape, [1,3]
+#       # gen_out, age_out = self.forward(face)
+#       gen_out, age_out, emo_out = self.forward(face)
 
-  #     gen_out = F.softmax(gen_out, 1)
-  #     gen_prob, gen_pred = torch.max(gen_out, 1)
+#       gen_out = F.softmax(gen_out, 1)
+#       gen_prob, gen_pred = torch.max(gen_out, 1)
 
-  #     gen_pred = gen_pred.cpu().data.numpy()[0]
-  #     gen_prob = gen_prob.cpu().data.numpy()[0]
+#       gen_pred = gen_pred.cpu().data.numpy()[0]
+#       gen_prob = gen_prob.cpu().data.numpy()[0]
 
-  #     age_probs = age_out.cpu().data.numpy()
-  #     age_probs.resize((self.age_cls_unit,))
+#       age_probs = age_out.cpu().data.numpy()
+#       age_probs.resize((self.age_cls_unit,))
 
-  #     # expectation and variance
-  #     age_pred = sum(age_probs * weigh)
-  #     age_var = np.square(np.mean(age_probs * np.square(weigh - age_pred)))
+#       # expectation and variance
+#       age_pred = sum(age_probs * weigh)
+#       age_var = np.square(np.mean(age_probs * np.square(weigh - age_pred)))
 
-  #     emo_out = F.softmax(emo_out, 1)
-  #     emo_prob, emo_pred = torch.max(emo_out, 1)
-  #     emo_pred = emo_pred.cpu().data.numpy()[0]
-  #     emo_prob = emo_prob.cpu().data.numpy()[0]
+#       emo_out = F.softmax(emo_out, 1)
+#       emo_prob, emo_pred = torch.max(emo_out, 1)
+#       emo_pred = emo_pred.cpu().data.numpy()[0]
+#       emo_prob = emo_prob.cpu().data.numpy()[0]
       
 
-  #     preds.append([gen_pred, gen_prob, age_pred, age_var, emo_pred, emo_prob])
-  #   return preds
+#       preds.append([gen_pred, gen_prob, age_pred, age_var, emo_pred, emo_prob])
+#     return preds
+  

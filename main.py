@@ -27,7 +27,7 @@ from tensorboardX import SummaryWriter
 from models import *
 from data_load import *
 from utils import *
-from train_valid import Train_Cvpr_age_gender, Valid_Cvpr_age_gender
+from train_valid import *
 
 from opts import args
 
@@ -36,23 +36,26 @@ from opts import args
 def parse_args(args):
 
 
-    if args.multitask_weight_type == 0:
+    if args.multitask_weight_type == 1:
         args.weights = [1, 0, 0]                 # train only for age
         args.folder_sub_name = "_only_age"
 
-    elif args.multitask_weight_type == 1:
+    elif args.multitask_weight_type == 2:
         args.weights = [0, 1, 0]                 # train only for gender
+        args.folder_sub_name = "_only_gender"
+
+    elif args.multitask_weight_type == 3:
+        args.weights = [0, 0, 1]                 # train only for emotion
         args.folder_sub_name = "_only_emotion"
 
-    elif args.multitask_weight_type == 2:
-        args.weights = [0, 0, 1]                 # train only for emotion
-        args.folder_sub_name = "_only_gender"
-    elif args.multitask_weight_type == 3:
+    elif args.multitask_weight_type == 4:
         args.weights = [1, 1, 1]                 # train age, gender, emotion together
-        args.folder_sub_name = "_age_gender"
+        args.folder_sub_name = "_age_gender_emotion_1_1_1"
     else:
         LOG("weight type should be in [0,1,2,3]", logFile)
         exit()
+    args.weights = [0, 0, 0]
+    args.folder_sub_name = "_age_gender_emotion_smile_0_0_0_1"
 
     args.train_type = args.multitask_weight_type
 
@@ -71,7 +74,7 @@ def main(**kwargs):
     timestamp = datetime.datetime.now()
     ts_str = timestamp.strftime('%Y-%m-%d-%H-%M-%S')
 
-    path = "./results" + os.sep + ts_str+ "_" + args.folder_sub_name + "_" + args.dataset
+    path = "./results" + os.sep + args.model + "_" + args.folder_sub_name + "_" + args.dataset + os.sep + ts_str
     tensorboard_folder = path + os.sep + "Graph"
     csv_path = path + os.sep + "log.csv"
     
@@ -92,10 +95,10 @@ def main(**kwargs):
 
     emotion_train_loader, emotion_test_loader = get_FER2013_Emotion_data(args)
 
-    model_type = "MTL_ResNet_18_model"
+    # model = "MTL_ResNet_18"
     # model_type = "res18_cls70"
 
-    if model_type == "MTL_ResNet_18_model":
+    if args.model == "MTL_ResNet_18":
         # load model
         model = MTL_ResNet_18_model()
 
@@ -103,13 +106,23 @@ def main(**kwargs):
         if args.load_pretrained_model:
             model = load_pretrained_model(model, "/media/yi/harddrive/codes/MultitaskLearningFace/results/2019-03-24-12-56-49--Age_Gender--IMDB_WIKI/save_models/model_best.pth.tar")
 
-    elif model_type == "res18_cls70":
+    elif args.model == "res18_cls70":
 
         model = AgeGenPredModel()
-        model = load_pretrained_model(model, "/media/yi/harddrive/codes/MultitaskLearningFace/resources/res18_cls70_best.nn")
+        model = load_pretrained_model(model, "/media/yi/harddrive/codes/Age-Gender-Pred/models/30_epoch_trained_res18_cls70/res18_cls70_best.nn")
 
-        # initial_model.load_state_dict(checkpoint["state_dict"])
+        LOG("load ResNet18-Cls70 pretrained weight finished", logFile)
+        
+        # replace the last fully connected layer.
+        model.age_cls_pred = nn.Linear(in_features = 512, out_features=100, bias=True)
 
+        LOG("modify the age prediction range from [0, 60] -> [0, 99]", logFile)
+
+
+    elif args.model == "MTL_ResNet_50":
+        model = MTL_ResNet_50_model()
+
+        
 
     else:
         NotImplementedError
@@ -118,7 +131,7 @@ def main(**kwargs):
     # optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=args.lr_rate, weight_decay=args.weight_decay)
 
 
-    optimizer = optim.SGD(filter(lambda p: p.requires_grad, model.parameters()), lr=args.lr_rate, weight_decay=args.weight_decay)
+    optimizer = optim.SGD(filter(lambda p: p.requires_grad, model.parameters()), momentum=0.9, lr=args.lr_rate, weight_decay=args.weight_decay)
 
     age_cls_criterion = nn.CrossEntropyLoss()
     age_criterion = nn.L1Loss()
@@ -171,8 +184,8 @@ def main(**kwargs):
         LOG(message, logFile)
 
 
-        accs, losses, lr, model = Train_Cvpr_age_gender(model, [gender_train_loader, age_train_loader, smile_train_loader, emotion_train_loader], 
-                                        [gender_criterion, age_criterion, smile_criterion, age_cls_criterion, emotion_criterion], optimizer, epoch, logFile, args)
+        accs, losses, lr, model = Train_Valid_Cvpr_age_gender_emotion(model, [gender_train_loader, age_train_loader, smile_train_loader, emotion_train_loader], 
+                                        [gender_criterion, age_criterion, smile_criterion, age_cls_criterion, emotion_criterion], optimizer, epoch, logFile, args, "train")
 
         # accs, losses, lr = train(model, [gender_train_loader, age_train_loader, smile_train_loader], 
         #                                 [gender_criterion, age_criterion, emotion_criterion], optimizer, epoch, args.train_type)
@@ -182,8 +195,8 @@ def main(**kwargs):
                                 "Train", tensorboard_folder, epoch, logFile, writer)
 
 
-        val_accs, val_losses, model = Valid_Cvpr_age_gender(model,[gender_test_loader, age_test_loader, smile_test_loader, emotion_test_loader],
-                                                [gender_criterion, age_criterion, smile_criterion, age_cls_criterion, emotion_criterion], optimizer, epoch, logFile, args)
+        val_accs, val_losses, lr, model = Train_Valid_Cvpr_age_gender_emotion(model,[gender_test_loader, age_test_loader, smile_test_loader, emotion_test_loader],
+                                                [gender_criterion, age_criterion, smile_criterion, age_cls_criterion, emotion_criterion], optimizer, epoch, logFile, args, "valid")
 
         LOG_variables_to_board([epochs_valid_gender_losses, epochs_valid_age_losses, epochs_valid_emotion_losses], val_losses, ['val_gender_loss', 'val_age_loss', 'val_emotion_loss'],
                                 [epochs_valid_gender_accs, epochs_valid_emotion_accs], val_accs, ['val_gender_acc', 'val_emotion_acc'],

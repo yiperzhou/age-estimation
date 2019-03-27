@@ -33,10 +33,13 @@ from utils import *
 
 from opts import args
 
+reduce_gen_loss     = 0.01
+reduce_age_mae      = 0.1
 
 def validate(model, validloader, criterion, optimizer, epoch, train_type):
     
     global args
+    global logFile
 
     LOG("[Valid]: Starting, Epoch: " + str(epoch), logFile)
 
@@ -57,7 +60,7 @@ def validate(model, validloader, criterion, optimizer, epoch, train_type):
     gender_epoch_acc = AverageMeter()
     emotion_epoch_acc = AverageMeter()
 
-    model.train()
+    model.eval()
     torch.cuda.empty_cache()
 
     epoch_age_tp = 0.
@@ -139,6 +142,8 @@ def validate(model, validloader, criterion, optimizer, epoch, train_type):
 
             # total loss
             loss = age_cls_loss + gender_loss
+            
+            loss = age_cls_loss  * reduce_age_mae  + gender_loss * reduce_gen_loss
 
             # loss.backward()
             # optimizer.step()       
@@ -159,8 +164,9 @@ def validate(model, validloader, criterion, optimizer, epoch, train_type):
     
     accs = [gender_epoch_acc.avg, gender_epoch_acc.avg]
     losses = [gender_epoch_loss.avg, age_epoch_mae.avg, age_epoch_loss.avg]
-    
-    print("[Valid] [Gender loss, Age MAE, Total loss]: ", losses)
+
+    LOG("[Valid] accs: " + str(accs), logFile)
+    LOG("[Valid] [Gender loss, Age MAE, Total loss]: " + str(losses), logFile)
 
     # LOG("---------------- Done" + str(epoch), logFile)
     return accs, losses
@@ -169,6 +175,7 @@ def validate(model, validloader, criterion, optimizer, epoch, train_type):
 def train(model, trainloader, criterion, optimizer, epoch, train_type):
     
     global args
+    global logFile
 
     LOG("[Main3, Model] train: Starting, Epoch: " + str(epoch), logFile)
 
@@ -204,6 +211,7 @@ def train(model, trainloader, criterion, optimizer, epoch, train_type):
 
     gender_criterion, age_criterion, age_cls_criterion = criterion[0], criterion[1], criterion[2]
 
+
     # train age task
     for i, input_data in enumerate(trainloader):
         
@@ -223,6 +231,8 @@ def train(model, trainloader, criterion, optimizer, epoch, train_type):
             optimizer.zero_grad()
 
             gender_out, age_out, emo_out = model(input_img)
+
+            
 
             _, age_out = age_out.max(1)
             age_out = age_out.type(torch.cuda.FloatTensor)
@@ -246,8 +256,7 @@ def train(model, trainloader, criterion, optimizer, epoch, train_type):
         elif args.multitask_training_type == 2:
             optimizer.zero_grad()
 
-            gender_out, age_out, emo_out = model(input_img)
-
+            gender_out, age_out, emo_out, smile_out = model(input_img)
 
             # print("age_cls_label: ", age_cls_label.size())
             # print("age_out: ", age_out.size())
@@ -270,8 +279,7 @@ def train(model, trainloader, criterion, optimizer, epoch, train_type):
             gender_label = gender_label.squeeze(-1)
             gender_loss = gender_criterion(gender_out, gender_label)
 
-            reduce_gen_loss     = 0.01
-            reduce_age_mae      = 0.1
+
 
             # total loss
             loss = age_cls_loss  * reduce_age_mae  + gender_loss * reduce_gen_loss
@@ -299,8 +307,8 @@ def train(model, trainloader, criterion, optimizer, epoch, train_type):
 
     accs = [gender_epoch_acc.avg]
     losses = [gender_epoch_loss.avg, age_epoch_mae.avg, age_epoch_loss.avg]
-    print("[Train] [Gender loss, Age MAE, Total loss]: ", losses)
-    # print("[Train] accs: ", accs)
+    LOG("[Train] [Gender loss, Age MAE, Total loss]: " + str(losses), logFile)
+    LOG("[Train] accs: " + str(accs), logFile)
 
     try:
         lr = float(str(optimizer).split("\n")[3].split(" ")[-1])
@@ -313,6 +321,7 @@ def train(model, trainloader, criterion, optimizer, epoch, train_type):
 
 def parse_args(args):
 
+    # global logFile
 
     if args.multitask_weight_type == 0:
         args.weights = [1, 0, 0]                 # train only for age
@@ -329,7 +338,7 @@ def parse_args(args):
         args.weights = [1, 1, 1]                 # train age, gender, emotion together
         args.folder_sub_name = "_age_gender_emotion"
     else:
-        LOG("weight type should be in [0,1,2,3]", logFile)
+        # LOG("weight type should be in [0,1,2,3]", logFile)
         exit()
 
     args.folder_sub_name = "Age_Gender"
@@ -352,7 +361,8 @@ def main(**kwargs):
     timestamp = datetime.datetime.now()
     ts_str = timestamp.strftime('%Y-%m-%d-%H-%M-%S')
 
-    path = "./results" + os.sep + ts_str+ "--" + args.folder_sub_name + "--" + args.dataset
+    # path = "./results" + os.sep + ts_str+ "--" + args.folder_sub_name + "--" + args.dataset
+    path = "./results" + os.sep + args.model + "_" + args.folder_sub_name + "_" + args.dataset + os.sep + ts_str
     
 
     tensorboard_folder = path + os.sep + "Graph"
@@ -376,7 +386,13 @@ def main(**kwargs):
 
 
     # load model
-    model = MTL_ResNet_18_model()
+    if args.model == "pretrained_MTL_ResNet_18":
+        model = MTL_ResNet_18_model()
+    elif args.model == "pretrained_MTL_ResNet_50":
+        model = MTL_ResNet_50_model()
+
+    else:
+        NotImplementedError
 
     # optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=args.lr_rate, weight_decay=args.weight_decay)
 
