@@ -54,7 +54,7 @@ def parse_args(args):
     else:
         LOG("weight type should be in [0,1,2,3]", logFile)
         exit()
-    args.weights = [0, 0, 0]
+    args.weights = [1, 1, 1]
     args.folder_sub_name = "_age_gender_emotion_smile_0_0_0_1"
 
     args.train_type = args.multitask_weight_type
@@ -122,7 +122,11 @@ def main(**kwargs):
     elif args.model == "MTL_ResNet_50":
         model = MTL_ResNet_50_model()
 
-        
+    elif args.model == "MTL_DenseNet_121_model":
+        model = MTL_DenseNet_121_model()
+
+    elif args.model == "Elastic_MTL_DenseNet_121_model":
+        model = Elastic_MTL_DenseNet_121_model(args, logFile)
 
     else:
         NotImplementedError

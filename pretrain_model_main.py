@@ -116,7 +116,7 @@ def validate(model, validloader, criterion, optimizer, epoch, train_type):
         elif args.multitask_training_type == 2:
             # optimizer.zero_grad()
 
-            gender_out, age_out, emo_out = model(input_img)
+            gender_out, age_out, emo_out, smile_out = model(input_img)
 
 
             # print("age_cls_label: ", age_cls_label.size())

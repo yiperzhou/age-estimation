@@ -12,7 +12,7 @@ from PIL import Image
 from torchvision import transforms
 from torch.utils.data import Dataset
 import torchvision
-import accimage
+# import accimage
 import h5py
 from torchvision.datasets import DatasetFolder
 # from config import parser
@@ -417,12 +417,12 @@ def pil_loader(path):
         return img.convert('RGB')
 
 
-def accimage_loader(path):
-    try:
-        return accimage.Image(path)
-    except IOError:
-        # Potentially a decoding problem, fall back to PIL.Image
-        return pil_loader(path)
+# def accimage_loader(path):
+#     try:
+#         return accimage.Image(path)
+#     except IOError:
+#         # Potentially a decoding problem, fall back to PIL.Image
+#         return pil_loader(path)
 
 
 def default_loader(path):
