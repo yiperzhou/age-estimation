@@ -92,7 +92,7 @@ def validate(model, validloader, criterion, optimizer, epoch, train_type):
         if args.multitask_training_type == 3:
             # optimizer.zero_grad()
 
-            gender_out, age_out, emo_out = model(input_img)
+            gender_out, age_out, emo_out, smile_out = model(input_img)
 
             _, age_out = age_out.max(1)
             age_out = age_out.type(torch.cuda.FloatTensor)
@@ -116,7 +116,7 @@ def validate(model, validloader, criterion, optimizer, epoch, train_type):
         elif args.multitask_training_type == 2:
             # optimizer.zero_grad()
 
-            gender_out, age_out, emo_out = model(input_img)
+            gender_out, age_out, emo_out, smile_out = model(input_img)
 
 
             # print("age_cls_label: ", age_cls_label.size())
@@ -382,7 +382,7 @@ def main(**kwargs):
     global writer
     writer = SummaryWriter(tensorboard_folder)
 
-    IMDB_WIKI_train_loader, IMDB_WIKI_val_loader = load_IMDB_WIKI_dataset(processed_imdb_wiki_dataset = "/media/yi/harddrive/codes/Age-Gender-Pred/pics/", args=args)
+    IMDB_WIKI_train_loader, IMDB_WIKI_val_loader = load_IMDB_WIKI_dataset(processed_imdb_wiki_dataset = "/home/zhouy/projects/Age-Gender-Pred/pics/", args=args)
 
 
     # load model

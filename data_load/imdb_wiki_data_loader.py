@@ -194,7 +194,7 @@ def image_transformer():
 
 
 def load_IMDB_WIKI_dataset(processed_imdb_wiki_dataset, args):
-    processed_imdb_wiki_dataset = "/media/yi/harddrive/codes/Age-Gender-Pred/pics/"
+    processed_imdb_wiki_dataset = "/home/zhouy/projects/Age-Gender-Pred/pics/"
     imdb_crop_path = "/media/yi/harddrive/data/IMDB_only_face/imdb_crop"
     wiki_crop_path = "/media/yi/harddrive/data/WIKI_only_face/wiki_crop"
     
