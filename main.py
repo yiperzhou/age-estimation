@@ -54,7 +54,7 @@ def parse_args(args):
     else:
         LOG("weight type should be in [0,1,2,3]", logFile)
         exit()
-    args.weights = [0, 0, 0]
+    args.weights = [1, 1, 1]
     args.folder_sub_name = "_age_gender_emotion_smile_0_0_0_1"
 
     args.train_type = args.multitask_weight_type
@@ -121,8 +121,16 @@ def main(**kwargs):
 
     elif args.model == "MTL_ResNet_50":
         model = MTL_ResNet_50_model()
+        #load pretrained model 
+        if args.load_pretrained_model:
+            model = load_pretrained_model(model, "/home/zhouy/projects/MultitaskLearningFace/results/pretrained_MTL_ResNet_50_Age_Gender_IMDB-WIKI/2019-03-27-14-37-08/save_models/model_best.pth.tar")
 
-        
+
+    elif args.model == "MTL_DenseNet_121_model":
+        model = MTL_DenseNet_121_model()
+
+    elif args.model == "Elastic_MTL_DenseNet_121_model":
+        model = Elastic_MTL_DenseNet_121_model(args, logFile)
 
     else:
         NotImplementedError
