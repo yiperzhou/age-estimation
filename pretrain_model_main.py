@@ -25,23 +25,16 @@ from torch.utils.data import Dataset
 from torch.autograd import Variable
 from tensorboardX import SummaryWriter
 
-
-
 from models import *
 from data_load import *
 from utils import *
 
-from opts import args
+from pretrain_opts import args
 
-reduce_gen_loss     = 0.01
-reduce_age_mae      = 0.1
 
-def validate(model, validloader, criterion, optimizer, epoch, train_type):
-    
-    global args
-    global logFile
+def Train_Valid(model, validloader, criterion, optimizer, epoch, logFile, args, pharse):
 
-    LOG("[Valid]: Starting, Epoch: " + str(epoch), logFile)
+    LOG("[" + pharse + "]: Starting, Epoch: " + str(epoch), logFile)
 
 
     best_gen_acc = 0.
@@ -58,9 +51,17 @@ def validate(model, validloader, criterion, optimizer, epoch, train_type):
 
     age_epoch_mae = AverageMeter()
     gender_epoch_acc = AverageMeter()
-    emotion_epoch_acc = AverageMeter()
+    age_epoch_acc = AverageMeter()
 
-    model.eval()
+    if pharse == "train":
+        model.train()
+
+    elif pharse == "valid":
+        model.eval()
+
+    else:
+        NotImplementedError
+
     torch.cuda.empty_cache()
 
     epoch_age_tp = 0.
@@ -71,11 +72,10 @@ def validate(model, validloader, criterion, optimizer, epoch, train_type):
     processed_data = 0
     epoch_start_time = time.time()
 
-    print("three tasks weights: ", args.weights)
+    print("[Age, Gender] tasks weights: ", args.loss_weights)
 
     gender_criterion, age_criterion, age_cls_criterion = criterion[0], criterion[1], criterion[2]
 
-    # valid age task
     for i, input_data in enumerate(validloader):
         
         image, gender_label, age_rgs_label, age_cls_label = input_data[0], input_data[1], input_data[2], input_data[3]
@@ -114,201 +114,66 @@ def validate(model, validloader, criterion, optimizer, epoch, train_type):
             optimizer.step()
 
         elif args.multitask_training_type == 2:
-            # optimizer.zero_grad()
 
-            gender_out, age_out, emo_out, smile_out = model(input_img)
+            if pharse == "train":
+                optimizer.zero_grad()
 
+            gender_out, smile_out, emo_out, age_out = model(input_img)
 
-            # print("age_cls_label: ", age_cls_label.size())
-            # print("age_out: ", age_out.size())
             age_cls_loss = age_cls_criterion(age_out, age_cls_label)
-
-            # print("age_cls_loss: ", age_cls_loss)
 
             _, age_out = age_out.max(1)
             age_out = age_out.type(torch.cuda.FloatTensor)
 
             age_cls_label = age_cls_label.type(torch.cuda.FloatTensor)
-            age_loss_mae = age_criterion(age_out, age_cls_label)
-
-            # print("age_loss_mae: ", age_loss_mae)
-            
+            age_loss_mae = age_criterion(age_out, age_cls_label)            
             # age_loss = torch.autograd.Variable(age_loss, requires_grad = True)
-
-            # gender
 
             gender_label = gender_label.squeeze(-1)
             gender_loss = gender_criterion(gender_out, gender_label)
 
             # total loss
             loss = age_cls_loss + gender_loss
+            reduce_gen_loss, reduce_age_cls_loss  = args.loss_weights[0], args.loss_weights[1]
             
-            loss = age_cls_loss  * reduce_age_mae  + gender_loss * reduce_gen_loss
+            loss = gender_loss * reduce_gen_loss + age_cls_loss * reduce_age_cls_loss
 
-            # loss.backward()
-            # optimizer.step()       
+            if pharse == "train":
+                loss.backward()
+                optimizer.step()
+            elif pharse == "valid":
+                print("valid pharse")
+            else:
+                print("pharse should be in [train, valid]")
+                NotImplementedError
 
             total_epoch_loss.update(loss.item(), 1)     
+
+            print("[", pharse," LOSS]", "total: ", loss.item())
+            print("                 Age: ", age_cls_loss.item())
+            print("             MAE Age: ", age_loss_mae.item())
+            print("              Gender: ", gender_loss.item())
+            
 
         else:
             pass
 
-
-        age_epoch_mae.update(age_loss_mae.item(), 1)
         age_epoch_loss.update(age_cls_loss.item(), 1)
+        age_epoch_mae.update(age_loss_mae.item(), 1)
         gender_epoch_loss.update(gender_loss.item(), 1)
+
+        # age_prec1 = accuracy(age_out.data, age_cls_label.squeeze(-1))
+        # age_epoch_acc.update(age_prec1[0].item, age_cls_label.squeeze(-1).size(0))
 
         gender_prec1 = accuracy(gender_out.data, gender_label)
         gender_epoch_acc.update(gender_prec1[0].item(), gender_label.size(0))
 
     
-    accs = [gender_epoch_acc.avg, gender_epoch_acc.avg]
+    accs = [gender_epoch_acc.avg, age_epoch_acc.avg]
     losses = [gender_epoch_loss.avg, age_epoch_mae.avg, age_epoch_loss.avg]
 
-    LOG("[Valid] accs: " + str(accs), logFile)
-    LOG("[Valid] [Gender loss, Age MAE, Total loss]: " + str(losses), logFile)
-
-    # LOG("---------------- Done" + str(epoch), logFile)
-    return accs, losses
-
-
-def train(model, trainloader, criterion, optimizer, epoch, train_type):
-    
-    global args
-    global logFile
-
-    LOG("[Main3, Model] train: Starting, Epoch: " + str(epoch), logFile)
-
-
-    best_gen_acc = 0.
-    best_age_mae = 99.
-    best_emotion_acc = 0.
-    
-    not_reduce_rounds = 0
-
-    loss = 0
-
-    age_epoch_loss = AverageMeter()
-    gender_epoch_loss = AverageMeter()
-    total_epoch_loss = AverageMeter()
-
-    age_epoch_mae = AverageMeter()
-    gender_epoch_acc = AverageMeter()
-    emotion_epoch_acc = AverageMeter()
-
-    model.train()
-    torch.cuda.empty_cache()
-
-    epoch_age_tp = 0.
-    epoch_age_mae = 0.
-    epoch_gender_tp = 0.
-    epoch_emotion_tp = 0
-
-    processed_data = 0
-    epoch_start_time = time.time()
-
-    print("three tasks weights: ", args.weights)
-
-    gender_criterion, age_criterion, age_cls_criterion = criterion[0], criterion[1], criterion[2]
-
-
-    # train age task
-    for i, input_data in enumerate(trainloader):
-        
-        
-        image, gender_label, age_rgs_label, age_cls_label = input_data[0], input_data[1], input_data[2], input_data[3]
-        input_img = image.cuda()
-        gender_label = gender_label.cuda()
-
-        age_cls_label = age_cls_label.reshape([len(age_cls_label), 100])
-        _, age_cls_label = age_cls_label.max(1)
-
-        age_cls_label = age_cls_label.type(torch.LongTensor)
-        age_cls_label = age_cls_label.cuda()
-
-
-        if args.multitask_training_type == 3:
-            optimizer.zero_grad()
-
-            gender_out, age_out, emo_out = model(input_img)
-
-            
-
-            _, age_out = age_out.max(1)
-            age_out = age_out.type(torch.cuda.FloatTensor)
-
-            age_loss = age_criterion(age_out, age_cls_label)
-            age_loss = torch.autograd.Variable(age_loss, requires_grad = True)
-
-            print("age loss: ", age_loss)
-            age_loss.backward()
-            optimizer.step()
-
-            # gender
-            optimizer.zero_grad()
-
-            gender_label = gender_label.squeeze(-1)
-
-            gender_loss = gender_criterion(gender_out, gender_label)
-            gender_loss.backward()
-            optimizer.step()
-
-        elif args.multitask_training_type == 2:
-            optimizer.zero_grad()
-
-            gender_out, age_out, emo_out, smile_out = model(input_img)
-
-            # print("age_cls_label: ", age_cls_label.size())
-            # print("age_out: ", age_out.size())
-            age_cls_loss = age_cls_criterion(age_out, age_cls_label)
-
-            # print("age_cls_loss: ", age_cls_loss)
-
-            _, age_out = age_out.max(1)
-            age_out = age_out.type(torch.cuda.FloatTensor)
-
-            age_cls_label = age_cls_label.type(torch.cuda.FloatTensor)
-            age_loss_mae = age_criterion(age_out, age_cls_label)
-
-            # print("age_loss_mae: ", age_loss_mae)
-            
-            # age_loss = torch.autograd.Variable(age_loss, requires_grad = True)
-
-            # gender
-
-            gender_label = gender_label.squeeze(-1)
-            gender_loss = gender_criterion(gender_out, gender_label)
-
-
-
-            # total loss
-            loss = age_cls_loss  * reduce_age_mae  + gender_loss * reduce_gen_loss
-
-            loss.backward()
-            optimizer.step()       
-
-            total_epoch_loss.update(loss.item(), 1)     
-
-        else:
-            pass
-
-
-        age_epoch_mae.update(age_loss_mae.item(), 1)
-        age_epoch_loss.update(age_cls_loss.item(), 1)
-        gender_epoch_loss.update(gender_loss.item(), 1)
-
-        gender_prec1 = accuracy(gender_out.data, gender_label)
-        gender_epoch_acc.update(gender_prec1[0].item(), gender_label.size(0))
-
-
-    
-        
-    print("age gender task")
-
-    accs = [gender_epoch_acc.avg]
-    losses = [gender_epoch_loss.avg, age_epoch_mae.avg, age_epoch_loss.avg]
-    LOG("[Train] [Gender loss, Age MAE, Total loss]: " + str(losses), logFile)
-    LOG("[Train] accs: " + str(accs), logFile)
+    LOG("[" + pharse + "] accs: " + str(accs), logFile)
+    LOG("[" + pharse + "] losses: " + str(losses), logFile)
 
     try:
         lr = float(str(optimizer).split("\n")[3].split(" ")[-1])
@@ -316,37 +181,20 @@ def train(model, trainloader, criterion, optimizer, epoch, train_type):
         lr = 100
     LOG("lr : " + str(lr), logFile)
 
-    return accs, losses, lr
-
-
-def parse_args(args):
-
-    # global logFile
-
-    if args.multitask_weight_type == 0:
-        args.weights = [1, 0, 0]                 # train only for age
-        args.folder_sub_name = "_only_age"
-
-    elif args.multitask_weight_type == 1:
-        args.weights = [0, 1, 0]                 # train only for gender
-        args.folder_sub_name = "_only_emotion"
-
-    elif args.multitask_weight_type == 2:
-        args.weights = [0, 0, 1]                 # train only for emotion
-        args.folder_sub_name = "_only_gender"
-    elif args.multitask_weight_type == 3:
-        args.weights = [1, 1, 1]                 # train age, gender, emotion together
-        args.folder_sub_name = "_age_gender_emotion"
+    if pharse == "train":
+        return accs, losses, lr
+    elif pharse == "valid":
+        return accs, losses
     else:
-        # LOG("weight type should be in [0,1,2,3]", logFile)
-        exit()
-
-    args.folder_sub_name = "Age_Gender"
-
-    args.train_type = args.multitask_weight_type
+        NotImplementedError
 
 
-    return args
+def parse_loss_weight(args):
+
+    folder_sub_name = "_" + args.subtasks[0]+ "_" + str(args.loss_weights[0]) + "_" + args.subtasks[1] +"_" + str(args.loss_weights[1])
+
+    return folder_sub_name
+
 
 
 
@@ -355,54 +203,36 @@ def main(**kwargs):
     for arg, v in kwargs.items():
         args.__setattr__(arg, v)
 
-    # parse args
-    args = parse_args(args)
+    # parse loss weight to sub folder name
+    args.folder_sub_name = parse_loss_weight(args)
 
     timestamp = datetime.datetime.now()
     ts_str = timestamp.strftime('%Y-%m-%d-%H-%M-%S')
 
-    # path = "./results" + os.sep + ts_str+ "--" + args.folder_sub_name + "--" + args.dataset
-    path = "./results" + os.sep + args.model + "_" + args.folder_sub_name + "_" + args.dataset + os.sep + ts_str
-    
-
+    path = "./results" + os.sep + "pretrained_" + args.model + os.sep + args.folder_sub_name + "_" + args.dataset + os.sep + ts_str
     tensorboard_folder = path + os.sep + "Graph"
-
-    print("path: ", path)
-    os.makedirs(path)
     csv_path = path + os.sep + "log.csv"
+    
+    os.makedirs(path)
 
     global logFile
 
     logFile = path + os.sep + "log.txt"
-
-    LOG("[Age, Gender] load: start ...", logFile)
 
     LOG(args, logFile)
 
     global writer
     writer = SummaryWriter(tensorboard_folder)
 
-    IMDB_WIKI_train_loader, IMDB_WIKI_val_loader = load_IMDB_WIKI_dataset(processed_imdb_wiki_dataset = "/home/zhouy/projects/Age-Gender-Pred/pics/", args=args)
+    IMDB_WIKI_train_loader, IMDB_WIKI_val_loader = load_IMDB_WIKI_dataset(args)
 
-
-    # load model
-    if args.model == "pretrained_MTL_ResNet_18":
-        model = MTL_ResNet_18_model()
-    elif args.model == "pretrained_MTL_ResNet_50":
-        model = MTL_ResNet_50_model()
-
-    else:
-        NotImplementedError
-
-    # optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=args.lr_rate, weight_decay=args.weight_decay)
-
+    model = get_model(args, logFile)
 
     optimizer = optim.SGD(filter(lambda p: p.requires_grad, model.parameters()), lr=args.lr_rate, weight_decay=args.weight_decay)
 
     age_cls_criterion = nn.CrossEntropyLoss()
     age_criterion = nn.L1Loss()
     gender_criterion = nn.CrossEntropyLoss()
-    # emotion_criterion = nn.CrossEntropyLoss()
     
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', threshold=1e-5, patience=10)
 
@@ -413,7 +243,6 @@ def main(**kwargs):
 
         gender_criterion = gender_criterion.cuda()
         age_criterion = age_criterion.cuda()
-        # emotion_criterion = emotion_criterion.cuda()
 
     epochs_train_loss, epochs_valid_loss = [], []
 
@@ -446,16 +275,16 @@ def main(**kwargs):
         message = '\n\nEpoch: {}/{}: '.format(epoch + 1, args.epochs)
         LOG(message, logFile)
 
-        accs, losses, lr = train(model, IMDB_WIKI_train_loader, 
-                                        [gender_criterion, age_criterion, age_cls_criterion], optimizer, epoch, args.train_type)
+        accs, losses, lr = Train_Valid(model, IMDB_WIKI_train_loader, 
+                                        [gender_criterion, age_criterion, age_cls_criterion], optimizer, epoch, logFile, args, "train")
 
-        LOG_variables_to_board([epochs_train_gender_losses, epochs_train_age_losses], losses, ['gender_loss', 'age_loss'],
-                                [epochs_train_gender_accs], accs, ['gender_acc',],
+        LOG_variables_to_board([epochs_train_gender_losses, epochs_train_age_losses], losses, ['train_gender_loss', 'train_age_loss'],
+                                [epochs_train_gender_accs], accs, ['train_gender_acc'],
                                 "Train", tensorboard_folder, epoch, logFile, writer)
 
 
-        val_accs, val_losses = validate(model, IMDB_WIKI_val_loader,
-                                                [gender_criterion, age_criterion, age_cls_criterion], optimizer, epoch, args.train_type)
+        val_accs, val_losses = Train_Valid(model, IMDB_WIKI_val_loader,
+                                                [gender_criterion, age_criterion, age_cls_criterion], optimizer, epoch, logFile, args, "valid")
 
         LOG_variables_to_board([epochs_valid_gender_losses, epochs_valid_age_losses], val_losses, ['val_gender_loss', 'val_age_loss'],
                                 [epochs_valid_gender_accs], val_accs, ['val_gender_acc'],
@@ -500,6 +329,7 @@ def main(**kwargs):
 
     writer.close()
     LOG("done", logFile)
+    LOG(args, logFile)
 
 
 

@@ -21,7 +21,8 @@ class FER2013(data.Dataset):
     def __init__(self, split='Training', transform=None):
         self.transform = transform
         self.split = split  # training set or test set
-        self.data = h5py.File("/media/yi/harddrive/codes/MultitaskLearningFace/resources/FER2013/data.h5", 'r', driver='core')
+        self.data = h5py.File("/home/zhouy/projects/MultitaskLearningFace/resources/FER2013/data.h5", 'r', driver='core')
+        # self.data = h5py.File("/media/yi/harddrive/codes/MultitaskLearningFace/resources/FER2013/data.h5", 'r', driver='core')
 
         if self.split == 'Training':
             self.train_data = self.data['Training_pixel']

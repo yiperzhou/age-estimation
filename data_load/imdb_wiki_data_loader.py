@@ -193,10 +193,23 @@ def image_transformer():
     }
 
 
-def load_IMDB_WIKI_dataset(processed_imdb_wiki_dataset, args):
-    processed_imdb_wiki_dataset = "/home/zhouy/projects/Age-Gender-Pred/pics/"
-    imdb_crop_path = "/media/yi/harddrive/data/IMDB_only_face/imdb_crop"
-    wiki_crop_path = "/media/yi/harddrive/data/WIKI_only_face/wiki_crop"
+def load_IMDB_WIKI_dataset(args):
+
+    if args.working_machine == "thinkstation":
+      processed_imdb_wiki_dataset = "/media/yi/harddrive/codes/Age-Gender-Pred/pics/"
+
+      imdb_crop_path = "/media/yi/harddrive/data/IMDB_only_face/imdb_crop"
+      wiki_crop_path = "/media/yi/harddrive/data/WIKI_only_face/wiki_crop"
+
+    elif args.working_machine == "narvi":
+      processed_imdb_wiki_dataset = "/home/zhouy/projects/Age-Gender-Pred/pics/"
+      
+    else:
+        print("working machine should be  [thinkstation, narvi]")
+        NotImplementedError
+
+
+
     
     transformer = image_transformer()
 

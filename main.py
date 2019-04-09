@@ -31,35 +31,13 @@ from train_valid import *
 
 from opts import args
 
+def parse_loss_weight(args):
 
+    folder_sub_name = "_" + args.subtasks[0]+ "_" + str(args.loss_weights[0]) + "_" + args.subtasks[1] +"_" + str(args.loss_weights[1]) + \
+                        "_" + args.subtasks[2] + "_" +  str(args.loss_weights[2]) + "_" + args.subtasks[3] + "_" + str(args.loss_weights[3])
 
-def parse_args(args):
+    return folder_sub_name
 
-
-    if args.multitask_weight_type == 1:
-        args.weights = [1, 0, 0]                 # train only for age
-        args.folder_sub_name = "_only_age"
-
-    elif args.multitask_weight_type == 2:
-        args.weights = [0, 1, 0]                 # train only for gender
-        args.folder_sub_name = "_only_gender"
-
-    elif args.multitask_weight_type == 3:
-        args.weights = [0, 0, 1]                 # train only for emotion
-        args.folder_sub_name = "_only_emotion"
-
-    elif args.multitask_weight_type == 4:
-        args.weights = [1, 1, 1]                 # train age, gender, emotion together
-        args.folder_sub_name = "_age_gender_emotion_1_1_1"
-    else:
-        LOG("weight type should be in [0,1,2,3]", logFile)
-        exit()
-    args.weights = [1, 1, 1]
-    args.folder_sub_name = "_age_gender_emotion_smile_0_0_0_1"
-
-    args.train_type = args.multitask_weight_type
-
-    return args
 
 
 
@@ -68,13 +46,13 @@ def main(**kwargs):
     for arg, v in kwargs.items():
         args.__setattr__(arg, v)
 
-    # parse args
-    args = parse_args(args)
+    # parse loss weight to sub folder name
+    args.folder_sub_name = parse_loss_weight(args)
 
     timestamp = datetime.datetime.now()
     ts_str = timestamp.strftime('%Y-%m-%d-%H-%M-%S')
 
-    path = "./results" + os.sep + args.model + "_" + args.folder_sub_name + "_" + args.dataset + os.sep + ts_str
+    path = "./results" + os.sep + args.model + os.sep + args.folder_sub_name + "_" + args.dataset + os.sep + ts_str
     tensorboard_folder = path + os.sep + "Graph"
     csv_path = path + os.sep + "log.csv"
     
@@ -84,7 +62,6 @@ def main(**kwargs):
 
     logFile = path + os.sep + "log.txt"
 
-    LOG("[Age, Gender, Emotion] load: start ...", logFile)
 
     LOG(args, logFile)
 
@@ -95,49 +72,14 @@ def main(**kwargs):
 
     emotion_train_loader, emotion_test_loader = get_FER2013_Emotion_data(args)
 
-    # model = "MTL_ResNet_18"
-    # model_type = "res18_cls70"
+    pretrained_model_weight_path = get_pretrained_model_weights_path(args)
 
-    if args.model == "MTL_ResNet_18":
-        # load model
-        model = MTL_ResNet_18_model()
+    model = get_model(args, logFile)
 
-        #load pretrained model 
-        if args.load_pretrained_model:
-            model = load_pretrained_model(model, "/media/yi/harddrive/codes/MultitaskLearningFace/results/2019-03-24-12-56-49--Age_Gender--IMDB_WIKI/save_models/model_best.pth.tar")
-
-    elif args.model == "res18_cls70":
-
-        model = AgeGenPredModel()
-        model = load_pretrained_model(model, "/media/yi/harddrive/codes/Age-Gender-Pred/models/30_epoch_trained_res18_cls70/res18_cls70_best.nn")
-
-        LOG("load ResNet18-Cls70 pretrained weight finished", logFile)
-        
-        # replace the last fully connected layer.
-        model.age_cls_pred = nn.Linear(in_features = 512, out_features=100, bias=True)
-
-        LOG("modify the age prediction range from [0, 60] -> [0, 99]", logFile)
-
-
-    elif args.model == "MTL_ResNet_50":
-        model = MTL_ResNet_50_model()
-        #load pretrained model 
-        if args.load_pretrained_model:
-            model = load_pretrained_model(model, "/home/zhouy/projects/MultitaskLearningFace/results/pretrained_MTL_ResNet_50_Age_Gender_IMDB-WIKI/2019-03-27-14-37-08/save_models/model_best.pth.tar")
-
-
-    elif args.model == "MTL_DenseNet_121_model":
-        model = MTL_DenseNet_121_model()
-
-    elif args.model == "Elastic_MTL_DenseNet_121_model":
-        model = Elastic_MTL_DenseNet_121_model(args, logFile)
-
-    else:
-        NotImplementedError
-
-
-    # optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=args.lr_rate, weight_decay=args.weight_decay)
-
+    #load pretrained model 
+    if args.load_pretrained_model:
+        model = load_model_weights(model, pretrained_model_weight_path)
+        LOG("load pretrained weight, DONE", logFile)
 
     optimizer = optim.SGD(filter(lambda p: p.requires_grad, model.parameters()), momentum=0.9, lr=args.lr_rate, weight_decay=args.weight_decay)
 
@@ -188,22 +130,15 @@ def main(**kwargs):
 
     for epoch in range(0, args.epochs):
 
-        message = '\n\nEpoch: {}/{}: '.format(epoch + 1, args.epochs)
-        LOG(message, logFile)
-
-
-        accs, losses, lr, model = Train_Valid_Cvpr_age_gender_emotion(model, [gender_train_loader, age_train_loader, smile_train_loader, emotion_train_loader], 
+        accs, losses, lr, model = Train_Valid(model, [gender_train_loader, age_train_loader, smile_train_loader, emotion_train_loader], 
                                         [gender_criterion, age_criterion, smile_criterion, age_cls_criterion, emotion_criterion], optimizer, epoch, logFile, args, "train")
 
-        # accs, losses, lr = train(model, [gender_train_loader, age_train_loader, smile_train_loader], 
-        #                                 [gender_criterion, age_criterion, emotion_criterion], optimizer, epoch, args.train_type)
-
-        LOG_variables_to_board([epochs_train_gender_losses, epochs_train_age_losses, epochs_train_emotion_losses], losses, ['gender_loss', 'age_loss', 'emotion_loss'],
-                                [epochs_train_gender_accs, epochs_train_emotion_accs], accs, ['gender_acc', 'emotion_acc'],
+        LOG_variables_to_board([epochs_train_gender_losses, epochs_train_age_losses, epochs_train_emotion_losses], losses, ['train_gender_loss', 'train_age_loss', 'train_emotion_loss'],
+                                [epochs_train_gender_accs, epochs_train_emotion_accs], accs, ['train_gender_acc', 'train_emotion_acc'],
                                 "Train", tensorboard_folder, epoch, logFile, writer)
 
 
-        val_accs, val_losses, lr, model = Train_Valid_Cvpr_age_gender_emotion(model,[gender_test_loader, age_test_loader, smile_test_loader, emotion_test_loader],
+        val_accs, val_losses, lr, model = Train_Valid(model,[gender_test_loader, age_test_loader, smile_test_loader, emotion_test_loader],
                                                 [gender_criterion, age_criterion, smile_criterion, age_cls_criterion, emotion_criterion], optimizer, epoch, logFile, args, "valid")
 
         LOG_variables_to_board([epochs_valid_gender_losses, epochs_valid_age_losses, epochs_valid_emotion_losses], val_losses, ['val_gender_loss', 'val_age_loss', 'val_emotion_loss'],
@@ -231,6 +166,9 @@ def main(**kwargs):
         writer.add_scalar(tensorboard_folder + os.sep + "data" + os.sep + 'val_total_loss', total_val_loss, epoch)
         LOG("val_total_loss: " + str(total_val_loss), logFile)
 
+        message = '\n\nEpoch: {}/{}: '.format(epoch + 1, args.epochs)
+        LOG(message + args.model, logFile)
+
 
         scheduler.step(total_val_loss)
         if lowest_loss > total_val_loss:
@@ -249,6 +187,7 @@ def main(**kwargs):
 
     writer.close()
     LOG("done", logFile)
+    LOG(args, logFile)
 
 
 

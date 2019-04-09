@@ -344,22 +344,40 @@ def get_CVPR_Age_Gender_Smile_data(args):
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
+    if args.working_machine == "thinkstation":
+        # tut thinkstation
+
+        age_train_dataset = CVPE_AGE_load_dataset("/home/yi/narvi_MLG/AGE_ESTIMATION/CVPR_AGE_5_points/TRAIN/", transform)
+        age_test_dataset = CVPE_AGE_load_dataset("/home/yi/narvi_MLG/AGE_ESTIMATION/CVPR_AGE_5_points/VALID/", transform)
+        # age train set images: 3707; test image: 1356
+
+        gender_train_dataset = torchvision.datasets.ImageFolder("/home/yi/narvi_MLG/AGE_ESTIMATION/CVPR_GENDER_5_points/TRAIN/", transform)
+        gender_test_dataset = torchvision.datasets.ImageFolder("/home/yi/narvi_MLG/AGE_ESTIMATION/CVPR_GENDER_5_points/VALID/", transform)
+        # gender train set images: 4548; test image: 2250
+
+        Smile_train_dataset = torchvision.datasets.ImageFolder("/home/yi/narvi_MLG/AGE_ESTIMATION/CVPR_SMILE_5_points/TRAIN/", transform)
+        Smile_test_dataset = torchvision.datasets.ImageFolder("/home/yi/narvi_MLG/AGE_ESTIMATION/CVPR_SMILE_5_points/VALID/", transform)
+
+    elif args.working_machine == "narvi":
+
+        # narvi
+        age_train_dataset = CVPE_AGE_load_dataset("/sgn-data/MLG/AGE_ESTIMATION/CVPR_AGE_5_points/TRAIN/", transform)
+        age_test_dataset = CVPE_AGE_load_dataset("/sgn-data/MLG/AGE_ESTIMATION/CVPR_AGE_5_points/VALID/", transform)
+        # age train set images: 3707; test image: 1356
+
+        gender_train_dataset = torchvision.datasets.ImageFolder("/sgn-data/MLG/AGE_ESTIMATION/CVPR_GENDER_5_points/TRAIN/", transform)
+        gender_test_dataset = torchvision.datasets.ImageFolder("/sgn-data/MLG/AGE_ESTIMATION/CVPR_GENDER_5_points/VALID/", transform)
+        # gender train set images: 4548; test image: 2250
 
 
-    age_train_dataset = CVPE_AGE_load_dataset("/home/yi/narvi_MLG/AGE_ESTIMATION/CVPR_AGE_5_points/TRAIN/", transform)
-    age_test_dataset = CVPE_AGE_load_dataset("/home/yi/narvi_MLG/AGE_ESTIMATION/CVPR_AGE_5_points/VALID/", transform)
-    # age train set images: 3707; test image: 1356
+        Smile_train_dataset = torchvision.datasets.ImageFolder("/sgn-data/MLG/AGE_ESTIMATION/CVPR_SMILE_5_points/TRAIN/", transform)
+        Smile_test_dataset = torchvision.datasets.ImageFolder("/sgn-data/MLG/AGE_ESTIMATION/CVPR_SMILE_5_points/VALID/", transform)
+        # smile train set images: 4548, test image: 2250
 
-    gender_train_dataset = torchvision.datasets.ImageFolder("/home/yi/narvi_MLG/AGE_ESTIMATION/CVPR_GENDER_5_points/TRAIN/", transform)
-    gender_test_dataset = torchvision.datasets.ImageFolder("/home/yi/narvi_MLG/AGE_ESTIMATION/CVPR_GENDER_5_points/VALID/", transform)
-    # gender train set images: 4548; test image: 2250
-
-
-    Smile_train_dataset = torchvision.datasets.ImageFolder("/home/yi/narvi_MLG/AGE_ESTIMATION/CVPR_SMILE_5_points/TRAIN/", transform)
-    Smile_test_dataset = torchvision.datasets.ImageFolder("/home/yi/narvi_MLG/AGE_ESTIMATION/CVPR_SMILE_5_points/VALID/", transform)
-    # smile train set images: 4548, test image: 2250
-
-
+    else:
+        print("working machine should be  [thinkstation, narvi]")
+        NotImplementedError
+        
 
     age_train_loader = torch.utils.data.DataLoader(age_train_dataset, batch_size=args.batch_size, 
                                                     shuffle=False, num_workers=args.loading_jobs, 

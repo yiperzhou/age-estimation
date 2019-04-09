@@ -2,8 +2,11 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 from __future__ import print_function
 from __future__ import division
-import sys
-sys.path.append("../")
+
+# import sys
+# sys.path.append("/utils/")
+from utils import *
+# import utils
 
 import re
 import torch
@@ -11,8 +14,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.utils.model_zoo as model_zoo
 from collections import OrderedDict
-
-from utils import *
 
 __all__ = ['DenseNet', 'densenet121', 'densenet169', 'densenet201', 'densenet161']
 

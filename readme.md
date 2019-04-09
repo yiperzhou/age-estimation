@@ -6,10 +6,6 @@ multitask learning on face analysis
 Ubuntu 18.04(TUT thinkstation)    
 Python Virtual Environment: xx, concrete library, xxx. file
 
-## export virtual environment
-conda env export > tut_thinkstation_caffe.yml  
-
-## import virtual environment
 
 # example
 

@@ -12,31 +12,32 @@ from copy import deepcopy
 import numpy as np
 
 
-class MTL_ResNet_50_model(torch.nn.Module):
+class MTL_VGG11_bn_model(torch.nn.Module):
   def __init__(self):
-    super(MTL_ResNet_50_model, self).__init__()
-    self.resNet = models.resnet50(pretrained=True)
+    super(MTL_VGG11_bn_model, self).__init__()
+    self.vgg11_bn = models.vgg11_bn(pretrained=True)
 
+    # print(self.vgg11_bn)
     self.use_gpu = torch.cuda.is_available()
     # self.age_divide = float(parser['DATA']['age_divide'])
     # self.age_cls_unit = int(parser['RacNet']['age_cls_unit'])
 
     # gender branch
-    self.fc1          = nn.Linear(2048, 512)
+    self.fc1          = nn.Linear(25088, 512)
     self.gen_cls_pred = nn.Linear(512, 2)
 
     # smile branch
-    self.fc2          = nn.Linear(2048, 512)
+    self.fc2          = nn.Linear(25088, 512)
     self.smile_cls_pred = nn.Linear(512, 2)
     
     # emotion branch
     self.dropout      = nn.Dropout(p=0.5, inplace=False)
     
-    self.fc3          = nn.Linear(2048, 512)
+    self.fc3          = nn.Linear(25088, 512)
     self.emo_cls_pred = nn.Linear(512, 7)
 
     # age branch
-    self.fc4          = nn.Linear(2048, 512)
+    self.fc4          = nn.Linear(25088, 512)
     self.age_cls_pred = nn.Linear(512, 100)
 
 
@@ -46,24 +47,23 @@ class MTL_ResNet_50_model(torch.nn.Module):
     :param x: image input
     :return: middle ouput from layer2, and final ouput from layer4
     """
-    x = self.resNet.conv1(x)    # out = [N, 64, 112, 112]
-    x = self.resNet.bn1(x)
-    x = self.resNet.relu(x)
-    x = self.resNet.maxpool(x)  # out = [N, 64, 56, 56]
+    # x = self.resNet.conv1(x)    # out = [N, 64, 112, 112]
+    # x = self.resNet.bn1(x)
+    # x = self.resNet.relu(x)
+    # x = self.resNet.maxpool(x)  # out = [N, 64, 56, 56]
 
-    x = self.resNet.layer1(x)   # out = [N, 64, 56, 56]
-    x = self.resNet.layer2(x)   # out = [N, 128, 28, 28]
-    x = self.resNet.layer3(x)   # out = [N, 256, 14, 14]
-    x = self.resNet.layer4(x)   # out = [N, 512, 7, 7]
+    # x = self.resNet.layer1(x)   # out = [N, 64, 56, 56]
+    # x = self.resNet.layer2(x)   # out = [N, 128, 28, 28]
+    # x = self.resNet.layer3(x)   # out = [N, 256, 14, 14]
+    # x = self.resNet.layer4(x)   # out = [N, 512, 7, 7]
+    x = self.vgg11_bn.features(x)
 
     return x
 
 
   def get_age_gender_emotion(self, last_conv_out):
-    last_conv_out = self.resNet.avgpool(last_conv_out)
+    # last_conv_out = self.vgg11_bn.avgpool(last_conv_out)
     last_conv_out = last_conv_out.view(last_conv_out.size(0), -1)
-
-    # print("MTL_ResNet_50, last_conv_out: ", last_conv_out.size())
 
     gen_pred = F.relu(self.dropout(self.fc1(last_conv_out)))
     gen_pred = self.gen_cls_pred(gen_pred)
@@ -122,3 +122,7 @@ class MTL_ResNet_50_model(torch.nn.Module):
 #       preds.append([gen_pred, gen_prob, age_pred, age_var, emo_pred, emo_prob])
 #     return preds
   
+
+if __name__ == "__main__":
+    model = MTL_VGG11_bn_model()
+    print("model")

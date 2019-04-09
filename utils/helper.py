@@ -6,11 +6,8 @@ import torchvision
 
 import datetime
 import os
-import torch.utils.data as data
-from torch.utils.data import Dataset
 
 import sys
-from PIL import Image
 import os
 import os.path
 import numpy as np
@@ -30,7 +27,7 @@ def save_checkpoint(state, savedir):
     return
 
 
-def load_pretrained_model(initial_model, checkpoint_path):
+def load_model_weights(initial_model, checkpoint_path):
     checkpoint = torch.load(checkpoint_path)
     state_dict = checkpoint["state_dict"]
     
@@ -62,3 +59,7 @@ def indexes_to_one_hot(indexes, n_dims=None):
     # one_hots = one_hots.view(*indexes.shape, -1)
     # print(one_hots)
     return one_hots
+
+
+
+
