@@ -40,7 +40,7 @@ def load_model_weights(initial_model, checkpoint_path):
     #     initial_model.load_state_dict(checkpoint["state_dic"])
 
 
-    initial_model.load_state_dict(state_dict, strict=False)
+    initial_model.load_state_dict(state_dict, strict=True)
     # for k, v in initial_model.parameters():
     #     print("k, v", k)
 

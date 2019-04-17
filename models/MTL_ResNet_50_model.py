@@ -13,77 +13,67 @@ import numpy as np
 
 
 class MTL_ResNet_50_model(torch.nn.Module):
-  def __init__(self):
+  def __init__(self, gen_classes= 2, smile_classes = 2, emo_classes = 7, age_classes = 100):
     super(MTL_ResNet_50_model, self).__init__()
-    self.resNet = models.resnet50(pretrained=True)
+
+    resnet50_model = models.resnet50(pretrained=True)
+
+    self.MTL_ResNet_50_features = nn.Sequential(
+      resnet50_model.conv1,
+      resnet50_model.bn1,
+      resnet50_model.relu,
+      resnet50_model.maxpool,
+      resnet50_model.layer1,
+      resnet50_model.layer2,
+      resnet50_model.layer3,
+      resnet50_model.layer4,
+      resnet50_model.avgpool
+    )
+    self.features_length = 2048
 
     self.use_gpu = torch.cuda.is_available()
-    # self.age_divide = float(parser['DATA']['age_divide'])
-    # self.age_cls_unit = int(parser['RacNet']['age_cls_unit'])
+
 
     # gender branch
-    self.fc1          = nn.Linear(2048, 512)
-    self.gen_cls_pred = nn.Linear(512, 2)
+    self.gender_clf = nn.Sequential(
+        nn.Linear(self.features_length, 256),
+        nn.ReLU(inplace=True),
+        nn.Dropout(p=0.5, inplace=False),
+        nn.Linear(256, gen_classes)
+    )
 
     # smile branch
-    self.fc2          = nn.Linear(2048, 512)
-    self.smile_cls_pred = nn.Linear(512, 2)
+    self.smile_clf = nn.Sequential(
+        nn.Linear(self.features_length, 256),
+        nn.ReLU(inplace=True),
+        nn.Dropout(p=0.5, inplace=False),
+        nn.Linear(256, smile_classes)
+    )
     
     # emotion branch
-    self.dropout      = nn.Dropout(p=0.5, inplace=False)
+    self.emotion_clf = nn.Sequential(
+        nn.Linear(self.features_length, 256),
+        nn.ReLU(inplace=True),
+        nn.Dropout(p=0.5, inplace=False),
+        nn.Linear(256, emo_classes)
+    )
+
+    self.age_clf = nn.Sequential(
+        nn.Linear(self.features_length, 256),
+        nn.ReLU(inplace=True),
+        nn.Dropout(p=0.5, inplace=False),
+        nn.Linear(256, age_classes)
+    )
+
+  def forward(self, x):
+    x = self.MTL_ResNet_50_features(x)
     
-    self.fc3          = nn.Linear(2048, 512)
-    self.emo_cls_pred = nn.Linear(512, 7)
+    x = x.view(x.size(0), -1)
 
-    # age branch
-    self.fc4          = nn.Linear(2048, 512)
-    self.age_cls_pred = nn.Linear(512, 100)
-
-
-  def get_resnet_convs_out(self, x):
-    """
-    get outputs from convolutional layers of ResNet
-    :param x: image input
-    :return: middle ouput from layer2, and final ouput from layer4
-    """
-    x = self.resNet.conv1(x)    # out = [N, 64, 112, 112]
-    x = self.resNet.bn1(x)
-    x = self.resNet.relu(x)
-    x = self.resNet.maxpool(x)  # out = [N, 64, 56, 56]
-
-    x = self.resNet.layer1(x)   # out = [N, 64, 56, 56]
-    x = self.resNet.layer2(x)   # out = [N, 128, 28, 28]
-    x = self.resNet.layer3(x)   # out = [N, 256, 14, 14]
-    x = self.resNet.layer4(x)   # out = [N, 512, 7, 7]
-
-    return x
-
-
-  def get_age_gender_emotion(self, last_conv_out):
-    last_conv_out = self.resNet.avgpool(last_conv_out)
-    last_conv_out = last_conv_out.view(last_conv_out.size(0), -1)
-
-    # print("MTL_ResNet_50, last_conv_out: ", last_conv_out.size())
-
-    gen_pred = F.relu(self.dropout(self.fc1(last_conv_out)))
-    gen_pred = self.gen_cls_pred(gen_pred)
-
-    smile_pred   = F.relu(self.dropout(self.fc2(last_conv_out)))
-    smile_pred   = self.smile_cls_pred(smile_pred)
-
-    emo_pred = F.relu(self.dropout(self.fc3(last_conv_out)))
-    emo_pred = self.emo_cls_pred(emo_pred)
-
-    age_pred = F.relu(self.dropout(self.fc4(last_conv_out)))
-    age_pred = F.softmax(self.age_cls_pred(age_pred), 1)
-
-    return gen_pred, smile_pred, emo_pred, age_pred
-
-
-  def forward(self, x, return_atten_info = False):
-    last1 = self.get_resnet_convs_out(x)
-    
-    gen_pred, smile_pred, emo_pred, age_pred  = self.get_age_gender_emotion(last1)
+    gen_pred  = self.gender_clf(x)
+    smile_pred  = self.smile_clf(x)
+    emo_pred  = self.emotion_clf(x)
+    age_pred  = self.age_clf(x)
 
     return gen_pred, smile_pred, emo_pred, age_pred 
 

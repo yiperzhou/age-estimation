@@ -36,8 +36,9 @@ class MTL_ResNet_18_model(torch.nn.Module):
     self.emo_cls_pred = nn.Linear(512, 7)
 
     # age branch
-    self.fc4          = nn.Linear(512, 512)
-    self.age_cls_pred = nn.Linear(512, 100)
+    self.fc4          = nn.Linear(512, 256)
+    # self.age_cls_pred = nn.Linear(512, 100)
+    self.age_cls_pred = nn.Linear(256, 88)
 
   def get_resnet_convs_out(self, x):
     """

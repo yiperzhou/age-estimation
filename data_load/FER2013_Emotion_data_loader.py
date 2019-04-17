@@ -18,10 +18,18 @@ from torchvision import transforms
 from .CVPR_16_ChaLearn_data_loader import dataset_augmentation_sampler
 
 class FER2013(data.Dataset):
-    def __init__(self, split='Training', transform=None):
+    def __init__(self, args, split='Training', transform=None):
         self.transform = transform
         self.split = split  # training set or test set
-        self.data = h5py.File("/home/zhouy/projects/MultitaskLearningFace/resources/FER2013/data.h5", 'r', driver='core')
+
+        if args.working_machine == "thinkstation":
+            self.data = h5py.File("/home/yi/narvi_yi_home/projects/MultitaskLearningFace/resources/FER2013/data.h5", 'r', driver='core')
+        elif args.working_machine == "narvi":
+            self.data = h5py.File("/home/zhouy/projects/MultitaskLearningFace/resources/FER2013/data.h5", 'r', driver='core')
+        else:
+            print("FER2013 dataset not found")
+            NotImplementedError
+
         # self.data = h5py.File("/media/yi/harddrive/codes/MultitaskLearningFace/resources/FER2013/data.h5", 'r', driver='core')
 
         if self.split == 'Training':
@@ -86,32 +94,34 @@ def get_FER2013_Emotion_data(args):
     emotion_transform = {
         "emotion_transform_train": transforms.Compose([
             # transforms.RandomCrop(44),
-            # transforms.RandomHorizontalFlip(),
+            transforms.RandomHorizontalFlip(),
             transforms.Resize(224),
-            transforms.ToTensor(),
+            transforms.ToTensor()
         ]),
         "emotion_transform_valid": transforms.Compose([
+            transforms.RandomHorizontalFlip(),
             transforms.Resize(224),
-            transforms.ToTensor(),
+            transforms.ToTensor()
         ]),
         "emotion_transform_test": transforms.Compose([
+            transforms.RandomHorizontalFlip(),
             transforms.Resize(224),
-            transforms.ToTensor(),
+            transforms.ToTensor()
         ])
     }
 
     # train data size: 28710
-    emotion_trainset = FER2013(split='Training', transform=emotion_transform["emotion_transform_train"])
+    emotion_trainset = FER2013(args, split='Training', transform=emotion_transform["emotion_transform_train"])
     emotion_train_loader = torch.utils.data.DataLoader(emotion_trainset, batch_size=args.batch_size, shuffle=True, num_workers=args.loading_jobs)
     # emotion_train_loader = torch.utils.data.DataLoader(emotion_trainset, batch_size=args.batch_size, shuffle=False, 
     #                                                     num_workers=args.loading_jobs, sampler=dataset_augmentation_sampler(emotion_trainset, 4548))
 
     # valid data size: 3590
-    emotion_validset = FER2013(split='PublicTest', transform=emotion_transform["emotion_transform_valid"])
+    emotion_validset = FER2013(args, split='PublicTest', transform=emotion_transform["emotion_transform_valid"])
     emotion_valid_loader = torch.utils.data.DataLoader(emotion_validset, batch_size=args.batch_size, shuffle=True, num_workers=args.loading_jobs)
 
     # # test data size: 3590
-    emotion_testset = FER2013(split='PrivateTest', transform=emotion_transform["emotion_transform_test"])
+    emotion_testset = FER2013(args, split='PrivateTest', transform=emotion_transform["emotion_transform_test"])
     emotion_test_loader = torch.utils.data.DataLoader(emotion_testset, batch_size=args.batch_size, shuffle=True, num_workers=args.loading_jobs)
     # emotion_test_loader = torch.utils.data.DataLoader(emotion_testset, batch_size=args.batch_size, shuffle=False, 
     #                                                         num_workers=args.loading_jobs, sampler=dataset_augmentation_sampler(emotion_testset, 3590))

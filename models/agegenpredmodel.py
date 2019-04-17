@@ -61,13 +61,30 @@ class AgeGenPredModel(torch.nn.Module, ):
 
     self.use_gpu = torch.cuda.is_available()
     self.age_divide = float(10)
-    self.age_cls_unit = int(60)
+    self.age_cls_unit = int(88)
+    self.features_length = 512
 
     self.fc1          = nn.Linear(512, 512)
     self.age_cls_pred = nn.Linear(512, self.age_cls_unit)
 
     self.fc2          = nn.Linear(512, 512)
     self.gen_cls_pred = nn.Linear(512, 2)
+
+    # smile branch
+    self.smile_clf = nn.Sequential(
+        nn.Linear(self.features_length, 256),
+        nn.Dropout(p=0.5, inplace=False),
+        nn.Linear(256, 2)
+    )
+    
+    # emotion branch
+    self.emotion_clf = nn.Sequential(
+        nn.Linear(self.features_length, 256),
+        nn.Dropout(p=0.5, inplace=False),
+        nn.Linear(256, 7)
+    )
+
+
 
   def get_resnet_convs_out(self, x):
     """
@@ -133,13 +150,17 @@ class AgeGenPredModel(torch.nn.Module, ):
     gen_pred = F.relu(self.fc2(last_conv_out))
     gen_pred = self.gen_cls_pred(gen_pred)
 
-    return gen_pred, age_pred
+
+    smile_pred = self.smile_clf(last_conv_out)
+    emo_pred = self.emotion_clf(last_conv_out)    
+
+    return gen_pred, smile_pred, emo_pred, age_pred
 
 
   def forward(self, x, return_atten_info = False):
     last1 = self.get_resnet_convs_out(x)
-    gen_pred, age_pred = self.get_age_gender(last1)
-    return gen_pred, age_pred
+    gen_pred, smile_pred, emo_pred, age_pred = self.get_age_gender(last1)
+    return gen_pred, smile_pred, emo_pred, age_pred
 
 
   def evaluate(self, faces):

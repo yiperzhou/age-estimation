@@ -7,6 +7,7 @@ import torch
 import numpy as np
 import pandas as pd
 from PIL import Image
+import sys
 
 # from skimage import io
 from torchvision import transforms
@@ -20,293 +21,37 @@ from torchvision.datasets import DatasetFolder
 # from config import config, parser
 # FER2013 Data, resize image from 48*48 to 224*224
 from torch.utils.data import RandomSampler
+from data_load.CVPR_16_ChaLearn_Dataset import CVPR_AGE_load_dataset_ImageFolder
 
 
+from utils.helper_4 import plot_images
 
 
-class Mix_Age_Gender_Emotion_Dataset(Dataset):
 
-    def __init__(self, age_folder, age_describe_data, gender_folder, emotion_folder, transform=None, train=True):
-        self.train = train
-        self.transform = transform
+def CVPR_AGE_load_dataset(data_path, transforms):
+    # # data_path = '/home/yi/narvi_MLG/AGE_ESTIMATION/CVPR_AGE_5_points/TRAIN/'
+    # train_dataset = torchvision.datasets.ImageFolder(
+    #     root=data_path,
+    #     transform=transforms
+    # )
+    print("data_path: ", data_path)
+    folder_to_classes = {'1': 0, '2': 1, '3': 2, '4': 3, '5': 4, '6': 5, '7': 6, '8': 7, '9': 8, '10': 9, '11': 10, '12': 11, '13': 12, '14': 13, '15': 14, '16': 15, '17': 16, '18': 17, '19': 18, '20': 19, '21': 20, '22': 21, '23': 22, '24': 23, '25': 24, '26': 25, '27': 26, '28': 27, '29': 28, '30': 29, '31': 30, '32': 31, '33': 32, '34': 33, '35': 34, '36': 35, '37': 36, '38': 37, '39': 38, '40': 39, '41': 40, '42': 41, '43': 42, '44': 43, '45': 44, '46': 45, '47': 46, '48': 47, '49': 48, '50': 49, '51': 50, '52': 51, '53': 52, '54': 53, '55': 54, '56': 55, '57': 56, '58': 57, '59': 58, '60': 59, '61': 60, '62': 61, '63': 62, '64': 63, '65': 64, '66': 65, '67': 66, '68': 67, '69': 68, '70': 69, '71': 70, '72': 71, '73': 72, '74': 73, '75': 74, '76': 75, '77': 76, '78': 77, '79': 78, '80': 79, '81': 80, '82': 81, '83': 82, '84': 83, '85': 84, '86': 85, '87': 86, '88':87, '89':88, '90':89, '91':90, '92':91, '93':92, '94':93, '95':94, '96':95, '97':96, '98':97, '99':98, '100':99}
+    
+    age_classes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59', '60', '61', '62', '63', '64', '65', '66', '67', '68', '69', '70', '71', '72', '73', '74', '75', '76', '77', '78', '79', '80', '81', '82', '83', '84', '85', '86', '87', '88', '89', '90', '91', '92', '93', '94', '95', '96', '97', '98', '99', '100']
 
-        # for age
-        self.age_folder = age_folder
-        self.age_describe_data = age_describe_data
-        self.age_img_labels = []
-        self.age_img_paths = []
+    train_dataset =  CVPR_AGE_load_dataset_ImageFolder(folder_to_classes, age_classes,
+                                                        root=data_path,
+                                                        transform=transforms)
 
-        # for gender
-        self.gender_folder = gender_folder
-        self.gender_img_labels = []
-        self.gender_img_paths = []
+    # train_dataset = CVPE_AGE_load_dataset_ImageFolder_class(root=data_path, transform=transforms)
 
-        # for emotion
-        self.emotion_folder = emotion_folder
-        self.emotion_img_labels = []
-        self.emotion_imgs = []
+    
 
-        if self.train:
-            print("train")
-            # parse train img paths
-            self.age_img_folder = self.age_folder + os.sep + "train"
-            self.parse_age(self.age_img_folder)
-
-            # parse train gender img path
-            self.gender_img_folder = self.gender_folder + os.sep + "train"
-            self.parse_gender(self.gender_img_folder)
-
-            # parse emotion
-            self.emotion_img_folder = self.emotion_folder + os.sep + "train.csv"
-            self.parse_emotion(self.emotion_img_folder)
-
-        else:
-            print("valid")
-            # parse test age img paths
-            self.age_img_folder = self.age_folder + os.sep + "valid"
-            self.parse_age(self.age_img_folder)
-
-            # parse test gender img path
-            self.gender_img_folder = self.gender_folder + os.sep + "test"
-            self.parse_gender(self.gender_img_folder)
-
-            # parse emotion
-            self.emotion_img_folder = self.emotion_folder + os.sep + "val.csv"
-            self.parse_emotion(self.emotion_img_folder)
-
-
-    def __getitem__(self, index):
-        # get age image
-        # print("index: ", index)
-        
-        age_img = Image.open(self.age_img_paths[index])
-        age_label = float(self.age_img_labels[index])
-
-        # get gender image
-        gender_img = Image.open(self.gender_img_paths[index])
-        gender_label = int(self.gender_img_labels[index])
-        
-        pixel = np.asarray(self.emotion_imgs[index]).reshape(48,48)
-
-        emotion_img = Image.fromarray(pixel).convert('L')
-        emotion_label = self.emotion_img_labels[index]
-
-        if self.transform:
-          age_img = self.transform(age_img)
-          gender_img = self.transform(gender_img)
-          
-          # convert grey image to RGB image, one channel to three channel
-          emotion_img = emotion_img.convert('RGB')
-          emotion_img = self.transform(emotion_img)
-        
-        # print("age_img size: ", age_img.size())   # age_img size:  torch.Size([3, 224, 224])
-        # print("gender_img size: ", gender_img.size()) # gender_img size:  torch.Size([3, 224, 224])
-        # print("emotion_img size: ", emotion_img.size()) # emotion_img size:  torch.Size([1, 224, 224]),　注意看这里，这里是灰度图
-
-
-        # print("gender label: ", gender_label)
-
-        return (age_img, gender_img, emotion_img), (age_label, gender_label, emotion_label)
-
-
-    def __len__(self):
-        # 将三个数据集中的最少的那个作为 len()
-        
-        # length = min(len(self.age_img_labels), len(self.gender_img_labels), len(self.emotion_img_labels))
-        length = 1000
-        print("length: ", length)
-        return length
-
-
-    def parse_age(self, data_folder):
-      # csv_file = "/media/yi/harddrive/data/appa-real-release/gt_train.csv"
-      csv_file = self.age_describe_data
-
-      df = pd.read_csv(csv_file)
-      for index, row in df.iterrows():
-        img = row['file_name']
-        age_label = row["apparent_age_avg"]
-
-        # check the path(img file) existing
-        img_path = data_folder + os.sep + img+"_face.jpg"
-        # print(img_path)
-        if os.path.exists(img_path):
-          self.age_img_paths.append(img_path)
-          self.age_img_labels.append(int(age_label))
-
-    def parse_gender(self, data_folder):
-
-        # for each img in train/val folder, we parse 
-        self.gender_img_paths = glob.glob(data_folder + os.sep + "*.jpg")
-        for idx in range(len(self.gender_img_paths)):
-          (age, gender) = re.findall(r"([^_]*)_([^_]*)_[^_]*.jpg", self.gender_img_paths[idx])[0]
-          # print demo: /media/yi/harddrive/codes/MultitaskingFace/pics/train/22 0
-          self.gender_img_labels.append(gender)
-          # 0:  Female , 1: Male
-        assert len(self.gender_img_paths) == len(self.gender_img_labels)
-
-
-    def parse_emotion(self, data_path):
-      # parse csv file
-      df = pd.read_csv(data_path)
-      for index, row in df.iterrows():
-          pixel = row['pixels']
-          img = [float(p) for p in pixel.split()]
-
-          emotion_label = row["emotion"]
-          self.emotion_img_labels.append(emotion_label)
-          self.emotion_imgs.append(img)
-
-      assert len(self.emotion_imgs) == len(self.emotion_img_labels)
-
-
-
-class Mix_Age_Gender_Emotion_Yue_Dataset(Dataset):
-
-    def __init__(self, age_folder, age_describe_data, gender_folder, emotion_folder, transform=None, train=True):
-        self.train = train
-        self.transform = transform
-
-        # CVPR Age dataset
-        self.age_folder = age_folder
-        self.age_describe_data = age_describe_data
-        self.age_img_labels = []
-        self.age_img_paths = []
-
-        # Gender dataset
-        self.gender_folder = gender_folder
-        self.gender_img_labels = []
-        self.gender_img_paths = []
-
-        # Smile Dataset
-        self.emotion_folder = emotion_folder
-        self.emotion_img_labels = []
-        self.emotion_imgs = []
-
-        if self.train:
-            print("train")
-            # parse train img paths
-            self.age_img_folder = self.age_folder + os.sep + "train"
-            self.parse_age(self.age_img_folder)
-
-            # parse train gender img path
-            self.gender_img_folder = self.gender_folder + os.sep + "train"
-            self.parse_gender(self.gender_img_folder)
-
-            # parse emotion
-            self.emotion_img_folder = self.emotion_folder + os.sep + "train.csv"
-            self.parse_emotion(self.emotion_img_folder)
-
-        else:
-            print("valid")
-            # parse test age img paths
-            self.age_img_folder = self.age_folder + os.sep + "valid"
-            self.parse_age(self.age_img_folder)
-
-            # parse test gender img path
-            self.gender_img_folder = self.gender_folder + os.sep + "test"
-            self.parse_gender(self.gender_img_folder)
-
-            # parse emotion
-            self.emotion_img_folder = self.emotion_folder + os.sep + "val.csv"
-            self.parse_emotion(self.emotion_img_folder)
-
-
-    def __getitem__(self, index):
-        # get age image
-        # print("index: ", index)
-        
-        age_img = Image.open(self.age_img_paths[index])
-        age_label = float(self.age_img_labels[index])
-
-        # get gender image
-        gender_img = Image.open(self.gender_img_paths[index])
-        gender_label = int(self.gender_img_labels[index])
-        
-        pixel = np.asarray(self.emotion_imgs[index]).reshape(48,48)
-
-        emotion_img = Image.fromarray(pixel).convert('L')
-        emotion_label = self.emotion_img_labels[index]
-
-        if self.transform:
-          age_img = self.transform(age_img)
-          gender_img = self.transform(gender_img)
-          
-          # convert grey image to RGB image, one channel to three channel
-          emotion_img = emotion_img.convert('RGB')
-          emotion_img = self.transform(emotion_img)
-        
-        # print("age_img size: ", age_img.size())   # age_img size:  torch.Size([3, 224, 224])
-        # print("gender_img size: ", gender_img.size()) # gender_img size:  torch.Size([3, 224, 224])
-        # print("emotion_img size: ", emotion_img.size()) # emotion_img size:  torch.Size([1, 224, 224]),　注意看这里，这里是灰度图
-
-
-        # print("gender label: ", gender_label)
-
-        return (age_img, gender_img, emotion_img), (age_label, gender_label, emotion_label)
-
-
-    def __len__(self):
-        # 将三个数据集中的最少的那个作为 len()
-        
-        # length = min(len(self.age_img_labels), len(self.gender_img_labels), len(self.emotion_img_labels))
-        length = 1000
-        print("length: ", length)
-        return length
-
-
-    def parse_age(self, data_folder):
-      # csv_file = "/media/yi/harddrive/data/appa-real-release/gt_train.csv"
-      csv_file = self.age_describe_data
-
-      df = pd.read_csv(csv_file)
-      for index, row in df.iterrows():
-        img = row['file_name']
-        age_label = row["apparent_age_avg"]
-
-        # check the path(img file) existing
-        img_path = data_folder + os.sep + img+"_face.jpg"
-        # print(img_path)
-        if os.path.exists(img_path):
-          self.age_img_paths.append(img_path)
-          self.age_img_labels.append(int(age_label))
-
-    def parse_gender(self, data_folder):
-
-        # for each img in train/val folder, we parse 
-        self.gender_img_paths = glob.glob(data_folder + os.sep + "*.jpg")
-        for idx in range(len(self.gender_img_paths)):
-          (age, gender) = re.findall(r"([^_]*)_([^_]*)_[^_]*.jpg", self.gender_img_paths[idx])[0]
-          # print demo: /media/yi/harddrive/codes/MultitaskingFace/pics/train/22 0
-          self.gender_img_labels.append(gender)
-          # 0:  Female , 1: Male
-        assert len(self.gender_img_paths) == len(self.gender_img_labels)
-
-
-    def parse_emotion(self, data_path):
-      # parse csv file
-      df = pd.read_csv(data_path)
-      for index, row in df.iterrows():
-          pixel = row['pixels']
-          img = [float(p) for p in pixel.split()]
-
-          emotion_label = row["emotion"]
-          self.emotion_img_labels.append(emotion_label)
-          self.emotion_imgs.append(img)
-
-      assert len(self.emotion_imgs) == len(self.emotion_img_labels)
-
-
-
-def CVPE_AGE_load_dataset(data_path, transforms):
-    # data_path = '/home/yi/narvi_MLG/AGE_ESTIMATION/CVPR_AGE_5_points/TRAIN/'
-    train_dataset = torchvision.datasets.ImageFolder(
-        root=data_path,
-        transform=transforms
-    )
-    # CVPR_AGE_5_POINT, train dataset has 87 classes; validation has 88 classes
-    train_dataset.class_to_idx = {'1': 0, '2': 1, '3': 2, '4': 3, '5': 4, '6': 5, '7': 6, '8': 7, '9': 8, '10': 9, '11': 10, '12': 11, '13': 12, '14': 13, '15': 14, '16': 15, '17': 16, '18': 17, '19': 18, '20': 19, '21': 20, '22': 21, '23': 22, '24': 23, '25': 24, '26': 25, '27': 26, '28': 27, '29': 28, '30': 29, '31': 30, '32': 31, '33': 32, '34': 33, '35': 34, '36': 35, '37': 36, '38': 37, '39': 38, '40': 39, '41': 40, '42': 41, '43': 42, '44': 43, '45': 44, '46': 45, '47': 46, '48': 47, '49': 48, '50': 49, '51': 50, '52': 51, '53': 52, '54': 53, '55': 54, '56': 55, '57': 56, '58': 57, '59': 58, '60': 59, '61': 60, '62': 61, '63': 62, '64': 63, '65': 64, '66': 65, '67': 66, '68': 67, '69': 68, '70': 69, '71': 70, '72': 71, '73': 72, '74': 73, '75': 74, '76': 75, '77': 76, '78': 77, '79': 78, '80': 79, '81': 80, '82': 81, '83': 82, '84': 83, '85': 84, '86': 85, '87': 86, '88':87}
-
+    # # # CVPR_AGE_5_POINT, train dataset has 87 classes; validation has 88 classes
+    
+    # # train_dataset.class_to_idx = {'1': 0, '2': 1, '3': 2, '4': 3, '5': 4, '6': 5, '7': 6, '8': 7, '9': 8, '10': 9, '11': 10, '12': 11, '13': 12, '14': 13, '15': 14, '16': 15, '17': 16, '18': 17, '19': 18, '20': 19, '21': 20, '22': 21, '23': 22, '24': 23, '25': 24, '26': 25, '27': 26, '28': 27, '29': 28, '30': 29, '31': 30, '32': 31, '33': 32, '34': 33, '35': 34, '36': 35, '37': 36, '38': 37, '39': 38, '40': 39, '41': 40, '42': 41, '43': 42, '44': 43, '45': 44, '46': 45, '47': 46, '48': 47, '49': 48, '50': 49, '51': 50, '52': 51, '53': 52, '54': 53, '55': 54, '56': 55, '57': 56, '58': 57, '59': 58, '60': 59, '61': 60, '62': 61, '63': 62, '64': 63, '65': 64, '66': 65, '67': 66, '68': 67, '69': 68, '70': 69, '71': 70, '72': 71, '73': 72, '74': 73, '75': 74, '76': 75, '77': 76, '78': 77, '79': 78, '80': 79, '81': 80, '82': 81, '83': 82, '84': 83, '85': 84, '86': 85, '87': 86, '88':87}
+    
+    
     # train_loader = torch.utils.data.DataLoader(
     #     train_dataset,
     #     batch_size=64,
@@ -314,6 +59,7 @@ def CVPE_AGE_load_dataset(data_path, transforms):
     #     shuffle=True
     # )
     return train_dataset
+
 
 
 def dataset_augmentation_sampler(origin_dataset, target_num_samples):
@@ -325,11 +71,11 @@ def dataset_augmentation_sampler(origin_dataset, target_num_samples):
 
 
 
-def get_CVPR_Age_Gender_Smile_data(args):
+def get_CVPR_Age_Gender_Smile_data(args, show_sample=False):
 
-    augment = False
+    augment = True
 
-    if augment:
+    if augment == True:
         transform = transforms.Compose([
             transforms.RandomCrop(224, padding=4),
             transforms.RandomHorizontalFlip(),
@@ -347,8 +93,8 @@ def get_CVPR_Age_Gender_Smile_data(args):
     if args.working_machine == "thinkstation":
         # tut thinkstation
 
-        age_train_dataset = CVPE_AGE_load_dataset("/home/yi/narvi_MLG/AGE_ESTIMATION/CVPR_AGE_5_points/TRAIN/", transform)
-        age_test_dataset = CVPE_AGE_load_dataset("/home/yi/narvi_MLG/AGE_ESTIMATION/CVPR_AGE_5_points/VALID/", transform)
+        age_train_dataset = CVPR_AGE_load_dataset("/home/yi/narvi_MLG/AGE_ESTIMATION/CVPR_AGE_5_points/TRAIN/", transform)
+        age_test_dataset = CVPR_AGE_load_dataset("/home/yi/narvi_MLG/AGE_ESTIMATION/CVPR_AGE_5_points/VALID/", transform)
         # age train set images: 3707; test image: 1356
 
         gender_train_dataset = torchvision.datasets.ImageFolder("/home/yi/narvi_MLG/AGE_ESTIMATION/CVPR_GENDER_5_points/TRAIN/", transform)
@@ -359,10 +105,9 @@ def get_CVPR_Age_Gender_Smile_data(args):
         Smile_test_dataset = torchvision.datasets.ImageFolder("/home/yi/narvi_MLG/AGE_ESTIMATION/CVPR_SMILE_5_points/VALID/", transform)
 
     elif args.working_machine == "narvi":
-
         # narvi
-        age_train_dataset = CVPE_AGE_load_dataset("/sgn-data/MLG/AGE_ESTIMATION/CVPR_AGE_5_points/TRAIN/", transform)
-        age_test_dataset = CVPE_AGE_load_dataset("/sgn-data/MLG/AGE_ESTIMATION/CVPR_AGE_5_points/VALID/", transform)
+        age_train_dataset = CVPR_AGE_load_dataset("/sgn-data/MLG/AGE_ESTIMATION/CVPR_AGE_5_points/TRAIN/", transform)
+        age_test_dataset = CVPR_AGE_load_dataset("/sgn-data/MLG/AGE_ESTIMATION/CVPR_AGE_5_points/VALID/", transform)
         # age train set images: 3707; test image: 1356
 
         gender_train_dataset = torchvision.datasets.ImageFolder("/sgn-data/MLG/AGE_ESTIMATION/CVPR_GENDER_5_points/TRAIN/", transform)
@@ -379,13 +124,50 @@ def get_CVPR_Age_Gender_Smile_data(args):
         NotImplementedError
         
 
-    age_train_loader = torch.utils.data.DataLoader(age_train_dataset, batch_size=args.batch_size, 
-                                                    shuffle=False, num_workers=args.loading_jobs, 
-                                                    sampler=dataset_augmentation_sampler(age_train_dataset, 28710))
 
-    age_test_loader = torch.utils.data.DataLoader(age_test_dataset, batch_size=args.batch_size,
-                                                    shuffle=False, num_workers=args.loading_jobs,
-                                                    sampler=dataset_augmentation_sampler(age_test_dataset, 3590))
+
+    resampling = False
+
+    if resampling == False:
+        age_train_loader = torch.utils.data.DataLoader(age_train_dataset, batch_size=args.batch_size, 
+                                                        shuffle=True, num_workers=args.loading_jobs)
+
+        age_test_loader = torch.utils.data.DataLoader(age_test_dataset, batch_size=args.batch_size,
+                                                        shuffle=True, num_workers=args.loading_jobs)
+
+    else:
+        age_train_loader = torch.utils.data.DataLoader(age_train_dataset, batch_size=args.batch_size, 
+                                                        shuffle=False, num_workers=args.loading_jobs, 
+                                                        sampler=dataset_augmentation_sampler(age_train_dataset, 28710))
+
+        age_test_loader = torch.utils.data.DataLoader(age_test_dataset, batch_size=args.batch_size,
+                                                        shuffle=False, num_workers=args.loading_jobs,
+                                                        sampler=dataset_augmentation_sampler(age_test_dataset, 3590))
+
+
+    show_sample = False
+
+    if show_sample == True:
+        sample_loader = torch.utils.data.DataLoader(age_train_dataset, 
+                                                    batch_size=36, 
+                                                    shuffle=True, 
+                                                    num_workers=args.loading_jobs)
+
+        show_sample_times = 0
+        show_sampel_max_times = 5
+        
+        data_iter = iter(sample_loader)
+        for images, labels in data_iter:
+            X = images.numpy()
+            X = np.transpose(X, [0, 2, 3, 1])
+            plot_images(X, labels, "Cha_Learn_2016_dataset")
+
+            show_sample_times = show_sample_times + 1
+            if show_sample_times > show_sampel_max_times:
+                break
+            else:
+                continue
+
 
     # gender_train_loader = torch.utils.data.DataLoader(gender_train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.loading_jobs)
     # gender_test_loader = torch.utils.data.DataLoader(gender_test_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.loading_jobs)
@@ -425,58 +207,8 @@ def get_CVPR_Age_Gender_Smile_data(args):
     return [age_train_loader, age_test_loader, gender_train_loader, gender_test_loader, smile_train_loader, smile_test_loader]
 
 
-def merge_multi_data_loader():
-    return 0
-
-def pil_loader(path):
-    # open path as file to avoid ResourceWarning (https://github.com/python-pillow/Pillow/issues/835)
-    with open(path, 'rb') as f:
-        img = Image.open(f)
-        return img.convert('RGB')
-
-
-# def accimage_loader(path):
-#     try:
-#         return accimage.Image(path)
-#     except IOError:
-#         # Potentially a decoding problem, fall back to PIL.Image
-#         return pil_loader(path)
-
-
-def default_loader(path):
-    from torchvision import get_image_backend
-    if get_image_backend() == 'accimage':
-        return accimage_loader(path)
-    else:
-        return pil_loader(path)
-
-
-class AGE_ImageFolder(DatasetFolder):
-    """A generic data loader where the images are arranged in this way: ::
-        root/dog/xxx.png
-        root/dog/xxy.png
-        root/dog/xxz.png
-        root/cat/123.png
-        root/cat/nsdf3.png
-        root/cat/asd932_.png
-    Args:
-        root (string): Root directory path.
-        transform (callable, optional): A function/transform that  takes in an PIL image
-            and returns a transformed version. E.g, ``transforms.RandomCrop``
-        target_transform (callable, optional): A function/transform that takes in the
-            target and transforms it.
-        loader (callable, optional): A function to load an image given its path.
-     Attributes:
-        classes (list): List of the class names.
-        class_to_idx (dict): Dict with items (class_name, class_index).
-        imgs (list): List of (image path, class_index) tuples
-    """
-    def __init__(self, root, transform=None, target_transform=None,
-                 loader=default_loader):
-        super(AGE_ImageFolder, self).__init__(root, loader, IMG_EXTENSIONS,
-                                          transform=transform,
-                                          target_transform=target_transform)
-        self.imgs = self.samples
+# def merge_multi_data_loader():
+#     return 0
 
 
 def load_chalearn_dataset(data_dir,resize=(224,224)):

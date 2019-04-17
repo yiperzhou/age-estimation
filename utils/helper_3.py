@@ -23,6 +23,19 @@ def accuracy(output, target, topk=(1,)):
     """Computes the precision@k for the specified values of k"""
     maxk = max(topk)
     batch_size = target.size(0)
+    
+    
+
+    try:
+        target = target.type(torch.cuda.LongTensor)
+    
+    except ValueError as identifier:
+        try:
+            target = target.type(torch.LongTensor)
+        except ValueError as verr:
+            pass
+
+    # print("target: ", target)
 
     _, pred = output.topk(maxk, 1, True, True)
     pred = pred.t()

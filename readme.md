@@ -39,5 +39,5 @@ ResNet-18 with imagenet pretrained weights
 
 
 ## reference
-1. age, gender, emotion, Age and gender prediction of multiple faces from an image using pytorch, https://github.com/adamzjk/Age-Gender-Pred
-
+1. age, gender, emotion, Age and gender prediction of multiple faces from an image using pytorch, https://github.com/adamzjk/Age-Gender-Pred 
+2. ChaLearn Looking at People and Faces of the World 2016, https://competitions.codalab.org/competitions/7511#learn_the_details-evaluation 

@@ -32,7 +32,43 @@ from utils import *
 from pretrain_opts import args
 
 
-def Train_Valid(model, validloader, criterion, optimizer, epoch, logFile, args, pharse):
+def age_mae_criterion_Encapsulation(age_criterion, age_out_1, age_label):
+    # print("age_out_1: ", age_out_1)
+
+    # print("age_out_1: ", age_out_1)
+
+    _, pred_age = torch.max(age_out_1, 1)
+    pred_age = pred_age.view(-1).cpu().numpy()
+    pred_ages = []
+    for p in pred_age:
+        pred_ages.append([p])
+
+    # print("pred_ages: ", pred_ages)
+   
+
+    pred_ages = torch.FloatTensor(pred_ages)
+    pred_ages = pred_ages.cuda()
+    
+    age_label = age_label.unsqueeze(0)
+    age_label = age_label.type(torch.cuda.LongTensor)
+
+    age_label = age_label.reshape([age_label.size()[1], 1])
+    age_label = age_label.squeeze(1)
+    # print("age_out_1: ", age_out_1.size())
+    # print("age_label: ", age_label)
+    # print(age_label)
+
+    # print("[age_label] after: ", age_label)
+    age_label = age_label.type(torch.cuda.FloatTensor)
+
+    age_loss_mae = age_criterion(pred_ages, age_label)
+    age_loss_mae = Variable(age_loss_mae, requires_grad = True) 
+    
+    # print("age_loss_mae: ", age_loss_mae)
+
+    return age_loss_mae
+
+def Train_Valid(model, loader, criterion, optimizer, epoch, logFile, args, pharse):
 
     LOG("[" + pharse + "]: Starting, Epoch: " + str(epoch), logFile)
 
@@ -76,7 +112,7 @@ def Train_Valid(model, validloader, criterion, optimizer, epoch, logFile, args, 
 
     gender_criterion, age_criterion, age_cls_criterion = criterion[0], criterion[1], criterion[2]
 
-    for i, input_data in enumerate(validloader):
+    for i, input_data in enumerate(loader):
         
         image, gender_label, age_rgs_label, age_cls_label = input_data[0], input_data[1], input_data[2], input_data[3]
         input_img = image.cuda()
@@ -126,7 +162,10 @@ def Train_Valid(model, validloader, criterion, optimizer, epoch, logFile, args, 
             age_out = age_out.type(torch.cuda.FloatTensor)
 
             age_cls_label = age_cls_label.type(torch.cuda.FloatTensor)
-            age_loss_mae = age_criterion(age_out, age_cls_label)            
+            age_loss_mae = age_criterion(age_out, age_cls_label)
+            # age_loss_mae = age_mae_criterion_Encapsulation(age_criterion, age_out, age_cls_label)
+
+
             # age_loss = torch.autograd.Variable(age_loss, requires_grad = True)
 
             gender_label = gender_label.squeeze(-1)
@@ -142,17 +181,18 @@ def Train_Valid(model, validloader, criterion, optimizer, epoch, logFile, args, 
                 loss.backward()
                 optimizer.step()
             elif pharse == "valid":
-                print("valid pharse")
+                # print("valid pharse")
+                continue
             else:
                 print("pharse should be in [train, valid]")
                 NotImplementedError
 
             total_epoch_loss.update(loss.item(), 1)     
 
-            print("[", pharse," LOSS]", "total: ", loss.item())
-            print("                 Age: ", age_cls_loss.item())
-            print("             MAE Age: ", age_loss_mae.item())
-            print("              Gender: ", gender_loss.item())
+            # print("[", pharse," LOSS]", "total: ", loss.item())
+            # print("                 Age: ", age_cls_loss.item())
+            # print("             MAE Age: ", age_loss_mae.item())
+            # print("              Gender: ", gender_loss.item())
             
 
         else:
@@ -170,10 +210,10 @@ def Train_Valid(model, validloader, criterion, optimizer, epoch, logFile, args, 
 
     
     accs = [gender_epoch_acc.avg, age_epoch_acc.avg]
-    losses = [gender_epoch_loss.avg, age_epoch_mae.avg, age_epoch_loss.avg]
+    losses = [gender_epoch_loss.avg, age_epoch_mae.avg, age_epoch_loss.avg, total_epoch_loss]
 
-    LOG("[" + pharse + "] accs: " + str(accs), logFile)
-    LOG("[" + pharse + "] losses: " + str(losses), logFile)
+    LOG("[" + pharse + "] [ACC(%)], [gender, age                ]: " + str(accs), logFile)
+    LOG("[" + pharse + "] losses:   [gender, age_mae, age, total]: " + str(losses), logFile)
 
     try:
         lr = float(str(optimizer).split("\n")[3].split(" ")[-1])
@@ -235,6 +275,8 @@ def main(**kwargs):
     gender_criterion = nn.CrossEntropyLoss()
     
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', threshold=1e-5, patience=10)
+    # log model to logfile, so that I can check the logfile later to know the model detail, for example, the number of class for the age estimation
+    LOG(model, logFile)
 
     use_gpu = torch.cuda.is_available()
     if use_gpu:

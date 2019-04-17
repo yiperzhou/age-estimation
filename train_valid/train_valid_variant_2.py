@@ -28,7 +28,7 @@ from models import *
 from data_load import *
 from utils import *
 
-def Train_Valid(model, trainloader, criterion, optimizer, epoch, logFile, args, pharse):
+def Train_Valid_2(model, trainloader, criterion, optimizer, epoch, logFile, args, pharse):
 
     LOG("[" + pharse + "]: Starting, Epoch: " + str(epoch), logFile)
 
@@ -144,6 +144,19 @@ def Train_Valid(model, trainloader, criterion, optimizer, epoch, logFile, args, 
 
             age_epoch_mae.update(age_loss_mae.item(), age_label.size(0))
 
+            if pharse == "train":
+                age_loss.backward()
+                optimizer.step()
+                optimizer.zero_grad()
+
+            elif pharse == "valid":
+                # print("valid pharse")
+                continue
+            else:
+                print("pharse should be in [train, valid]")
+                NotImplementedError
+
+
             # gender
             gender_out_2, smile_out_2, emo_out_2, age_out_2 = model(gender_img)
             # print("gender_out_2: ", gender_out_2)
@@ -158,6 +171,19 @@ def Train_Valid(model, trainloader, criterion, optimizer, epoch, logFile, args, 
 
 
             gender_epoch_acc.update(gender_prec1[0].item(), gender_label.size(0))
+
+            if pharse == "train":
+                gender_loss.backward()
+                optimizer.step()
+                optimizer.zero_grad()
+                
+            elif pharse == "valid":
+                # print("valid pharse")
+                continue
+            else:
+                print("pharse should be in [train, valid]")
+                NotImplementedError
+
 
 
             emo_img = emo_img.cuda()
@@ -174,7 +200,17 @@ def Train_Valid(model, trainloader, criterion, optimizer, epoch, logFile, args, 
             emo_prec1 = accuracy(emo_out_3.data, emo_label)
             emo_epoch_acc.update(emo_prec1[0].item(), emo_label.size(0))
 
-            
+            if pharse == "train":
+                emo_loss.backward()
+                optimizer.step()
+                optimizer.zero_grad()
+                
+            elif pharse == "valid":
+                # print("valid pharse")
+                continue
+            else:
+                print("pharse should be in [train, valid]")
+                NotImplementedError
         
             # # emotion 
             # gender_out_3, age_out_3, smile_out_3 = model(smile_img)
@@ -216,25 +252,37 @@ def Train_Valid(model, trainloader, criterion, optimizer, epoch, logFile, args, 
 
             smile_epoch_acc.update(smile_prec1[0].item(), smile_label.size(0))
 
+            if pharse == "train":
+                smile_loss.backward()
+                optimizer.step()
+                optimizer.zero_grad()
+                
+            elif pharse == "valid":
+                # print("valid pharse")
+                continue
+            else:
+                print("pharse should be in [train, valid]")
+                NotImplementedError
+
 
             reduce_gen_loss, reduce_smile_loss, reduce_emo_loss,reduce_age_cls_loss  = args.loss_weights[0], args.loss_weights[1], args.loss_weights[2], args.loss_weights[3]
 
             loss = gender_loss * reduce_gen_loss +  smile_loss * reduce_smile_loss + emo_loss * reduce_emo_loss + age_loss * reduce_age_cls_loss
 
-            if pharse == "train":
-                loss.backward()
-                optimizer.step()
-            elif pharse == "valid":
-                print("valid pharse")
-            else:
-                print("pharse should be in [train, valid]")
-                NotImplementedError
+            # if pharse == "train":
+            #     loss.backward()
+            #     optimizer.step()
+            # elif pharse == "valid":
+            #     print("valid pharse")
+            # else:
+            #     print("pharse should be in [train, valid]")
+            #     NotImplementedError
 
-            print("[", pharse," LOSS]", "total: ", loss.item())
-            print("              Gender: ", gender_loss.item())
-            print("              Smile: ", smile_loss.item())
-            print("              Emotion: ", emo_loss.item()) 
-            print("              Age: ", age_loss.item())
+            # print("[", pharse," LOSS]", "total: ", loss.item())
+            # print("              Gender: ", gender_loss.item())
+            # print("              Smile: ", smile_loss.item())
+            # print("              Emotion: ", emo_loss.item()) 
+            # print("              Age: ", age_loss.item())
 
             # # age_prec1 = accuracy(age_out.data, age_target.view(-1))
 
@@ -283,13 +331,16 @@ def Train_Valid(model, trainloader, criterion, optimizer, epoch, logFile, args, 
     accs = [gender_epoch_acc.avg, smile_epoch_acc.avg]
     losses = [gender_epoch_loss.avg, age_epoch_loss.avg, smile_epoch_loss.avg]
     LOG("[" + pharse + "] accs: " + str(accs), logFile)
+    LOG("[" + pharse +"] Gender acc: " + str(gender_epoch_acc.avg), logFile)
     LOG("[" + pharse +"] Smile acc: " + str(smile_epoch_acc.avg), logFile)
     LOG("[" + pharse +"] emotion acc: " + str(emo_epoch_acc.avg), logFile)
 
     LOG("[" + pharse + "] losses: " + str(losses), logFile)
     LOG("[" + pharse +"] age mae: " + str(age_epoch_mae.avg), logFile)
+    LOG("[" + pharse +"] gender loss: " + str(gender_epoch_loss.avg), logFile)
     LOG("[" + pharse +"] Smile loss: " + str(smile_epoch_loss.avg), logFile)
     LOG("[" + pharse +"] emotion loss: " + str(emo_epoch_loss.avg), logFile )
+
     
 
     # print("lr: ", str(optimizer))
