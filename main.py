@@ -64,8 +64,15 @@ def main(**kwargs):
     else:
         path = "./results" + os.sep + args.model + os.sep + args.folder_sub_name + "_" + args.dataset + os.sep + ts_str
 
+    if args.load_IMDB_WIKI_pretrained_model:
+        print("load IMDB WIKI pretrained model")
+        path = "./results" + os.sep + "loaded_pretrained-" + args.model + os.sep + args.folder_sub_name + "_" + args.dataset + os.sep + ts_str
+    else:
+        path = "./results" + os.sep + args.model + os.sep + args.folder_sub_name + "_" + args.dataset + os.sep + ts_str
+
+
     tensorboard_folder = path + os.sep + "Graph"
-    csv_path = path + os.sep + "log.csv"
+    # csv_path = path + os.sep + "log.csv"
     
     os.makedirs(path)
 
@@ -199,7 +206,7 @@ def main(**kwargs):
                                 ['val_gender_loss', 'val_smile_loss',  'val_emotion_loss', 'val_age_loss', 'val_age_mae', 'val_total_loss'],
                                 [epochs_valid_gender_accs, epochs_valid_smile_accs, epochs_valid_emotion_accs, epochs_valid_age_accs, epochs_valid_total_loss],
                                 val_accs,
-                                ['val_gender_acc', 'val_smile_acc', 'val_emotion_acc', 'val_age_loss'],
+                                ['val_gender_acc', 'val_smile_acc', 'val_emotion_acc', 'val_age_acc'],
                                 "Valid", tensorboard_folder, epoch, logFile, writer)
 
         LOG("\n", logFile)

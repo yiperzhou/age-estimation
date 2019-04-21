@@ -25,3 +25,11 @@ from .MTL_AlexNet_model import (
 from .MTL_VGG11_bn_model import (
     MTL_VGG11_bn_model
 )
+
+from .MTL_MobileNet_V2_model import (
+    MTL_MobileNet_V2_model
+)
+
+from .MTL_ResNet_50_model_101 import (
+    MTL_ResNet_50_model_101
+)

@@ -111,143 +111,157 @@ def Train_Valid(model, trainloader, criterion, optimizer, epoch, logFile, args, 
 
     torch.cuda.empty_cache()
 
-    epoch_start_time = time.time()
-
     print("four tasks weights: ", args.loss_weights)
 
     gender_criterion, age_criterion, smile_criterion, age_cls_criterion, emotion_criterion = criterion[0], criterion[1], criterion[2], criterion[3], criterion[4]
     gender_train_loader, age_train_loader, smile_train_loader, emotion_train_loader = trainloader[0], trainloader[1], trainloader[2], trainloader[3]
 
-
-    for (i, (gender_img, gender_label)), (j, (age_img, age_label)), (k, (emo_img, emo_label)), (m, (smile_img, smile_label)) \
+    epoch_start_time = time.time()
+    for (i_batch_idx, (gender_img, gender_label)), (j_batch_idx, (age_img, age_label)), (k_batch_idx, (emo_img, emo_label)), (m, (smile_img, smile_label)) \
         in zip(enumerate(gender_train_loader), enumerate(age_train_loader), enumerate(emotion_train_loader), enumerate(smile_train_loader)):
 
         if pharse == "train":
             optimizer.zero_grad()
 
-        # print("train loader")
-        if i < 1000000000:
-            # # age_img, gender_img, emotion_img = data
-            # # age_label, gender_label, emotion_label = labels
-            # print("age label: ", age_label)
-            # print("age_img: ", age_img.size())
+        # # age_img, gender_img, emotion_img = data
+        # # age_label, gender_label, emotion_label = labels
+        # print("age label: ", age_label)
+        # print("age_img: ", age_img.size())
 
-            # print("gender_label: ", gender_label)
-            # print("gender_img: ", gender_img.size())
+        # print("gender_label: ", gender_label)
+        # print("gender_img: ", gender_img.size())
 
-            # print("smile_label: ", smile_label)
-            # print("smile_img: ", smile_img.size())
+        # print("smile_label: ", smile_label)
+        # print("smile_img: ", smile_img.size())
 
-            # print("gender_label: ", gender_label)
-            # print("emotion_label: ", emotion_label)
-            
-            # age
-            age_img = age_img.cuda()
-            age_label = age_label.cuda()
-            gender_out_1, smile_out_1, emo_out_1, age_out_1  = model(age_img)
-            age_loss = age_cls_criterion(age_out_1, age_label)
-            age_loss_mae = age_mae_criterion_Encapsulation(age_criterion, age_out_1, age_label)
-            
-            age_prec1 = accuracy(age_out_1.data, age_label)
-            age_epoch_acc.update(age_prec1[0].item(), age_label.size(0))
-            
-            age_epoch_mae.update(age_loss_mae.item(), 1)
-            age_epoch_mae_own_list.append(age_loss_mae.item())
-            
-            
-            # gender
-            gender_img = gender_img.cuda()
-            gender_label = gender_label.cuda()
-            gender_out_2, smile_out_2, emo_out_2, age_out_2 = model(gender_img)
-            # print("gender_out_2: ", gender_out_2)
-            # gender_target = gender_label.view(-1)
-            gender_loss = gender_criterion(gender_out_2, gender_label)
-            # gender_loss = Variable(gender_loss, requires_grad = True) 
-            
-            # print("gender loss: ", gender_loss.item())
-            gender_prec1 = accuracy(gender_out_2.data, gender_label)
-            gender_epoch_acc.update(gender_prec1[0].item(), gender_label.size(0))
+        # print("gender_label: ", gender_label)
+        # print("emotion_label: ", emotion_label)
+        
+        # age
+        age_img = age_img.cuda()
+        age_label = age_label.cuda()
+        gender_out_1, smile_out_1, emo_out_1, age_out_1  = model(age_img)
+        age_loss = age_cls_criterion(age_out_1, age_label)
 
+        # print("age_cls_label: ", age_label)
+        # print("age_out      : ", age_out_1)
 
-            # emotion 
-            emo_img = emo_img.cuda()
-            emo_label = emo_label.cuda()
-            gender_out_3, smile_out_3, emo_out_3, age_out_3 = model(emo_img)
-            emo_loss = emotion_criterion(emo_out_3, emo_label)
-            
-            emo_prec1 = accuracy(emo_out_3.data, emo_label)
-            emo_epoch_acc.update(emo_prec1[0].item(), emo_label.size(0))
+        age_loss_mae = age_mae_criterion_Encapsulation(age_criterion, age_out_1, age_label)
+        
+        age_prec1 = accuracy(age_out_1.data, age_label)
+        age_epoch_acc.update(age_prec1[0].item(), age_label.size(0))
+        
+        age_epoch_mae.update(age_loss_mae.item(), 1)
+        age_epoch_mae_own_list.append(age_loss_mae.item())
+        
+        
+        # gender
+        gender_img = gender_img.cuda()
+        gender_label = gender_label.cuda()
+        gender_out_2, smile_out_2, emo_out_2, age_out_2 = model(gender_img)
+        # print("gender_out_2: ", gender_out_2)
+        # gender_target = gender_label.view(-1)
+        gender_loss = gender_criterion(gender_out_2, gender_label)
+        # gender_loss = Variable(gender_loss, requires_grad = True) 
+        
+        # print("gender loss: ", gender_loss.item())
+        gender_prec1 = accuracy(gender_out_2.data, gender_label)
+        gender_epoch_acc.update(gender_prec1[0].item(), gender_label.size(0))
 
 
-            # smile            
-            smile_img = smile_img.cuda()
-            smile_label = smile_label.cuda()
-            gender_out_4, smile_out_4, emo_out_4, age_out_4 = model(smile_img)
-            smile_loss = smile_criterion(smile_out_4, smile_label)
-            
-            smile_prec1 = accuracy(smile_out_4.data, smile_label)
-            smile_epoch_acc.update(smile_prec1[0].item(), smile_label.size(0))
+        # emotion 
+        emo_img = emo_img.cuda()
+        emo_label = emo_label.cuda()
+        gender_out_3, smile_out_3, emo_out_3, age_out_3 = model(emo_img)
+        emo_loss = emotion_criterion(emo_out_3, emo_label)
+        
+        emo_prec1 = accuracy(emo_out_3.data, emo_label)
+        emo_epoch_acc.update(emo_prec1[0].item(), emo_label.size(0))
 
 
-            reduce_gen_loss, reduce_smile_loss, reduce_emo_loss,reduce_age_cls_loss  = args.loss_weights[0], args.loss_weights[1], args.loss_weights[2], args.loss_weights[3]
-            gender_loss = gender_loss * reduce_gen_loss
-            smile_loss = smile_loss * reduce_smile_loss
-            emo_loss = emo_loss * reduce_emo_loss
-            age_loss = age_loss * reduce_age_cls_loss
-
-            loss = gender_loss +  smile_loss + emo_loss + age_loss
-
-            
-
-            gender_epoch_loss.update(gender_loss.item(), gender_label.size(0))
-            age_epoch_loss.update(age_loss.item(), age_label.size(0))
-            emo_epoch_loss.update(emo_loss.item(), emo_label.size(0))
-            smile_epoch_loss.update(smile_loss.item(), smile_label.size(0))
-            
-            # total_loss.update(loss[0].item(), 1)
-            total_loss.update(loss.item(), 1)
+        # smile            
+        smile_img = smile_img.cuda()
+        smile_label = smile_label.cuda()
+        gender_out_4, smile_out_4, emo_out_4, age_out_4 = model(smile_img)
+        smile_loss = smile_criterion(smile_out_4, smile_label)
+        
+        smile_prec1 = accuracy(smile_out_4.data, smile_label)
+        smile_epoch_acc.update(smile_prec1[0].item(), smile_label.size(0))
 
 
+        reduce_gen_loss, reduce_smile_loss, reduce_emo_loss,reduce_age_cls_loss  = args.loss_weights[0], args.loss_weights[1], args.loss_weights[2], args.loss_weights[3]
+        gender_loss = gender_loss * reduce_gen_loss
+        smile_loss = smile_loss * reduce_smile_loss
+        emo_loss = emo_loss * reduce_emo_loss
+        age_loss = age_loss * reduce_age_cls_loss
 
-            if pharse == "train":
-                loss.backward()
-                optimizer.step()
-            elif pharse == "valid":
-                # print("valid pharse")
-                continue
-            else:
-                print("pharse should be in [train, valid]")
-                NotImplementedError
+        loss = gender_loss +  smile_loss + emo_loss + age_loss
 
-            # print("[", pharse," LOSS]", "total: ", loss.item())
-            # print("              Gender: ", gender_loss.item())
-            # print("              Smile: ", smile_loss.item())
-            # print("              Emotion: ", emo_loss.item()) 
-            # print("              Age: ", age_loss.item())
+        
 
-            # # age_prec1 = accuracy(age_out.data, age_target.view(-1))
-
-            # # age_epoch_loss.update(age_loss.item(), age_label.size(0))
-            # # print("age loss: ", age_loss.item())
-            # # age_epoch_acc.update(age_prec1[0].item(), inputs.size(0))
-            # # print("acc: ", age_prec1[0].item())
-
-            # _, pred_age = torch.max(pred_ages, 1)
-            # pred_age = pred_age.view(-1).cpu().numpy()
-            # # age_true    = age_target.view(-1).cpu().numpy()
-            # age_rgs_loss = sum(np.abs(pred_age - age_label.view(-1)))/age_label.size(0)
-            # # print("age prediction MAE in batch size:", age_rgs_loss)
-            # age_epoch_rgs_loss.update(age_rgs_loss, age_label.size(0))
+        gender_epoch_loss.update(gender_loss.item(), gender_label.size(0))
+        age_epoch_loss.update(age_loss.item(), age_label.size(0))
+        emo_epoch_loss.update(emo_loss.item(), emo_label.size(0))
+        smile_epoch_loss.update(smile_loss.item(), smile_label.size(0))
+        
+        # total_loss.update(loss[0].item(), 1)
+        total_loss.update(loss.item(), 1)
 
 
 
-            # emotion_prec1 = accuracy(emo_out_3.data, emotion_label)
-            # emotion_epoch_loss.update(emotion_prec1[0].item(), emotion_label.size(0))
-
-            # # (age_rgs_loss*0.1).backward()
-            # # optimizer.step()
+        if pharse == "train":
+            loss.backward()
+            optimizer.step()
+        elif pharse == "valid":
+            # print("valid pharse")
+            continue
         else:
-            break
+            print("pharse should be in [train, valid]")
+            NotImplementedError
+
+
+        # print("train loader")
+        if j_batch_idx % 100 == 0:
+            print(
+                'Epoch: {} [{}/{}]'.
+                format(epoch, j_batch_idx * len(age_img), len(age_train_loader.dataset)))
+
+            print("[" + pharse +"] [ACC(%)], [gender, smile, emotion, age        ]: " + str([gender_epoch_acc.avg, smile_epoch_acc.avg, emo_epoch_acc.avg, age_epoch_acc.avg]))
+            print("[" + pharse +"] [Loss  ], [gender, smile, emotion, age, age_mae, total]: " + str([gender_epoch_loss.avg, smile_epoch_loss.avg, emo_epoch_loss.avg, age_epoch_loss.avg, age_epoch_mae.avg, total_loss.avg]))            
+
+
+        # print("[", pharse," LOSS]", "total: ", loss.item())
+        # print("              Gender: ", gender_loss.item())
+        # print("              Smile: ", smile_loss.item())
+        # print("              Emotion: ", emo_loss.item()) 
+        # print("              Age: ", age_loss.item())
+
+        # # age_prec1 = accuracy(age_out.data, age_target.view(-1))
+
+        # # age_epoch_loss.update(age_loss.item(), age_label.size(0))
+        # # print("age loss: ", age_loss.item())
+        # # age_epoch_acc.update(age_prec1[0].item(), inputs.size(0))
+        # # print("acc: ", age_prec1[0].item())
+
+        # _, pred_age = torch.max(pred_ages, 1)
+        # pred_age = pred_age.view(-1).cpu().numpy()
+        # # age_true    = age_target.view(-1).cpu().numpy()
+        # age_rgs_loss = sum(np.abs(pred_age - age_label.view(-1)))/age_label.size(0)
+        # # print("age prediction MAE in batch size:", age_rgs_loss)
+        # age_epoch_rgs_loss.update(age_rgs_loss, age_label.size(0))
+
+
+
+        # emotion_prec1 = accuracy(emo_out_3.data, emotion_label)
+        # emotion_epoch_loss.update(emotion_prec1[0].item(), emotion_label.size(0))
+
+        # # (age_rgs_loss*0.1).backward()
+        # # optimizer.step()
+        # else:
+        #     break
+
+
+    LOG("One [" + pharse + "] epoch took {} minutes".format((time.time() - epoch_start_time)/60), logFile)
 
     accs = [gender_epoch_acc.avg, smile_epoch_acc.avg, emo_epoch_acc.avg, age_epoch_acc.avg]
     losses = [gender_epoch_loss.avg, smile_epoch_loss.avg, emo_epoch_loss.avg, age_epoch_loss.avg, age_epoch_mae.avg, total_loss.avg]

@@ -1,29 +1,43 @@
 ## conda virtual envs
+
 caffe  
 source activate caffe  
 
+
 ## narvi zhouy computer environment
+
 user name: zhouy  
 ssh zhouy@narvi.tut.fi  
+
 
 source activate dl
 module load CUDA
 
+
 # mount remote folder into local folder
+
 mkdir narvi  
 sshfs zhouy@narvi.tut.fi:/home/zhouy/local_elasticnn narvi/
 
+
 ## mount remote folder permantely
+
 sshfs zhouy@narvi.tut.fi:/home/zhouy/local_elasticnn narvi/ xxx
 
 
+
 ## conda export environment yaml
+
 conda env export > tut_thinkstation_virtual_env_caffe.yml
 
+
 ## conda import environment yaml
+
 conda env create -f tut_thinkstation_virtual_env_caffe.yml
 
+
 ## umount folder
+
 sudo umount narvi/
 sudo umount -l narvi_yi_home
 sudo umount -f narvi_yi_home/
@@ -32,39 +46,50 @@ sudo umount -f narvi_yi_home/
 
 
 # frequent command used in this project based on TUT's lab computer
+
 tensorboard folder path:  
 /home/yi/anaconda3/lib/python3.6/site-packages/tensorboard
 
+
 ## run tensorboard:  
+
 python /home/yi/anaconda3/lib/python3.6/site-packages/tensorboard/main.py --port=8008 --logdir=Graph/ 
 tensorboard --logdir=Graph/
 
+
 ## test whether tensorflow-gpu works
+
 '''
 import tensorflow as tf
 sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
 '''
 
 # request allocation resource
+
 ## srun
+
 srun --pty -J torch --gres=gpu:1 --partition=gpu --time=5-23:59:00 --mem=40960 --ntasks=1 --cpus-per-task=6 /bin/bash -i
 
 module load CUDA
 source activate dl
 
 ## batch runing, batch processing
+
 /bin/bash MobileNets_alpha_0_75.sh
 
 ## run in background
+
 screen  
 ctrl + z (stop current job, but not kill it)  
 bg (restore suspend job and run it background)  
 
 ## run in foreground
+
 ctrl + z
 fg (foreground)
 
 ## submit own job
+
 sbatch -J resnet --partition=gpu --gres=gpu:1 --mem=40960 --ntasks=1 --cpus-per-task=4 --time=6-23:59:00 ResNet_script.sh
 
 

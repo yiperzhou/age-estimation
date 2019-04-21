@@ -24,6 +24,7 @@ from torchvision import transforms
 from torch.utils.data import Dataset
 from torch.autograd import Variable
 from tensorboardX import SummaryWriter
+from tqdm import tqdm
 
 from models import *
 from data_load import *
@@ -32,41 +33,70 @@ from utils import *
 from pretrain_opts import args
 
 
-def age_mae_criterion_Encapsulation(age_criterion, age_out_1, age_label):
+def age_mae_criterion_Encapsulation_IMDB_WIKI(age_criterion, age_out_1, age_label):
     # print("age_out_1: ", age_out_1)
 
+    
     # print("age_out_1: ", age_out_1)
+    # print("age_label: ", age_label)
 
-    _, pred_age = torch.max(age_out_1, 1)
-    pred_age = pred_age.view(-1).cpu().numpy()
-    pred_ages = []
-    for p in pred_age:
-        pred_ages.append([p])
+    _, pred_ages = torch.max(age_out_1, 1)
 
-    # print("pred_ages: ", pred_ages)
+    # pred_age = pred_age.view(-1).cpu().numpy()
+    # pred_ages = []
+    # for p in pred_age:
+    #     pred_ages.append([p])
+
+    # # print("pred_ages: ", pred_ages)
    
 
-    pred_ages = torch.FloatTensor(pred_ages)
-    pred_ages = pred_ages.cuda()
+    # pred_ages = torch.FloatTensor(pred_ages)
+    # pred_ages = pred_ages.cuda()
     
-    age_label = age_label.unsqueeze(0)
-    age_label = age_label.type(torch.cuda.LongTensor)
+    # age_label = age_label.unsqueeze(0)
+    # age_label = age_label.type(torch.cuda.LongTensor)
 
-    age_label = age_label.reshape([age_label.size()[1], 1])
-    age_label = age_label.squeeze(1)
-    # print("age_out_1: ", age_out_1.size())
-    # print("age_label: ", age_label)
-    # print(age_label)
+    # age_label = age_label.reshape([age_label.size()[1], 1])
+    # age_label = age_label.squeeze(1)
+    # # print("age_out_1: ", age_out_1.size())
+    # # print("age_label: ", age_label)
+    # # print(age_label)
 
-    # print("[age_label] after: ", age_label)
+    # # print("[age_label] after: ", age_label)
+    pred_ages = pred_ages.type(torch.cuda.FloatTensor)
     age_label = age_label.type(torch.cuda.FloatTensor)
+    # print("pred_ages: ", pred_ages)
+    # print("age_label: ", age_label)
+    print("pred_ages: ", pred_ages)
+    print("age_label: ", age_label)
 
-    age_loss_mae = age_criterion(pred_ages, age_label)
-    age_loss_mae = Variable(age_loss_mae, requires_grad = True) 
+    try:
+        age_loss_mae = age_criterion(pred_ages, age_label)
+
+    except ValueError as identifier:
+        LOG("pred_ages: " + str(pred_ages), logFile)
+        LOG("age_label: " + str(age_label), logFile)
+
+
+
+        pass
+    
+    # age_loss_mae = Variable(age_loss_mae, requires_grad = True) 
     
     # print("age_loss_mae: ", age_loss_mae)
 
     return age_loss_mae
+
+
+def convert_one_hot_to_index_format(age_cls_label):
+
+    age_cls_label = age_cls_label.reshape([len(age_cls_label), 101])
+    _, age_cls_label = age_cls_label.max(1)
+    
+
+    age_cls_label = age_cls_label.type(torch.cuda.LongTensor)
+
+    return age_cls_label
 
 def Train_Valid(model, loader, criterion, optimizer, epoch, logFile, args, pharse):
 
@@ -89,6 +119,8 @@ def Train_Valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
     gender_epoch_acc = AverageMeter()
     age_epoch_acc = AverageMeter()
 
+    age_epoch_mae_own_list = []
+
     if pharse == "train":
         model.train()
 
@@ -106,23 +138,27 @@ def Train_Valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
     epoch_emotion_tp = 0
 
     processed_data = 0
+
     epoch_start_time = time.time()
+
 
     print("[Age, Gender] tasks weights: ", args.loss_weights)
 
     gender_criterion, age_criterion, age_cls_criterion = criterion[0], criterion[1], criterion[2]
+    pbar = tqdm(total=len(loader.dataset))
 
-    for i, input_data in enumerate(loader):
+    for batch_idx, input_data in tqdm(enumerate(loader)):
         
         image, gender_label, age_rgs_label, age_cls_label = input_data[0], input_data[1], input_data[2], input_data[3]
         input_img = image.cuda()
+
+        gender_label = gender_label.squeeze(-1)
         gender_label = gender_label.cuda()
 
-        age_cls_label = age_cls_label.reshape([len(age_cls_label), 100])
-        _, age_cls_label = age_cls_label.max(1)
 
-        age_cls_label = age_cls_label.type(torch.LongTensor)
-        age_cls_label = age_cls_label.cuda()
+
+        age_cls_label = age_cls_label.type(torch.cuda.LongTensor)
+        # age_cls_label = age_cls_label.cuda()
 
 
         if args.multitask_training_type == 3:
@@ -158,24 +194,21 @@ def Train_Valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
 
             age_cls_loss = age_cls_criterion(age_out, age_cls_label)
 
-            _, age_out = age_out.max(1)
-            age_out = age_out.type(torch.cuda.FloatTensor)
+    
+            age_loss_mae = age_mae_criterion_Encapsulation_IMDB_WIKI(age_criterion, age_out, age_cls_label)
 
-            age_cls_label = age_cls_label.type(torch.cuda.FloatTensor)
-            age_loss_mae = age_criterion(age_out, age_cls_label)
-            # age_loss_mae = age_mae_criterion_Encapsulation(age_criterion, age_out, age_cls_label)
+            # print("gender_label: ", gender_label)
+            # print("gender_out  : ", gender_out)
 
-
-            # age_loss = torch.autograd.Variable(age_loss, requires_grad = True)
-
-            gender_label = gender_label.squeeze(-1)
             gender_loss = gender_criterion(gender_out, gender_label)
 
             # total loss
-            loss = age_cls_loss + gender_loss
             reduce_gen_loss, reduce_age_cls_loss  = args.loss_weights[0], args.loss_weights[1]
             
-            loss = gender_loss * reduce_gen_loss + age_cls_loss * reduce_age_cls_loss
+            gender_loss = gender_loss * reduce_gen_loss
+            age_loss = age_cls_loss * reduce_age_cls_loss
+            
+            loss = gender_loss + age_loss
 
             if pharse == "train":
                 loss.backward()
@@ -201,19 +234,43 @@ def Train_Valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
         age_epoch_loss.update(age_cls_loss.item(), 1)
         age_epoch_mae.update(age_loss_mae.item(), 1)
         gender_epoch_loss.update(gender_loss.item(), 1)
+        
+        age_epoch_mae_own_list.append(age_loss_mae.item())
 
-        # age_prec1 = accuracy(age_out.data, age_cls_label.squeeze(-1))
-        # age_epoch_acc.update(age_prec1[0].item, age_cls_label.squeeze(-1).size(0))
-
+        # print("gender_out.data:  ", gender_out.data)
+        # print("gender_label   :  ", gender_label)
         gender_prec1 = accuracy(gender_out.data, gender_label)
         gender_epoch_acc.update(gender_prec1[0].item(), gender_label.size(0))
 
+        # print("age_out.data    :  ", age_out.data)
+        # print("age_cls_label   :  ", age_cls_label)
+        age_prec1 = accuracy(age_out.data, age_cls_label)
+        age_epoch_acc.update(age_prec1[0].item(), age_cls_label.size(0))
+
+
+        # print("train loader")
+        if batch_idx % 500 == 0:
+            print(
+                "[{}] Epoch: {} [{}/{}]".
+                format(pharse, epoch, batch_idx * len(input_img), len(loader.dataset)))
+            # pbar.update(batch_idx * len(input_img))
+
+            print("[" + pharse +"] [ACC(%)], [gender, age        ]: " + str([gender_epoch_acc.avg, age_epoch_acc.avg]))
+            print("[" + pharse +"] [Loss  ], [gender, age, age_mae, total]: " + str([gender_epoch_loss.avg, age_epoch_mae.avg, age_epoch_loss.avg, total_epoch_loss]))            
+
+
+
     
+    LOG("One [" + pharse + "] epoch took {} minutes".format((time.time() - epoch_start_time)/60), logFile)
+
+    # one epoch end
     accs = [gender_epoch_acc.avg, age_epoch_acc.avg]
     losses = [gender_epoch_loss.avg, age_epoch_mae.avg, age_epoch_loss.avg, total_epoch_loss]
 
     LOG("[" + pharse + "] [ACC(%)], [gender, age                ]: " + str(accs), logFile)
     LOG("[" + pharse + "] losses:   [gender, age_mae, age, total]: " + str(losses), logFile)
+    LOG("[" + pharse +"] age_epoch_mae_own_list, mean age                       : " + str(np.mean(age_epoch_mae_own_list)), logFile)
+    # pbar.close()
 
     try:
         lr = float(str(optimizer).split("\n")[3].split(" ")[-1])
@@ -221,12 +278,8 @@ def Train_Valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
         lr = 100
     LOG("lr : " + str(lr), logFile)
 
-    if pharse == "train":
-        return accs, losses, lr
-    elif pharse == "valid":
-        return accs, losses
-    else:
-        NotImplementedError
+    return accs, losses, lr, model 
+
 
 
 def parse_loss_weight(args):
@@ -234,7 +287,6 @@ def parse_loss_weight(args):
     folder_sub_name = "_" + args.subtasks[0]+ "_" + str(args.loss_weights[0]) + "_" + args.subtasks[1] +"_" + str(args.loss_weights[1])
 
     return folder_sub_name
-
 
 
 
@@ -251,7 +303,7 @@ def main(**kwargs):
 
     path = "./results" + os.sep + "pretrained_" + args.model + os.sep + args.folder_sub_name + "_" + args.dataset + os.sep + ts_str
     tensorboard_folder = path + os.sep + "Graph"
-    csv_path = path + os.sep + "log.csv"
+    # csv_path = path + os.sep + "log.csv"
     
     os.makedirs(path)
 
@@ -285,6 +337,8 @@ def main(**kwargs):
 
         gender_criterion = gender_criterion.cuda()
         age_criterion = age_criterion.cuda()
+    
+    epochs_train_total_loss, epochs_valid_total_loss = [], []
 
     epochs_train_loss, epochs_valid_loss = [], []
 
@@ -299,15 +353,17 @@ def main(**kwargs):
     # epochs_train_emotion_accs, epochs_train_emotion_losses = [], []
     
     # epochs_valid_emotion_accs, epochs_valid_emotion_losses = [], []
+    epochs_train_age_accs, epochs_valid_age_accs = [], []
 
     epochs_train_lr = []
 
     lowest_loss = 100000
 
     columns = ['Timstamp', 'Epoch', 'lr', 
-                'train_gender_acc', 'train_gender_loss', 'train_age_mae',
-                'valid_gender_acc', 'valid_gender_loss', 'valid_age_mae',
-                'train_total_loss', 'val_total_loss']
+                'train_gender_loss', 'train_age_loss', 'train_age_mae', 'train_total_loss'
+                'train_gender_acc', 'train_age_acc',
+                'val_gender_loss', 'val_age_loss', 'val_age_mae', 'val_total_loss',
+                'val_gender_acc', 'val_age_loss']
 
     csv_checkpoint = pd.DataFrame(data=[], columns=columns)
 
@@ -317,57 +373,49 @@ def main(**kwargs):
         message = '\n\nEpoch: {}/{}: '.format(epoch + 1, args.epochs)
         LOG(message, logFile)
 
-        accs, losses, lr = Train_Valid(model, IMDB_WIKI_train_loader, 
+        train_accs, train_losses, lr, model = Train_Valid(model, IMDB_WIKI_train_loader, 
                                         [gender_criterion, age_criterion, age_cls_criterion], optimizer, epoch, logFile, args, "train")
 
-        LOG_variables_to_board([epochs_train_gender_losses, epochs_train_age_losses], losses, ['train_gender_loss', 'train_age_loss'],
-                                [epochs_train_gender_accs], accs, ['train_gender_acc'],
+        LOG_variables_to_board([epochs_train_gender_losses, epochs_train_age_losses, epochs_train_age_mae, epochs_train_total_loss],
+                                train_losses,
+                                ['train_gender_loss', 'train_age_loss', 'train_age_mae', 'train_total_loss'],
+                                [epochs_train_gender_accs, epochs_train_age_accs],
+                                train_accs,
+                                ['train_gender_acc', 'train_age_acc'],
                                 "Train", tensorboard_folder, epoch, logFile, writer)
 
 
-        val_accs, val_losses = Train_Valid(model, IMDB_WIKI_val_loader,
+        val_accs, val_losses, lr, model = Train_Valid(model, IMDB_WIKI_val_loader,
                                                 [gender_criterion, age_criterion, age_cls_criterion], optimizer, epoch, logFile, args, "valid")
 
-        LOG_variables_to_board([epochs_valid_gender_losses, epochs_valid_age_losses], val_losses, ['val_gender_loss', 'val_age_loss'],
-                                [epochs_valid_gender_accs], val_accs, ['val_gender_acc'],
+        LOG_variables_to_board([epochs_valid_gender_losses, epochs_valid_age_losses, epochs_valid_age_mae, epochs_valid_total_loss],
+                                val_losses,
+                                ['val_gender_loss', 'val_age_loss', 'val_age_mae', 'val_total_loss'],
+                                [epochs_valid_gender_accs, epochs_valid_age_accs],
+                                val_accs,
+                                ['val_gender_acc', 'val_age_acc'],
                                 "Valid", tensorboard_folder, epoch, logFile, writer)
 
         LOG("\n", logFile)
 
-
-        total_train_loss = losses[0]+losses[1]
-        epochs_train_loss.append(total_train_loss)
-        writer.add_scalar(tensorboard_folder + os.sep + "data" + os.sep + 'total_loss', total_train_loss, epoch)
-
-        LOG("total_loss: " + str(total_train_loss), logFile)
-
-        LOG("in epoch loop: " + str(lr), logFile)
-
         epochs_train_lr.append(lr)
         writer.add_scalar(tensorboard_folder + os.sep + 'lr', lr, epoch)
-        LOG("lr: " + str(lr), logFile)
 
+        message = '\n\nEpoch: {}/{}: '.format(epoch + 1, args.epoch)
+        LOG(message, logFile)
+        LOG(args, logFile)
 
-        total_val_loss = val_losses[0] + val_losses[1] + val_losses[2]
-        epochs_valid_loss.append(total_val_loss)
-        writer.add_scalar(tensorboard_folder + os.sep + "data" + os.sep + 'val_total_loss', total_val_loss, epoch)
-        LOG("val_total_loss: " + str(total_val_loss), logFile)
-
-
-        scheduler.step(total_val_loss)
-        if lowest_loss > total_val_loss:
-            lowest_loss = total_val_loss
+        scheduler.step(val_losses[-1])
+        if lowest_loss > val_losses[-1]:
+            lowest_loss = val_losses[-1]
 
             save_checkpoint({
                 'epoch': epoch,
-                'model': "ResNet_18-Age_Gender-IMDB_WIKI",
+                'model': args.model,
                 'state_dict': model.state_dict(),
                 'lowest_loss': lowest_loss,
                 'optimizer': optimizer.state_dict(),
             }, path)
-    
-        # # save csv logging file
-        # save_csv_logging(csv_checkpoint, epoch, lr, losses, val_losses, accs, val_accs, total_train_loss, total_val_loss, csv_path, logFile)
 
     writer.close()
     LOG("done", logFile)

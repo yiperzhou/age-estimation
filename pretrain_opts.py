@@ -13,12 +13,12 @@ parser.add_argument('--load_pretrained_model', type=bool, default=False)
 
 
 parser.add_argument('--dataset', type=str, default="IMDB_WIKI", help="CVPR_16_ChaLearn, IMDB_WIKI")
-parser.add_argument('--model', type=str, help="MTL_ResNet_18, res18_cls70", default = "MTL_ResNet_50_model")
+parser.add_argument('--model', type=str, help="MTL_ResNet_18, res18_cls70", default = "MTL_MobileNet_V2_model")
 parser.add_argument('--lr_rate', type=float, default=0.01, help='learning rate (default: 0.001)')
 # neural network hyperparamter
 parser.add_argument('--lr_schedule', type=float, default=8, help='learning rate schedule')
-parser.add_argument('--batch_size', type=int, default=32, metavar='N',help='input batch size for training (default: 32)')
-parser.add_argument('--epochs', type=int, help="epoch number, default 1", default=30)
+parser.add_argument('--batch_size', type=int, default=2, metavar='N',help='input batch size for training (default: 32)')
+parser.add_argument('--epochs', type=int, help="epoch number, default 1", default=20)
 
 # [multitask learning traing method hyperparameter]
 parser.add_argument('--multitask_training_type', type=int, default = 2,
@@ -27,7 +27,7 @@ parser.add_argument('--multitask_training_type', type=int, default = 2,
                          2: losses = loss[0] + loss[1], \
                             losses.backpropagation()")
 
-parser.add_argument('--loss_weights', type=list, default = [0,1], help="multitask learning weight type, _gender_, _age_ ")
+parser.add_argument('--loss_weights', type=list, default = [1,1], help="multitask learning weight type, _gender_, _age_ ")
 parser.add_argument('--subtasks', type=list, default = ["gender", "age"])
 
 
