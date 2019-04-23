@@ -94,7 +94,7 @@ def main(**kwargs):
 
 
     #load pretrained model 
-    if args.load_pretrained_model:
+    if args.load_IMDB_WIKI_pretrained_model:
         model = load_model_weights(model, pretrained_model_weight_path)
         LOG("load pretrained weight, DONE", logFile)
 

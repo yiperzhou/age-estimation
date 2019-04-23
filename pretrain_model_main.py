@@ -65,10 +65,10 @@ def age_mae_criterion_Encapsulation_IMDB_WIKI(age_criterion, age_out_1, age_labe
     # # print("[age_label] after: ", age_label)
     pred_ages = pred_ages.type(torch.cuda.FloatTensor)
     age_label = age_label.type(torch.cuda.FloatTensor)
+    # # print("pred_ages: ", pred_ages)
+    # # print("age_label: ", age_label)
     # print("pred_ages: ", pred_ages)
     # print("age_label: ", age_label)
-    print("pred_ages: ", pred_ages)
-    print("age_label: ", age_label)
 
     try:
         age_loss_mae = age_criterion(pred_ages, age_label)
@@ -207,8 +207,24 @@ def Train_Valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
             
             gender_loss = gender_loss * reduce_gen_loss
             age_loss = age_cls_loss * reduce_age_cls_loss
-            
             loss = gender_loss + age_loss
+
+            age_epoch_loss.update(age_cls_loss.item(), 1)
+            age_epoch_mae.update(age_loss_mae.item(), 1)
+            gender_epoch_loss.update(gender_loss.item(), 1)
+            
+            age_epoch_mae_own_list.append(age_loss_mae.item())
+
+            # print("gender_out.data:  ", gender_out.data)
+            # print("gender_label   :  ", gender_label)
+            gender_prec1 = accuracy(gender_out.data, gender_label)
+            gender_epoch_acc.update(gender_prec1[0].item(), gender_label.size(0))
+
+            # print("age_out.data    :  ", age_out.data)
+            # print("age_cls_label   :  ", age_cls_label)
+            age_prec1 = accuracy(age_out.data, age_cls_label)
+            age_epoch_acc.update(age_prec1[0].item(), age_cls_label.size(0))
+
 
             if pharse == "train":
                 loss.backward()
@@ -219,44 +235,24 @@ def Train_Valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
             else:
                 print("pharse should be in [train, valid]")
                 NotImplementedError
-
             total_epoch_loss.update(loss.item(), 1)     
-
             # print("[", pharse," LOSS]", "total: ", loss.item())
             # print("                 Age: ", age_cls_loss.item())
             # print("             MAE Age: ", age_loss_mae.item())
             # print("              Gender: ", gender_loss.item())
-            
-
         else:
             pass
 
-        age_epoch_loss.update(age_cls_loss.item(), 1)
-        age_epoch_mae.update(age_loss_mae.item(), 1)
-        gender_epoch_loss.update(gender_loss.item(), 1)
-        
-        age_epoch_mae_own_list.append(age_loss_mae.item())
-
-        # print("gender_out.data:  ", gender_out.data)
-        # print("gender_label   :  ", gender_label)
-        gender_prec1 = accuracy(gender_out.data, gender_label)
-        gender_epoch_acc.update(gender_prec1[0].item(), gender_label.size(0))
-
-        # print("age_out.data    :  ", age_out.data)
-        # print("age_cls_label   :  ", age_cls_label)
-        age_prec1 = accuracy(age_out.data, age_cls_label)
-        age_epoch_acc.update(age_prec1[0].item(), age_cls_label.size(0))
-
 
         # print("train loader")
-        if batch_idx % 500 == 0:
+        if batch_idx % 1000 == 0:
             print(
                 "[{}] Epoch: {} [{}/{}]".
                 format(pharse, epoch, batch_idx * len(input_img), len(loader.dataset)))
             # pbar.update(batch_idx * len(input_img))
 
             print("[" + pharse +"] [ACC(%)], [gender, age        ]: " + str([gender_epoch_acc.avg, age_epoch_acc.avg]))
-            print("[" + pharse +"] [Loss  ], [gender, age, age_mae, total]: " + str([gender_epoch_loss.avg, age_epoch_mae.avg, age_epoch_loss.avg, total_epoch_loss]))            
+            print("[" + pharse +"] [Loss  ], [gender, age, age_mae, total]: " + str([gender_epoch_loss.avg, age_epoch_mae.avg, age_epoch_loss.avg, total_epoch_loss.avg]))            
 
 
 
@@ -265,7 +261,7 @@ def Train_Valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
 
     # one epoch end
     accs = [gender_epoch_acc.avg, age_epoch_acc.avg]
-    losses = [gender_epoch_loss.avg, age_epoch_mae.avg, age_epoch_loss.avg, total_epoch_loss]
+    losses = [gender_epoch_loss.avg, age_epoch_mae.avg, age_epoch_loss.avg, total_epoch_loss.avg]
 
     LOG("[" + pharse + "] [ACC(%)], [gender, age                ]: " + str(accs), logFile)
     LOG("[" + pharse + "] losses:   [gender, age_mae, age, total]: " + str(losses), logFile)
@@ -340,8 +336,6 @@ def main(**kwargs):
     
     epochs_train_total_loss, epochs_valid_total_loss = [], []
 
-    epochs_train_loss, epochs_valid_loss = [], []
-
     epochs_train_age_mae, epochs_train_age_losses = [], []
 
     epochs_valid_age_mae, epochs_valid_age_losses = [], []
@@ -401,7 +395,7 @@ def main(**kwargs):
         epochs_train_lr.append(lr)
         writer.add_scalar(tensorboard_folder + os.sep + 'lr', lr, epoch)
 
-        message = '\n\nEpoch: {}/{}: '.format(epoch + 1, args.epoch)
+        message = '\n\nEpoch: {}/{}: '.format(epoch + 1, args.epochs)
         LOG(message, logFile)
         LOG(args, logFile)
 

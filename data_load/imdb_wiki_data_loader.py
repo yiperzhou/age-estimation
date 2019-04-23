@@ -185,6 +185,9 @@ class FaceDataset(Dataset):
     # age_cls_label = torch.from_numpy(np.array([age_cls_label], dtype='float'))
     # age_cls_label = age_cls_label.type(torch.FloatTensor)
     
+    # the index starts from 0 instead of 1.
+    age = age-1
+    
     age_cls_label = torch.tensor(int(age))
     age_cls_label = age_cls_label.type(torch.LongTensor)
 
