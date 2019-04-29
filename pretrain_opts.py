@@ -13,11 +13,11 @@ parser.add_argument('--load_pretrained_model', type=bool, default=False)
 
 
 parser.add_argument('--dataset', type=str, default="IMDB_WIKI", help="CVPR_16_ChaLearn, IMDB_WIKI")
-parser.add_argument('--model', type=str, help="MTL_ResNet_18, res18_cls70", default = "MTL_MobileNet_V2_model")
+parser.add_argument('--model', type=str, help="MTL_ResNet_18, res18_cls70, MTL_MobileNet_V1_model, MTL_MobileNet_V2_model", default = "MTL_MobileNet_V2_model")
 parser.add_argument('--lr_rate', type=float, default=0.01, help='learning rate (default: 0.001)')
 # neural network hyperparamter
 parser.add_argument('--lr_schedule', type=float, default=8, help='learning rate schedule')
-parser.add_argument('--batch_size', type=int, default=2, metavar='N',help='input batch size for training (default: 32)')
+parser.add_argument('--batch_size', type=int, default=64, metavar='N', help='input batch size for training (default: 32)')
 parser.add_argument('--epochs', type=int, help="epoch number, default 1", default=20)
 
 # [multitask learning traing method hyperparameter]
@@ -32,7 +32,7 @@ parser.add_argument('--subtasks', type=list, default = ["gender", "age"])
 
 
 # working machine environment
-parser.add_argument('--working_machine', type=str, default="thinkstation", help="thinkstation, narvi")
+parser.add_argument('--working_machine', type=str, default="narvi", help="thinkstation, narvi")
 
 
 # Init Environment

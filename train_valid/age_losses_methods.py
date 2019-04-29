@@ -42,3 +42,14 @@ def age_crossentropy_loss(age_out_1, age_label):
     loss = 0
 
     return loss
+
+
+def age_regression_classification_loss():
+    loss = 0
+
+    cls_loss = 0
+    rgs_loss = 0
+
+    loss = cls_loss + rgs_loss
+
+    return loss

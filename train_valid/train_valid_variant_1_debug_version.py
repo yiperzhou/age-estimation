@@ -124,7 +124,7 @@ def Train_Valid_debug(model, loader, criterion, optimizer, epoch, logFile, args,
     del gender_criterion, smile_criterion, emotion_criterion
 
     # for j, (emo_img, emo_label) in enumerate(emotion_loader):
-    for j, (age_img, age_label) in enumerate(age_loader):
+    for j_batch_idx, (age_img, age_label) in enumerate(age_loader):
 
         if pharse == "train":
             optimizer.zero_grad()
@@ -154,6 +154,9 @@ def Train_Valid_debug(model, loader, criterion, optimizer, epoch, logFile, args,
         # print("age_label_one_hot: ", age_label_one_hot)
         # age_loss = age_cls_criterion(age_out_1, age_label_one_hot)
         age_loss = age_cls_criterion(age_out_1, age_label)
+
+        print("age_cls_label: ", age_label)
+        print("age_out      : ", age_out_1)
 
         age_loss_mae = age_mae_criterion_Encapsulation(age_mae_criterion, age_out_1, age_label)
         # print("age_loss_mae.size(0): ", age_loss_mae.size(0))

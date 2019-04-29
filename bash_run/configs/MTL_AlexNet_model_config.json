@@ -1,32 +1,25 @@
 {
-  "exp": {
-    "name": "conv_mnist_from_config"
-  },
   "data_loader": {
-    "name": "conv_mnist_data_loader.ConvMnistDataLoader"
+    "dataset": "CVPR_16_ChaLearn",
+    "num_workers": 4,
+    "loading_jobs": 4
   },
-  "model":{
-    "name": "conv_mnist_model.ConvMnistModel",
-    "learning_rate": 0.001,
-    "optimizer": "adadelta"
+  "machine":{
+    "working_machine": "narvi"
   },
-  "trainer":{
-    "name": "simple_mnist_trainer.SimpleMnistModelTrainer",
-    "num_epochs": 20,
-    "batch_size": 64,
-    "validation_split":0.25,
-    "verbose_training": true
+  "NN_hyperparameter":{
+    "model": "MTL_AlexNet_model",
+    "lr_schedule": 8,
+    "batch_size": 8,
+    "lr_rate": 0.001,
+    "epoch": 40,
+    "load_pretrained_model":"False",
+    "weight_decay": 1e-6
   },
-  "callbacks":{
-    "checkpoint_monitor": "val_loss",
-    "checkpoint_mode": "min",
-    "checkpoint_save_best_only": true,
-   "checkpoint_save_weights_only": true,
-    "checkpoint_verbose": true,
-    "tensorboard_write_graph": true
-  },
-  "xxx":{
-    "xxx": "xxx",
-    "xxx": "xxx"
+  "Multitask":{
+    "multitask_training_type": "Train_Valid",
+    "loss_weights": "[1,1,1,1]",
+    "subtasks": ["gender", "smile", "emotion", "age"],
+    "age_loss_type": "age_cls_loss"
   }
 }

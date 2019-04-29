@@ -106,6 +106,8 @@ def main(**kwargs):
     gender_criterion = nn.CrossEntropyLoss()
     smile_criterion = nn.CrossEntropyLoss()
     emotion_criterion = nn.CrossEntropyLoss()
+
+    
     
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', threshold=1e-5, patience=10)
     
