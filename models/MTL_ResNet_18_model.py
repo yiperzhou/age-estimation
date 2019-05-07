@@ -40,6 +40,9 @@ class MTL_ResNet_18_model(torch.nn.Module):
     # self.age_cls_pred = nn.Linear(512, 100)
     self.age_cls_pred = nn.Linear(256, 88)
 
+    self.fc5          = nn.Linear(512, 256)
+    self.age_rgs_pred = nn.Linear(256, 10)
+
   def get_resnet_convs_out(self, x):
     """
     get outputs from convolutional layers of ResNet
@@ -77,12 +80,15 @@ class MTL_ResNet_18_model(torch.nn.Module):
     age_pred = F.relu(self.dropout(self.fc4(last_conv_out)))
     age_pred = F.softmax(self.age_cls_pred(age_pred), 1)
 
-    return gen_pred, smile_pred, emo_pred, age_pred
+    age_pred_rgs = F.relu(self.dropout(self.fc5(last_conv_out)))
+    age_pred_rgs = F.softmax(self.age_rgs_pred(age_pred_rgs), 1)
+
+    return gen_pred, smile_pred, emo_pred, age_pred, age_pred_rgs
   
   def forward(self, x, return_atten_info = False):
     last1 = self.get_resnet_convs_out(x)
-    gen_pred, smile_pred, emo_pred, age_pred = self.get_age_gender_emotion(last1)
-    return gen_pred, smile_pred, emo_pred, age_pred
+    gen_pred, smile_pred, emo_pred, age_pred, age_pred_rgs = self.get_age_gender_emotion(last1)
+    return gen_pred, smile_pred, emo_pred, age_pred, age_pred_rgs
 
 
 

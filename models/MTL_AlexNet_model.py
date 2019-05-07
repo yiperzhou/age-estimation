@@ -102,7 +102,12 @@ class MTL_AlexNet_model(nn.Module):
             nn.Dropout(p=0.5, inplace=False),
             nn.Linear(256, age_classes)
         )
-
+        self.age_rgs_clf = nn.Sequential(
+            nn.Linear(self.features_length, 256),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=0.5, inplace=False),
+            nn.Linear(256, 10)
+        )        
     
     def forward(self, x):
         x = self.MTL_AlexNet_features(x)
@@ -113,7 +118,10 @@ class MTL_AlexNet_model(nn.Module):
         emo_pred  = self.emotion_clf(x)
         age_pred  = self.age_clf(x)
 
-        return gen_pred, smile_pred, emo_pred, age_pred 
+        age_pred_rgs = self.age_rgs_clf(x)
+
+
+        return gen_pred, smile_pred, emo_pred, age_pred, age_pred_rgs 
 
 
 

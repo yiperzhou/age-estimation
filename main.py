@@ -24,15 +24,26 @@ from torch.utils.data import Dataset
 from torch.autograd import Variable
 from tensorboardX import SummaryWriter
 
-from models import *
-from data_load import *
-from utils import *
-from train_valid import *
+
+from data_load.CVPR_16_ChaLearn_data_loader import get_CVPR_Age_Gender_Smile_data
+# from data_load.celeba_data_loader import get_celebA_data
+from data_load.FER2013_Emotion_data_loader import get_FER2013_Emotion_data
+
+
+from utils.utils_1 import get_pretrained_model_weights_path, get_model
+from utils.helper_2 import LOG_variables_to_board, LOG
+from utils.helper import save_checkpoint, load_model_weights
+from utils.config import process_config
+
+
+from train_valid.train_valid_variant_1_debug_version import Train_Valid_debug
+from train_valid.train_valid_variant_1 import Train_Valid
+from train_valid.train_valid_variant_2 import Train_Valid_2
+from train_valid.age_losses_methods import Gaussian_age_loss, Euclidean_age_loss, Age_rgs_loss
+
 
 from opts import args
-from train_valid.train_valid_variant_1_debug_version import Train_Valid_debug
 
-from utils.config import process_config
 
 def parse_loss_weight(args):
 
@@ -86,6 +97,9 @@ def main(**kwargs):
 
     age_train_loader, age_test_loader, gender_train_loader, gender_test_loader, smile_train_loader, smile_test_loader = get_CVPR_Age_Gender_Smile_data(args)
 
+    # face_verification_train_loader, face_verification_valid_loader, face_verification_test_loader = get_celebA_data(args)
+    
+
     emotion_train_loader, emotion_test_loader = get_FER2013_Emotion_data(args)
 
     pretrained_model_weight_path = get_pretrained_model_weights_path(args)
@@ -103,11 +117,17 @@ def main(**kwargs):
     age_cls_criterion = nn.CrossEntropyLoss()
     # age_cls_criterion = nn.BCELoss()
     age_mae_criterion = nn.L1Loss()
+    
     gender_criterion = nn.CrossEntropyLoss()
     smile_criterion = nn.CrossEntropyLoss()
     emotion_criterion = nn.CrossEntropyLoss()
 
-    
+    face_verification_criterion = nn.CrossEntropyLoss()
+
+    age_gaussian_loss_criterion = Gaussian_age_loss()
+    age_euclidean_loss_criterion = Euclidean_age_loss()
+    age_rgs_criterion = nn.CrossEntropyLoss()
+
     
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', threshold=1e-5, patience=10)
     
@@ -124,6 +144,12 @@ def main(**kwargs):
         age_mae_criterion = age_mae_criterion.cuda()
         smile_criterion = smile_criterion.cuda()
         emotion_criterion = emotion_criterion.cuda()
+
+        age_gaussian_loss_criterion = age_gaussian_loss_criterion.cuda()
+        age_euclidean_loss_criterion = age_euclidean_loss_criterion.cuda()
+        age_rgs_criterion = age_rgs_criterion.cuda()
+
+
 
     epochs_train_total_loss, epochs_valid_total_loss = [], []
 
@@ -163,7 +189,8 @@ def main(**kwargs):
             if args.debug == True:
                 LOG("enter [DEBUG] Tran_Valid", logFile)
                 train_accs, train_losses, lr, model = Train_Valid_debug(model, [gender_train_loader, age_train_loader, smile_train_loader, emotion_train_loader], 
-                                                [gender_criterion, age_mae_criterion, smile_criterion, age_cls_criterion, emotion_criterion], optimizer, epoch, logFile, args, "train")
+                                                                        [gender_criterion, age_mae_criterion, smile_criterion, age_cls_criterion, emotion_criterion, age_gaussian_loss_criterion, age_euclidean_loss_criterion, age_rgs_criterion],
+                                                                        optimizer, epoch, logFile, args, "train")
 
             else:
                 LOG("enter [Normal] Tran_Valid", logFile)
@@ -172,7 +199,7 @@ def main(**kwargs):
 
         elif args.multitask_training_type == "Train_Valid_2":
             train_accs, train_losses, lr, model = Train_Valid_2(model, [gender_train_loader, age_train_loader, smile_train_loader, emotion_train_loader], 
-                                            [gender_criterion, age_mae_criterion, smile_criterion, age_cls_criterion, emotion_criterion], optimizer, epoch, logFile, args, "train")
+                                                            [gender_criterion, age_mae_criterion, smile_criterion, age_cls_criterion, emotion_criterion], optimizer, epoch, logFile, args, "train")
         else:
             LOG("[Train_Valid, Train_Valid_2]", logFile)
 
@@ -190,7 +217,8 @@ def main(**kwargs):
             if args.debug == True:
                 LOG("enter [DEBUG] Tran_Valid", logFile)
                 val_accs, val_losses, lr, model = Train_Valid_debug(model,[gender_test_loader, age_test_loader, smile_test_loader, emotion_test_loader],
-                                                        [gender_criterion, age_mae_criterion, smile_criterion, age_cls_criterion, emotion_criterion], optimizer, epoch, logFile, args, "valid")
+                                                                    [gender_criterion, age_mae_criterion, smile_criterion, age_cls_criterion, emotion_criterion, age_gaussian_loss_criterion, age_euclidean_loss_criterion, age_rgs_criterion],
+                                                                    optimizer, epoch, logFile, args, "valid")
             else:
                 LOG("enter [Normal] Tran_Valid", logFile)
                 val_accs, val_losses, lr, model = Train_Valid(model,[gender_test_loader, age_test_loader, smile_test_loader, emotion_test_loader],

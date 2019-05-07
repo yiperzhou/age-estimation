@@ -120,13 +120,6 @@ class MTL_MobileNet_V1_model(torch.nn.Module):
             nn.Linear(256, age_classes)
         )
 
-        self.age_rgs_clf = nn.Sequential(
-            nn.Linear(self.features_length, 256),
-            nn.ReLU(inplace=True),
-            nn.Dropout(p=0.5, inplace=False),
-            nn.Linear(256, 10)
-        )        
-
     def load_MobileNet_V1_ImageNet_pretrained_weight(self, mobilenet_v1_model):
         tar = torch.load(model_urls['mobilenetV1'])
         state_dict = tar['state_dict']
@@ -156,9 +149,8 @@ class MTL_MobileNet_V1_model(torch.nn.Module):
         smile_pred = self.smile_clf(x)
         emo_pred = self.emotion_clf(x)
         age_pred = self.age_clf(x)
-        age_pred_rgs = self.age_rgs_clf(x)
 
-        return gen_pred, smile_pred, emo_pred, age_pred, age_pred_rgs
+        return gen_pred, smile_pred, emo_pred, age_pred
 
 
 # if __name__ == "__main__":

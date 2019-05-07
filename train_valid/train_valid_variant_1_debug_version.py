@@ -29,6 +29,7 @@ from data_load import *
 from utils import *
 
 from utils.helper_4 import convert_to_onehot_tensor
+# from train_valid.age_losses_methods import Age_rgs_loss
 
 def age_mae_criterion_Encapsulation(age_criterion, age_out_1, age_label):
     # print("age_out_1: ", age_out_1)
@@ -71,6 +72,29 @@ def age_mae_criterion_Encapsulation(age_criterion, age_out_1, age_label):
 
     return age_loss_mae
 
+
+
+def age_rgs_criterion_Encapsulation(age_rgs_criterion, y_pred, y_true):
+    '''
+    age regression loss, reference, the github repository, Age-Gender-Pred, repository
+    '''
+    
+    age_divde = torch.tensor(10)
+        
+        
+    # def forward(self, y_pred, y_true, age_rgs_criterion):
+
+    y_true_rgs = torch.div(y_true, age_divde)
+    
+    y_true_rgs = y_true_rgs.type(torch.FloatTensor)
+
+    y_true_rgs = torch.ceil(y_true_rgs)
+    
+    y_true_rgs = y_true_rgs.type(torch.cuda.LongTensor)
+
+    age_loss_rgs = age_rgs_criterion(y_pred, y_true_rgs)
+
+    return age_loss_rgs
 
 
 def Train_Valid_debug(model, loader, criterion, optimizer, epoch, logFile, args, pharse):
@@ -117,6 +141,9 @@ def Train_Valid_debug(model, loader, criterion, optimizer, epoch, logFile, args,
     print("four tasks weights: ", args.loss_weights)
 
     gender_criterion, age_mae_criterion, smile_criterion, age_cls_criterion, emotion_criterion = criterion[0], criterion[1], criterion[2], criterion[3], criterion[4]
+
+    age_gaussian_loss_criterion, age_euclidean_loss_criterion, age_rgs_criterion  = criterion[5], criterion[6], criterion[7]
+
     gender_loader, age_loader, smile_loader, emotion_loader = loader[0], loader[1], loader[2], loader[3]
 
 
@@ -147,7 +174,7 @@ def Train_Valid_debug(model, loader, criterion, optimizer, epoch, logFile, args,
         # age
         age_img = age_img.cuda()
         age_label = age_label.cuda()
-        gender_out_1, smile_out_1, emo_out_1, age_out_1  = model(age_img)
+        gender_out_1, smile_out_1, emo_out_1, age_out_1, age_out_rgs_1  = model(age_img)
         # print("age_out_1: ", age_out_1)
         # print("age_label: ", age_label)
         # age_label_one_hot = convert_to_onehot_tensor(age_label, 88)
@@ -155,8 +182,8 @@ def Train_Valid_debug(model, loader, criterion, optimizer, epoch, logFile, args,
         # age_loss = age_cls_criterion(age_out_1, age_label_one_hot)
         age_loss = age_cls_criterion(age_out_1, age_label)
 
-        print("age_cls_label: ", age_label)
-        print("age_out      : ", age_out_1)
+        # print("age_cls_label: ", age_label)
+        # print("age_out      : ", age_out_1)
 
         age_loss_mae = age_mae_criterion_Encapsulation(age_mae_criterion, age_out_1, age_label)
         # print("age_loss_mae.size(0): ", age_loss_mae.size(0))
@@ -170,6 +197,23 @@ def Train_Valid_debug(model, loader, criterion, optimizer, epoch, logFile, args,
         
         # print("age_loss   : ", age_loss)
         # print("age_cls_acc: ", age_prec1[0].item())
+
+
+        age_loss_gaussian = age_gaussian_loss_criterion(age_out_1, age_label)
+
+        
+
+
+        age_loss_rgs = age_rgs_criterion_Encapsulation(age_rgs_criterion, age_out_rgs_1, age_label)
+        # print("age_loss_rgs: ", age_loss_rgs)
+
+
+        # age_loss_euclidean = age_euclidean_loss_criterion(age_out_1, age_label)
+
+        # print("age_loss_euclidean: ", age_loss_euclidean)
+
+
+
         
         # # gender
         # gender_img = gender_img.cuda()
@@ -208,6 +252,12 @@ def Train_Valid_debug(model, loader, criterion, optimizer, epoch, logFile, args,
         reduce_gen_loss, reduce_smile_loss, reduce_emo_loss, reduce_age_cls_loss  = args.loss_weights[0], args.loss_weights[1], args.loss_weights[2], args.loss_weights[3]
         
         loss = age_loss * reduce_age_cls_loss
+        
+        loss = loss * 1 + age_loss_rgs * 1
+
+        loss = loss * 1 + age_loss_gaussian * 0
+
+
         total_loss.update(loss.item(), 1)
 
         if pharse == "train":

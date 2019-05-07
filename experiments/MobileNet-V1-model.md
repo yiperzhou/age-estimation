@@ -2,14 +2,16 @@
 
 ## experiment results, load_IMDB_WIKI_pretrained_model = False
 
-model                                                 | Gender(%)(Chalearn_2016) | Smile(%)(Chalearn_2016) | Emotion Acc(%)(FER_2013) | Age Acc(%)                 | Age MAE (ChaLearn_2016)
------------------------------------------------------ |------------------------- | ----------------------- | ------------------------ |--------------------------- | ---------------------------
-MobileNet-V1-Gender_Smile_Emotion_Age [1][2]          |   88.2                   |  85.5                   |     52.7                 |   10.3                     |     5.2           
-MobileNet-V1-Gender [21][22]                          |  86.0                    |                         |                          |                            |     
-MobileNet-V1-Smile [23][24]                           |                          |     85.5                |                          |                            | 
-MobileNet-V1-Emotion [25][26]                         |                          |                         |     48.9                 |                            |                     
-MobileNet-V1-Age  [27][28]                            |                          |                         |                          |   8.3                      |  5.5      
-
+model                                                                  | Gender(%)(Chalearn_2016) | Smile(%)(Chalearn_2016) | Emotion Acc(%)(FER_2013) | Age Acc(%)                 | Age MAE (ChaLearn_2016)
+---------------------------------------------------------------------- |------------------------- | ----------------------- | ------------------------ |--------------------------- | ---------------------------
+MobileNet-V1-Gender_Smile_Emotion_Age [1][2]                           |   88.2                   |  85.5                   |     52.7                 |   10.3                     |     5.2           
+MobileNet-V1-Gender [21][22]                                           |  86.0                    |                         |                          |                            |     
+MobileNet-V1-Smile [23][24]                                            |                          |     85.5                |                          |                            | 
+MobileNet-V1-Emotion [25][26]                                          |                          |                         |     48.9                 |                            |                     
+MobileNet-V1-Age  [27][28]                                             |                          |                         |                          |   8.3                      |  5.5      
+MobileNet-V1-Age-100-class-10-classes-crossentropy [31]                |                          |                         |                          |                            |   4.9
+MobileNet-V1-Age-10-classes-crossentropy                               |                          |                         |                          |                            |                              
+MobileNet-V1-Age-100-class-10-classes-crossentropy-gaussian-loss [30]  |                          |                         |                          |                            |   4.8
 
 ### reference
 
@@ -29,7 +31,8 @@ MobileNet-V1-Age  [27][28]                            |                         
 [28] Namespace(age_loss_type='age_cls_loss', batch_size=16, dataset='CVPR_16_ChaLearn', debug=False, epoch=60, folder_sub_name='_gender_1_smile_0_emotion_0_age_0', load_IMDB_WIKI_pretrained_model=False, loading_jobs=4, log_dir=None, loss_weights=[1, 0, 0, 0], lr_rate=0.001, lr_schedule=8, model='MTL_MobileNet_V1_model', multitask_training_type='Train_Valid', num_workers=4, subtasks=['gender', 'smile', 'emotion', 'age'], weight_decay=1e-06, working_machine='narvi')  
 
 
-
+[30] /home/yi/narvi_yi_home/projects/MultitaskLearningFace/results/MTL_MobileNet_V1_model/_gender_0_smile_0_emotion_0_age_1_CVPR_16_ChaLearn/2019-05-07-14-55-44_100-class-10-classes-crossentropy-gaussian-loss
+[31] 
 
 
 

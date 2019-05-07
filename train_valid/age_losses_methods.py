@@ -1,3 +1,6 @@
+import torch
+import torch.nn as nn
+
 # test different age estimation loss function.
 
 def pure_age_l1_loss():
@@ -44,7 +47,8 @@ def age_crossentropy_loss(age_out_1, age_label):
     return loss
 
 
-def age_regression_classification_loss():
+def age_regression_classification_loss(age_out, age_label):
+
     loss = 0
 
     cls_loss = 0
@@ -53,3 +57,123 @@ def age_regression_classification_loss():
     loss = cls_loss + rgs_loss
 
     return loss
+
+
+
+LAMDA = 1
+SIGMOID = 3
+
+
+
+class Euclidean_age_loss(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.LAMDA = LAMDA
+        self.SIGMOID = SIGMOID
+
+        
+        
+    def forward(self, y_pred, y_true):
+        y_true = y_true.type(torch.cuda.FloatTensor)
+        y_pred = y_pred.type(torch.cuda.FloatTensor)
+
+        temp_1 = y_pred - y_true
+
+        loss1 = (1-LAMDA) * (1.0/2.0) * torch.pow(temp_1, 2)
+
+        return loss1
+
+
+class Gaussian_age_loss(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.LAMDA = LAMDA
+        self.SIGMOID = SIGMOID
+
+        
+        
+    def forward(self, y_pred, y_true):
+
+        _, y_pred = torch.max(y_pred, 1)
+        
+        y_true = y_true.type(torch.cuda.FloatTensor) 
+        y_pred = y_pred.type(torch.cuda.FloatTensor) 
+
+        # print("Gaussian_age_loss, y_true: ", y_true) # tensor([ 7., 40.], device='cuda:0')
+        # print("Gaussian_age_loss, y_pred: ", y_pred) # tensor([28., 24.], device='cuda:0')         
+
+        temp_1 = y_pred - y_true
+
+        temp_2 = torch.pow(temp_1, 2)
+
+        loss2 = LAMDA *(1 - torch.exp(-(temp_2/(2* SIGMOID))))
+
+        loss2 = torch.mean(loss2)
+
+        return loss2
+
+
+
+
+class Age_rgs_loss(nn.Module):
+    '''
+    age regression loss, reference, the github repository, Age-Gender-Pred, repository
+    '''
+    def __init__(self):
+        super().__init__()
+        self.age_divde = torch.tensor(10)
+        
+        
+    def forward(self, y_pred, y_true, age_rgs_criterion):
+
+        y_true_rgs = torch.div(y_true, self.age_divde)
+        y_true_rgs = torch.ceil(y_true_rgs)
+
+        # _, y_pred = torch.max(y_pred, 1)
+        age_loss_rgs = age_rgs_criterion(y_pred, y_true_rgs)
+
+        return age_loss_rgs
+
+
+
+
+
+# def euclidean_age_loss(y_true,y_pred):
+    
+#     '''
+#     euclidean loss
+
+#     loss1 = (1-\lambda) \frac{1}{2}(y-a)^{2}
+#     '''
+
+#     global LAMDA,SIGMOID
+    
+#     loss1 = (1-LAMDA) * (1.0/2.0) * torch.pow((y_pred - y_true), 2)
+    
+#     # torch.pow((y_pred - y_true), 2)
+
+#     return loss1
+
+
+# def gaussian_age_loss(y_true, y_pred):
+#     '''
+#     loss2 = \lambda\left(1-\exp \left(-\frac{(y-a)^{2}}{2 \sigma^{2}}\right)\right)
+#     '''
+#     # torch.exp()
+    # loss2 = LAMDA *(1 - torch.exp(-(torch.pow((y-pred-y_true), 2)/(2* SIGMOID))))
+    
+
+#     return loss2
+
+
+
+# def relative_mse_loss(y_true,y_pred):
+
+#     return torch.pow((y_true - y_pred), 2)/torch.sqrt(y_true)
+
+
+# def age_margin_mse_loss(y_true,y_pred):
+
+#     return torch.max(torch.pow((y_pred -y_true), 2)-2.25,0)
+
+#     # torch.pow((y_pred -y_true), 2)

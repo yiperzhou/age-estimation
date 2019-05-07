@@ -3,7 +3,7 @@ import os
 import PIL
 from .vision import VisionDataset
 from .utils import download_file_from_google_drive, check_integrity
-
+from torchvision import transforms
 
 class CelebA(VisionDataset):
     """`Large-scale CelebFaces Attributes (CelebA) Dataset <http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html>`_ Dataset.
@@ -161,3 +161,92 @@ class CelebA(VisionDataset):
     def extra_repr(self):
         lines = ["Target type: {target_type}", "Split: {split}"]
         return '\n'.join(lines).format(**self.__dict__)
+
+
+
+
+
+def get_celebA_data(args):
+
+    # celebA_transform = {
+    #     "celebA_transform_train": transforms.Compose([
+    #         # transforms.RandomCrop(44),
+    #         transforms.RandomHorizontalFlip(),
+    #         transforms.Resize(224),
+    #         transforms.ToTensor()
+    #     ]),
+    #     "celebA_transform_valid": transforms.Compose([
+    #         transforms.RandomHorizontalFlip(),
+    #         transforms.Resize(224),
+    #         transforms.ToTensor()
+    #     ]),
+    #     "celebA_transform_test": transforms.Compose([
+    #         transforms.RandomHorizontalFlip(),
+    #         transforms.Resize(224),
+    #         transforms.ToTensor()
+    #     ])
+    # }
+
+
+
+    # for face verification task
+
+    # parser.add_argument('--ann_path', type=str, help='[ThinkStation] Identity file', default="/media/yi/harddrive/codes/MultitaskingFace/siamese_network/identities.txt")
+    parser.add_argument('--ann_path', type=str, help='[Narvi] Identity file', default="/home/zhouy/MultitaskingFace/siamese_network/train_data/identity_CelebA.txt")
+    # parser.add_argument('--ann_path', type=str, help='[XPS] Identity file', default="/media/yi/harddrive/codes/MultitaskingFace/siamese_network/identities_test.txt")
+
+
+    # parser.add_argument('--test_ann_path', type=str, help='[ThinkStation] Identity file', default="/media/yi/harddrive/codes/MultitaskingFace/siamese_network/identities_test.txt")
+    # parser.add_argument('--train_ann_path', type=str, help='[ThinkStation] Identity file', default="/media/yi/harddrive/codes/MultitaskingFace/siamese_network/identities_train.txt")
+    # parser.add_argument('--ann_path', type=str, help='[ThinkStation] Identity file', default="/media/yi/harddrive/codes/MultitaskingFace/siamese_network/identity_CelebA.txt")
+    parser.add_argument('--ann_path', type=str, help='[ThinkStation] Identity file', default="/media/yi/harddrive/codes/MultitaskingFace/siamese_network/train_data/identities.txt")
+
+
+    # parser.add_argument('--ann_path', type=str, help='[Narvi] Identity file', default="/home/zhouy/MultitaskingFace/siamese_network/identities.txt")
+    # parser.add_argument('--ann_path', type=str, help='[XPS] Identity file', default="/media/yi/harddrive/codes/MultitaskingFace/siamese_network/identities_test.txt")
+
+
+    parser.add_argument('--test_ann_path', type=str, help='[ThinkStation] Identity file', default="/media/yi/harddrive/codes/MultitaskingFace/siamese_network/train_data/identities_test.txt")
+    parser.add_argument('--train_ann_path', type=str, help='[ThinkStation] Identity file', default="/media/yi/harddrive/codes/MultitaskingFace/siamese_network/train_data/identities_train.txt")
+
+    parser.add_argument('--test_ann_path', type=str, help='[Narvi] Identity file', default="/home/zhouy/MultitaskingFace/siamese_network/CelebA_full_data_train_test_split/identities_test.txt")
+    parser.add_argument('--train_ann_path', type=str, help='[Narvi] Identity file', default="/home/zhouy/MultitaskingFace/siamese_network/CelebA_full_data_train_test_split/identities_train.txt")
+
+    # parser.add_argument('--test_ann_path', type=str, help='[XPS] Identity file', default="/media/yi/harddrive/codes/MultitaskingFace/siamese_network/identities_test.txt")
+    # parser.add_argument('--train_ann_path', type=str, help='[XPS] Identity file', default="/media/yi/harddrive/codes/MultitaskingFace/siamese_network/identities_train.txt")
+
+
+    if args.working_machine == "thinkstation":
+        
+        args.test_ann_path = "/media/yi/harddrive/codes/MultitaskingFace/siamese_network/train_data/identities.txt"
+        args.train_ann_path = "/media/yi/harddrive/codes/MultitaskingFace/siamese_network/identities_train.txt"
+
+    elif args.working_machine == "narvi":
+        
+        args.test_ann_path = "/home/zhouy/MultitaskingFace/siamese_network/CelebA_full_data_train_test_split/identities_test.txt"
+        args.train_ann_path = "/home/zhouy/MultitaskingFace/siamese_network/CelebA_full_data_train_test_split/identities_train.txt"
+
+
+
+    else:
+        print("Face_celebA does not find")
+        NotImplementedError
+
+
+    # train data size: 28710
+    celebA_trainset = CelebA(split="train")
+    celebA_train_loader = torch.utils.data.DataLoader(celebA_trainset, batch_size=args.batch_size, shuffle=True, num_workers=args.loading_jobs)
+
+    # valid data size: 3590
+    celebA_validset = CelebA(split="valid")
+    celebA_valid_loader = torch.utils.data.DataLoader(celebA_validset, batch_size=args.batch_size, shuffle=True, num_workers=args.loading_jobs)
+
+    # # test data size: 3590
+    celebA_testset = CelebA(split="test")
+    celebA_test_loader = torch.utils.data.DataLoader(celebA_testset, batch_size=args.batch_size, shuffle=True, num_workers=args.loading_jobs)
+
+    
+    print('[celebA dataset] load: finished !')
+
+
+    return [celebA_train_loader, celebA_valid_loader, celebA_test_loader]
