@@ -146,7 +146,7 @@ def get_pretrained_model_weights_path(args):
 def get_model(args, logFile):
 
     if args.model == MTL_ResNet_18_model_name:
-        model = MTL_ResNet_18_model()
+        model = MTL_ResNet_18_model(args)
 
     elif args.model == res18_cls88_name:
         model = AgeGenPredModel()
@@ -158,7 +158,7 @@ def get_model(args, logFile):
         model = MTL_ResNet_50_model()
 
     elif args.model == MTL_DenseNet_121_model_name:
-        model = MTL_DenseNet_121_model()
+        model = MTL_DenseNet_121_model(args)
 
     # elif args.model == "Elastic_MTL_DenseNet_121_model":
     #     model = Elastic_MTL_DenseNet_121_model(args, logFile)
@@ -173,7 +173,7 @@ def get_model(args, logFile):
         model = MTL_MobileNet_V2_model()
 
     elif args.model == MTL_MobileNet_V1_model_name:
-        model = MTL_MobileNet_V1_model()
+        model = MTL_MobileNet_V1_model(args)
 
     else:
         NotImplementedError

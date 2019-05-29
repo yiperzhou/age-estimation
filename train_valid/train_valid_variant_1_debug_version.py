@@ -74,17 +74,27 @@ def age_mae_criterion_Encapsulation(age_criterion, age_out_1, age_label):
 
 
 
-def age_rgs_criterion_Encapsulation(age_rgs_criterion, y_pred, y_true):
+def age_rgs_criterion_Encapsulation(age_rgs_criterion, y_pred, y_true, args):
     '''
     age regression loss, reference, the github repository, Age-Gender-Pred, repository
     '''
     
-    age_divde = torch.tensor(10)
+    if args.age_loss_type == "10_age_cls_loss":
+        age_divide = torch.tensor(10)
+        # print("10_age_cls_loss")
+    elif args.age_loss_type == "5_age_cls_loss":
+        age_divide = torch.tensor(5)
+        # print("5_age_cls_loss")
+    elif args.age_loss_type == "20_age_cls_loss":
+        age_divide = torch.tensor(20)
+        # print("20_age_cls_loss")
+    else:
+        print("10_age_cls_loss, 5_age_cls_loss, 20_age_cls_loss")
         
         
     # def forward(self, y_pred, y_true, age_rgs_criterion):
 
-    y_true_rgs = torch.div(y_true, age_divde)
+    y_true_rgs = torch.div(y_true, age_divide)
     
     y_true_rgs = y_true_rgs.type(torch.FloatTensor)
 
@@ -200,11 +210,11 @@ def Train_Valid_debug(model, loader, criterion, optimizer, epoch, logFile, args,
 
 
         age_loss_gaussian = age_gaussian_loss_criterion(age_out_1, age_label)
-
+        
         
 
 
-        age_loss_rgs = age_rgs_criterion_Encapsulation(age_rgs_criterion, age_out_rgs_1, age_label)
+        age_loss_rgs = age_rgs_criterion_Encapsulation(age_rgs_criterion, age_out_rgs_1, age_label, args)
         # print("age_loss_rgs: ", age_loss_rgs)
 
 
@@ -250,13 +260,18 @@ def Train_Valid_debug(model, loader, criterion, optimizer, epoch, logFile, args,
 
 
         reduce_gen_loss, reduce_smile_loss, reduce_emo_loss, reduce_age_cls_loss  = args.loss_weights[0], args.loss_weights[1], args.loss_weights[2], args.loss_weights[3]
+
+        age_rgs_loss_weight = args.age_rgs_loss_weight
+        age_gaussian_loss_weight = args.age_gaussian_loss_weight
+
         
         loss = age_loss * reduce_age_cls_loss
         
-        loss = loss * 1 + age_loss_rgs * 1
+        loss = loss + age_loss_rgs * age_rgs_loss_weight
 
-        loss = loss * 1 + age_loss_gaussian * 0
+        loss = loss + age_loss_gaussian * age_gaussian_loss_weight
 
+        # print(loss)
 
         total_loss.update(loss.item(), 1)
 

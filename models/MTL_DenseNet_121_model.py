@@ -9,188 +9,80 @@ import torch.nn.functional as F
 
 from torchvision import models
 
-# __all__ = ['DenseNet', 'densenet121']
-
-
-# model_urls = {
-#     'densenet121': 'https://download.pytorch.org/models/densenet121-a639ec97.pth',
-#     'densenet169': 'https://download.pytorch.org/models/densenet169-b2777c0a.pth',
-#     'densenet201': 'https://download.pytorch.org/models/densenet201-c1103571.pth',
-#     'densenet161': 'https://download.pytorch.org/models/densenet161-8d451a50.pth',
-# }
-
-
-# class _DenseLayer(nn.Sequential):
-#     def __init__(self, num_input_features, growth_rate, bn_size, drop_rate):
-#         super(_DenseLayer, self).__init__()
-#         self.add_module('norm1', nn.BatchNorm2d(num_input_features)),
-#         self.add_module('relu1', nn.ReLU(inplace=True)),
-#         self.add_module('conv1', nn.Conv2d(num_input_features, bn_size *
-#                         growth_rate, kernel_size=1, stride=1, bias=False)),
-#         self.add_module('norm2', nn.BatchNorm2d(bn_size * growth_rate)),
-#         self.add_module('relu2', nn.ReLU(inplace=True)),
-#         self.add_module('conv2', nn.Conv2d(bn_size * growth_rate, growth_rate,
-#                         kernel_size=3, stride=1, padding=1, bias=False)),
-#         self.drop_rate = drop_rate
-
-#     def forward(self, x):
-#         new_features = super(_DenseLayer, self).forward(x)
-#         if self.drop_rate > 0:
-#             new_features = F.dropout(new_features, p=self.drop_rate, training=self.training)
-#         return torch.cat([x, new_features], 1)
-
-
-# class _DenseBlock(nn.Sequential):
-#     def __init__(self, num_layers, num_input_features, bn_size, growth_rate, drop_rate):
-#         super(_DenseBlock, self).__init__()
-#         for i in range(num_layers):
-#             layer = _DenseLayer(num_input_features + i * growth_rate, growth_rate, bn_size, drop_rate)
-#             self.add_module('denselayer%d' % (i + 1), layer)
-
-
-# class _Transition(nn.Sequential):
-#     def __init__(self, num_input_features, num_output_features):
-#         super(_Transition, self).__init__()
-#         self.add_module('norm', nn.BatchNorm2d(num_input_features))
-#         self.add_module('relu', nn.ReLU(inplace=True))
-#         self.add_module('conv', nn.Conv2d(num_input_features, num_output_features,
-#                                           kernel_size=1, stride=1, bias=False))
-#         self.add_module('pool', nn.AvgPool2d(kernel_size=2, stride=2))
-
-
-# class DenseNet(nn.Module):
-#     r"""Densenet-BC model class, based on
-#     `"Densely Connected Convolutional Networks" <https://arxiv.org/pdf/1608.06993.pdf>`_
-#     Args:
-#         growth_rate (int) - how many filters to add each layer (`k` in paper)
-#         block_config (list of 4 ints) - how many layers in each pooling block
-#         num_init_features (int) - the number of filters to learn in the first convolution layer
-#         bn_size (int) - multiplicative factor for number of bottle neck layers
-#           (i.e. bn_size * k features in the bottleneck layer)
-#         drop_rate (float) - dropout rate after each dense layer
-#         num_classes (int) - number of classification classes
-#     """
-
-#     def __init__(self, growth_rate=32, block_config=(6, 12, 24, 16),
-#                  num_init_features=64, bn_size=4, drop_rate=0, num_classes=1000):
-
-#         super(DenseNet, self).__init__()
-
-#         # First convolution
-#         self.features = nn.Sequential(OrderedDict([
-#             ('conv0', nn.Conv2d(3, num_init_features, kernel_size=7, stride=2, padding=3, bias=False)),
-#             ('norm0', nn.BatchNorm2d(num_init_features)),
-#             ('relu0', nn.ReLU(inplace=True)),
-#             ('pool0', nn.MaxPool2d(kernel_size=3, stride=2, padding=1)),
-#         ]))
-
-#         # Each denseblock
-#         num_features = num_init_features
-#         for i, num_layers in enumerate(block_config):
-#             block = _DenseBlock(num_layers=num_layers, num_input_features=num_features,
-#                                 bn_size=bn_size, growth_rate=growth_rate, drop_rate=drop_rate)
-#             self.features.add_module('denseblock%d' % (i + 1), block)
-#             num_features = num_features + num_layers * growth_rate
-#             if i != len(block_config) - 1:
-#                 trans = _Transition(num_input_features=num_features, num_output_features=num_features // 2)
-#                 self.features.add_module('transition%d' % (i + 1), trans)
-#                 num_features = num_features // 2
-
-#         # Final batch norm
-#         self.features.add_module('norm5', nn.BatchNorm2d(num_features))
-
-#         # Linear layer
-#         self.classifier = nn.Linear(num_features, num_classes)
-
-#         # Official init from torch repo.
-#         for m in self.modules():
-#             if isinstance(m, nn.Conv2d):
-#                 nn.init.kaiming_normal_(m.weight)
-#             elif isinstance(m, nn.BatchNorm2d):
-#                 nn.init.constant_(m.weight, 1)
-#                 nn.init.constant_(m.bias, 0)
-#             elif isinstance(m, nn.Linear):
-#                 nn.init.constant_(m.bias, 0)
-
-#     def forward(self, x):
-#         features = self.features(x)
-#         out = F.relu(features, inplace=True)
-#         out = F.adaptive_avg_pool2d(out, (1, 1)).view(features.size(0), -1)
-#         out = self.classifier(out)
-#         return out
-
-
-# def densenet121(pretrained=False, **kwargs):
-#     r"""Densenet-121 model from
-#     `"Densely Connected Convolutional Networks" <https://arxiv.org/pdf/1608.06993.pdf>`_
-#     Args:
-#         pretrained (bool): If True, returns a model pre-trained on ImageNet
-#     """
-#     model = DenseNet(num_init_features=64, growth_rate=32, block_config=(6, 12, 24, 16),
-#                      **kwargs)
-#     if pretrained:
-#         # '.'s are no longer allowed in module names, but pervious _DenseLayer
-#         # has keys 'norm.1', 'relu.1', 'conv.1', 'norm.2', 'relu.2', 'conv.2'.
-#         # They are also in the checkpoints in model_urls. This pattern is used
-#         # to find such keys.
-#         pattern = re.compile(
-#             r'^(.*denselayer\d+\.(?:norm|relu|conv))\.((?:[12])\.(?:weight|bias|running_mean|running_var))$')
-#         state_dict = model_zoo.load_url(model_urls['densenet121'])
-#         for key in list(state_dict.keys()):
-#             res = pattern.match(key)
-#             if res:
-#                 new_key = res.group(1) + res.group(2)
-#                 state_dict[new_key] = state_dict[key]
-#                 del state_dict[key]
-#         model.load_state_dict(state_dict)
-#     return model
-
-
-
     
 class MTL_DenseNet_121_model(torch.nn.Module):
-    def __init__(self):
+    def __init__(self, args, gen_classes=2, smile_classes=2, emo_classes=7, age_classes=100):
         super(MTL_DenseNet_121_model, self).__init__()
-        self.denseNet = models.densenet121(pretrained=True)
 
+        self.MTL_DenseNet_features = models.densenet121(pretrained=True).features
+        
+        self.features_length = 50176
+
+        self.args = args
+        self.age_divide = self.get_age_rgs_number_class()  
 
         # gender branch
-        self.fc2          = nn.Linear(50176, 512)
-        self.gen_cls_pred = nn.Linear(512, 2)
+        self.gender_clf = nn.Sequential(
+            nn.Linear(self.features_length, 512),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=0.5, inplace=False),
+            nn.Linear(512, gen_classes)
+        )
 
         # smile branch
-        self.fc4          = nn.Linear(50176, 512)
-        self.smile_cls_pred = nn.Linear(512, 2)
-
+        self.smile_clf = nn.Sequential(
+            nn.Linear(self.features_length, 512),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=0.5, inplace=False),
+            nn.Linear(512, smile_classes)
+        )
 
         # emotion branch
-        self.dropout      = nn.Dropout(p=0.5, inplace=False)
-        self.fc3          = nn.Linear(50176, 512)
-        self.emo_cls_pred = nn.Linear(512, 7)
-
+        self.emotion_clf = nn.Sequential(
+            nn.Linear(self.features_length, 512),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=0.5, inplace=False),
+            nn.Linear(512, emo_classes)
+        )
 
         # age branch
-        self.fc1          = nn.Linear(50176, 512)
-        self.age_cls_pred = nn.Linear(512, 100)
+        self.age_clf = nn.Sequential(
+            nn.Linear(self.features_length, 512),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=0.5, inplace=False),
+            nn.Linear(512, age_classes)
+        )
 
+      
+        self.age_rgs_clf = nn.Sequential(
+            nn.Linear(self.features_length, 256),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=0.5, inplace=False),
+            nn.Linear(256, self.age_divide)
+        )     
 
+    
+    def get_age_rgs_number_class(self):
 
-    def get_densenet_convs_out(self, x):
-        """
-        get outputs from feature block of DenseNet
-        :param x: image input
-        :return: middle ouput from feature block
-        """
-        x = self.denseNet.features(x)   
-        return x
+        if self.args.age_loss_type == "10_age_cls_loss":
+            age_divide = 10
+            # print("10_age_cls_loss")
+        elif self.args.age_loss_type == "5_age_cls_loss":
+            age_divide = 20
+            # print("5_age_cls_loss")
+        elif self.args.age_loss_type == "20_age_cls_loss":
+            age_divide = 5
+            # print("20_age_cls_loss")
+        else:
+            print("10_age_cls_loss, 5_age_cls_loss, 20_age_cls_loss")
+            ValueError
+
+        return age_divide
 
     def get_age_gender_emotion(self, last_conv_out):
-        # last_conv_out = self.denseNet.avgpool(last_conv_out)
         last_conv_out = last_conv_out.view(last_conv_out.size(0), -1)
 
         print("MTL_DenseNet_121, last_conv_out: ", last_conv_out.size())
-
-
 
         gen_pred = F.relu(self.dropout(self.fc2(last_conv_out)))
         gen_pred = F.softmax(self.gen_cls_pred(gen_pred))
@@ -198,19 +90,26 @@ class MTL_DenseNet_121_model(torch.nn.Module):
         smile_pred   = F.relu(self.dropout(self.fc4(last_conv_out)))
         smile_pred   = F.softmax(self.smile_cls_pred(smile_pred))
 
-
         emo_pred = F.relu(self.dropout(self.fc3(last_conv_out)))
         emo_pred = F.softmax(self.emo_cls_pred(emo_pred))
-
 
         age_pred = F.relu(self.dropout(self.fc1(last_conv_out)))
         age_pred = F.softmax(self.age_cls_pred(age_pred), 1)
 
 
         return gen_pred, smile_pred, emo_pred, age_pred
+
     
-    def forward(self, x, return_atten_info = False):
-        last1 = self.get_densenet_convs_out(x)
-        gen_pred, smile_pred, emo_pred, age_pred = self.get_age_gender_emotion(last1)
-        return gen_pred, smile_pred, emo_pred, age_pred
+    def forward(self, x):
+        x = self.MTL_DenseNet_features(x)
+        x = x.view(x.size(0), -1)
+
+        gen_pred = self.gender_clf(x)
+        smile_pred = self.smile_clf(x)
+        emo_pred = self.emotion_clf(x)
+        age_pred = self.age_clf(x)
+
+        age_pred_rgs = self.age_rgs_clf(x)
+
+        return gen_pred, smile_pred, emo_pred, age_pred, age_pred_rgs
 
