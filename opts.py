@@ -12,7 +12,7 @@ parser.add_argument('--weight_decay', type=float, default=1e-6)
 
 
 parser.add_argument('--dataset', type=str, default="CVPR_16_ChaLearn", help="CVPR_16_ChaLearn, IMDB_WIKI")
-parser.add_argument('--model', type=str, default = "MTL_DenseNet_121_model",
+parser.add_argument('--model', type=str, default = "MTL_MobileNet_V1_model",
                      help="[MTL_ResNet_18_model, res18_cls70, MTL_ResNet_50_model, MTL_DenseNet_121_model, MTL_AlexNet_model, MTL_VGG11_bn_model, MTL_MobileNet_V2_model， MTL_MobileNet_V1_model]")
 parser.add_argument('--lr_rate', type=float, default=0.001, help='learning rate (default: 0.001)')
 # neural network hyperparamter
@@ -44,8 +44,13 @@ parser.add_argument('--age_loss_type', type=str, default="5_age_cls_loss", help=
 parser.add_argument('--no_age_rgs_loss', type=bool, default=True, help="default false")
 parser.add_argument('--age_rgs_loss_weight', type=float, default=0, help="gaussian_loss_weight")
 
-parser.add_argument('--age_loss_gaussian', type=str, default="age_loss_gaussian", help="age_loss_gaussian")
 
+parser.add_argument('--5_classes_age_loss_type', type=bool, default=True, help="5_classes_age_loss_type")
+parser.add_argument('--10_classes_age_loss_type', type=bool, default=True, help="10_classes_age_loss_type")
+parser.add_argument('--20_classes_age_loss_type', type=bool, default=True, help="[20_classes_age_loss_type")
+
+
+parser.add_argument('--age_loss_gaussian', type=str, default="age_loss_gaussian", help="age_loss_gaussian")
 parser.add_argument('--no_age_loss_gaussian', type=bool, default=True, help="default false")
 parser.add_argument('--age_gaussian_loss_weight', type=float, default=0, help="age_gaussian_loss_weight")
 
