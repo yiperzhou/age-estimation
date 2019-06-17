@@ -1,19 +1,24 @@
 # Multi-loss function for age estimation
 
+### branch
 
-## example
+1. multiple_losses_on_age_estimation  
+2.   
 
-![Example](./master/example/example_03.png)
+<!-- ## example
+
+![Example](./master/example/example_03.png) -->
 
 
 ### run experiments
 
-#### run multi-loss on age estimation 
+#### run multi-loss experiments on age estimation 
 
-python main3_age_gender_emotion.py  
+python main.py  
 
+####  configuration file
 
-configuration file is in: config.ini  
+config.ini  
 
 #### age dataset
 
@@ -32,12 +37,9 @@ MobileNet-V1            |
 
 using Yue's processed images on ChaLearn CVPR 2016 dataset.
 
-#### clasification
-
-AlexNet model as the backbone
-
 
 
 
 ## reference
+
 1. ChaLearn Looking at People and Faces of the World 2016, https://competitions.codalab.org/competitions/7511#learn_the_details-evaluation 
