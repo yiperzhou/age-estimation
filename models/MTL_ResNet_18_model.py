@@ -13,13 +13,16 @@ import numpy as np
 
 
 class MTL_ResNet_18_model(torch.nn.Module):
-  def __init__(self):
+  def __init__(self, args):
     super(MTL_ResNet_18_model, self).__init__()
     self.resNet = models.resnet18(pretrained=True)
 
     self.use_gpu = torch.cuda.is_available()
     # self.age_divide = float(parser['DATA']['age_divide'])
     # self.age_cls_unit = int(parser['RacNet']['age_cls_unit'])
+
+    self.args = args
+    self.age_divide = self.get_age_rgs_number_class()
 
     # gender branch
     self.fc1          = nn.Linear(512, 512)
@@ -41,7 +44,7 @@ class MTL_ResNet_18_model(torch.nn.Module):
     self.age_cls_pred = nn.Linear(256, 88)
 
     self.fc5          = nn.Linear(512, 256)
-    self.age_rgs_pred = nn.Linear(256, 10)
+    self.age_rgs_pred = nn.Linear(256, self.age_divide)
 
   def get_resnet_convs_out(self, x):
     """
@@ -60,6 +63,23 @@ class MTL_ResNet_18_model(torch.nn.Module):
     x = self.resNet.layer4(x)   # out = [N, 512, 7, 7]
 
     return x
+
+  def get_age_rgs_number_class(self):
+
+      if self.args.age_loss_type == "10_age_cls_loss":
+          age_divide = 10
+          # print("10_age_cls_loss")
+      elif self.args.age_loss_type == "5_age_cls_loss":
+          age_divide = 20
+          # print("5_age_cls_loss")
+      elif self.args.age_loss_type == "20_age_cls_loss":
+          age_divide = 5
+          # print("20_age_cls_loss")
+      else:
+          print("10_age_cls_loss, 5_age_cls_loss, 20_age_cls_loss")
+          ValueError
+
+      return age_divide
 
 
   def get_age_gender_emotion(self, last_conv_out):

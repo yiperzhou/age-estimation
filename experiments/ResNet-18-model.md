@@ -60,10 +60,20 @@ ResNet-18-Emotion                                                      |        
 ResNet-18-Age                                                          |                          |                         |                          |                            | 11.4
 ResNet-18-Age-100-class-10-classes-crossentropy [12]                   |                          |                         |                          |                            |   10.23
 ResNet-18-Age-10-classes-crossentropy  [11]                            |                          |                         |                          |                            |  20.47                                
-ResNet-18-Age-100-class-10-classes-crossentropy-gaussian-loss [10]     |                          |                         |                          |                            |   9.85
+
+
+
+
+
 
 
 ### reference 
-[10] /home/yi/narvi_yi_home/projects/MultitaskLearningFace/results/MTL_ResNet_18_model/_gender_0_smile_0_emotion_0_age_1_CVPR_16_ChaLearn/2019-05-07-14-35-05_100-class-10-classes-crossentropy-gaussian-loss
+
+
+
 [11] /home/yi/narvi_yi_home/projects/MultitaskLearningFace/results/MTL_ResNet_18_model/_gender_0_smile_0_emotion_0_age_1_CVPR_16_ChaLearn/2019-05-07-14-24-47_10-classes-crossentropy
+
 [12] /home/yi/narvi_yi_home/projects/MultitaskLearningFace/results/MTL_ResNet_18_model/_gender_0_smile_0_emotion_0_age_1_CVPR_16_ChaLearn/2019-05-07-14-13-05_100-class-10-classes-crossentropy
+
+
+

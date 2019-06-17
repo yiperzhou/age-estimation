@@ -36,6 +36,9 @@ conda env export > tut_thinkstation_virtual_env_caffe.yml
 conda env create -f tut_thinkstation_virtual_env_caffe.yml
 
 
+## conda install library
+
+
 ## umount folder
 
 sudo umount narvi/

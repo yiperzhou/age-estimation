@@ -14,8 +14,6 @@
 
 model                                   | Age MAE (IMDB_WIKI) | Gender Acc (IMDB_WIKI)
 ----------------------------------------| ------------------- | ----------------------
-
-
 reference models                        |                     |                       
 SSR-Net[3]                              | 
 
@@ -172,3 +170,20 @@ use the 30 epochs pretrained model
 
 [references]
 [1]. SSR-Net: A Compact Soft Stagewise Regression Network for Age Estimation
+
+
+
+
+model                                                                  | Gender(%)(Chalearn_2016) | Smile(%)(Chalearn_2016) | Emotion Acc(%)(FER_2013) | Age Acc(%)                 | Age MAE (ChaLearn_2016)
+---------------------------------------------------------------------- |------------------------- | ----------------------- | ------------------------ |--------------------------- | ---------------------------
+DenseNet-121-Gender_Smile_Emotion_Age                                  |                          |                         |                          |                            |                
+DenseNet-121-Age                                                       |                          |                         |                          |                            |         
+DenseNet-121-Age-100-class-10-classes-crossentropy                     |                          |                         |                          |                            |   
+DenseNet-121-Age-10-classes-crossentropy                               |                          |                         |                          |                            |                              
+DenseNet-121-Age-100-class-10-classes-crossentropy-gaussian-loss       |                          |                         |                          |                            |   
+DenseNet-121-Age-100-class-20-classes                                  |                          |                         |                          |                            |                     
+DenseNet-121-Age-100-class-5-classes-crossentropy                      |                          |                         |                          |                            |                     
+
+
+### reference
+[1] 
