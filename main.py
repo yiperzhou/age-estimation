@@ -25,7 +25,7 @@ from torch.autograd import Variable
 from tensorboardX import SummaryWriter
 
 
-from data_load.CVPR_16_ChaLearn_data_loader import get_CVPR_Age_Gender_Smile_data
+from data_load.CVPR_16_ChaLearn_data_loader import get_CVPR_Age_data
 # from data_load.celeba_data_loader import get_celebA_data
 from data_load.FER2013_Emotion_data_loader import get_FER2013_Emotion_data
 
@@ -71,7 +71,7 @@ def main(**kwargs):
 
     if args.debug:
         print("[Debug mode]")
-        path = "./results" + os.sep + "Debug-" + args.model + os.sep + args.folder_sub_name + "_" + args.dataset + os.sep + ts_str
+        path = os.path.join("./results", "Debug-"+ args.model, args.folder_sub_name + "_" + args.dataset, ts_str)
     else:
         path = "./results" + os.sep + args.model + os.sep + args.folder_sub_name + "_" + args.dataset + os.sep + ts_str
 
@@ -82,7 +82,8 @@ def main(**kwargs):
         path = "./results" + os.sep + args.model + os.sep + args.folder_sub_name + "_" + args.dataset + os.sep + ts_str
 
 
-    tensorboard_folder = path + os.sep + "Graph"
+    tensorboard_folder = os.path.join(path, "Graph")
+    
     # csv_path = path + os.sep + "log.csv"
     
     os.makedirs(path)
@@ -95,12 +96,7 @@ def main(**kwargs):
     global writer
     writer = SummaryWriter(tensorboard_folder)
 
-    age_train_loader, age_test_loader, gender_train_loader, gender_test_loader, smile_train_loader, smile_test_loader = get_CVPR_Age_Gender_Smile_data(args)
-
-    # face_verification_train_loader, face_verification_valid_loader, face_verification_test_loader = get_celebA_data(args)
-    
-
-    emotion_train_loader, emotion_test_loader = get_FER2013_Emotion_data(args)
+    age_train_loader, age_test_loader = get_CVPR_Age_data(args)
 
     pretrained_model_weight_path = get_pretrained_model_weights_path(args)
 
@@ -115,52 +111,29 @@ def main(**kwargs):
     optimizer = optim.SGD(filter(lambda p: p.requires_grad, model.parameters()), momentum=0.9, lr=args.lr_rate, weight_decay=args.weight_decay)
 
     age_cls_criterion = nn.CrossEntropyLoss()
-    # age_cls_criterion = nn.BCELoss()
     age_mae_criterion = nn.L1Loss()
     
-    gender_criterion = nn.CrossEntropyLoss()
-    smile_criterion = nn.CrossEntropyLoss()
-    emotion_criterion = nn.CrossEntropyLoss()
-
-    face_verification_criterion = nn.CrossEntropyLoss()
-
     age_gaussian_loss_criterion = Gaussian_age_loss()
     age_euclidean_loss_criterion = Euclidean_age_loss()
     age_rgs_criterion = nn.CrossEntropyLoss()
 
-    
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', threshold=1e-5, patience=10)
     
     # log model to logfile, so that I can check the logfile later to know the model detail, for example, the number of class for the age estimation
     LOG(model, logFile)
-
 
     use_gpu = torch.cuda.is_available()
     if use_gpu:
         model = model.cuda()
         age_cls_criterion = age_cls_criterion.cuda()
 
-        gender_criterion = gender_criterion.cuda()
         age_mae_criterion = age_mae_criterion.cuda()
-        smile_criterion = smile_criterion.cuda()
-        emotion_criterion = emotion_criterion.cuda()
 
         age_gaussian_loss_criterion = age_gaussian_loss_criterion.cuda()
         age_euclidean_loss_criterion = age_euclidean_loss_criterion.cuda()
         age_rgs_criterion = age_rgs_criterion.cuda()
 
-
-
     epochs_train_total_loss, epochs_valid_total_loss = [], []
-
-    epochs_train_smile_accs, epochs_train_smile_losses = [], []
-    epochs_valid_smile_accs, epochs_valid_smile_losses = [], []
-
-    epochs_train_gender_accs, epochs_train_gender_losses = [], []
-    epochs_valid_gender_accs, epochs_valid_gender_losses = [], []
-
-    epochs_train_emotion_accs, epochs_train_emotion_losses = [], []
-    epochs_valid_emotion_accs, epochs_valid_emotion_losses = [], []
 
     epochs_train_age_accs, epochs_train_age_losses = [], []
     epochs_valid_age_accs, epochs_valid_age_losses = [], []
@@ -173,33 +146,31 @@ def main(**kwargs):
     lowest_loss = 100000
 
     columns = ['Timstamp', 'Epoch', 'lr', 
-                'train_gender_loss', 'train_smile_loss', 'train_emotion_loss', 'train_age_loss', 'train_age_mae', 'train_total_loss'
-                'train_gender_acc', 'train_smile_acc', 'train_emotion_acc', 'train_age_acc',
-                'val_gender_loss', 'val_smile_loss',  'val_emotion_loss', 'val_age_loss', 'val_age_mae', 'val_total_loss',
-                'val_gender_acc', 'val_smile_acc', 'val_emotion_acc', 'val_age_loss']
+                'train_age_loss', 'train_age_mae', 'train_total_loss'
+                'train_age_acc',
+                'val_age_loss', 'val_age_mae', 'val_total_loss',
+                'val_age_loss']
 
     csv_checkpoint = pd.DataFrame(data=[], columns=columns)
     
 
 
     for epoch in range(0, args.epoch):
-
-
         if args.multitask_training_type == "Train_Valid":
             if args.debug == True:
                 LOG("enter [DEBUG] Tran_Valid", logFile)
-                train_accs, train_losses, lr, model = Train_Valid_debug(model, [gender_train_loader, age_train_loader, smile_train_loader, emotion_train_loader], 
-                                                                        [gender_criterion, age_mae_criterion, smile_criterion, age_cls_criterion, emotion_criterion, age_gaussian_loss_criterion, age_euclidean_loss_criterion, age_rgs_criterion],
+                train_accs, train_losses, lr, model = Train_Valid_debug(model, [age_train_loader], 
+                                                                        [age_mae_criterion, age_cls_criterion, age_gaussian_loss_criterion, age_euclidean_loss_criterion, age_rgs_criterion],
                                                                         optimizer, epoch, logFile, args, "train")
 
             else:
                 LOG("enter [Normal] Tran_Valid", logFile)
-                train_accs, train_losses, lr, model = Train_Valid(model, [gender_train_loader, age_train_loader, smile_train_loader, emotion_train_loader], 
-                                                [gender_criterion, age_mae_criterion, smile_criterion, age_cls_criterion, emotion_criterion], optimizer, epoch, logFile, args, "train")                
+                train_accs, train_losses, lr, model = Train_Valid(model, [age_train_loader], 
+                                                [age_mae_criterion, age_cls_criterion], optimizer, epoch, logFile, args, "train")                
 
         elif args.multitask_training_type == "Train_Valid_2":
-            train_accs, train_losses, lr, model = Train_Valid_2(model, [gender_train_loader, age_train_loader, smile_train_loader, emotion_train_loader], 
-                                                            [gender_criterion, age_mae_criterion, smile_criterion, age_cls_criterion, emotion_criterion], optimizer, epoch, logFile, args, "train")
+            train_accs, train_losses, lr, model = Train_Valid_2(model, [age_train_loader], 
+                                                            [age_mae_criterion, age_cls_criterion], optimizer, epoch, logFile, args, "train")
         else:
             LOG("[Train_Valid, Train_Valid_2]", logFile)
 
@@ -216,27 +187,27 @@ def main(**kwargs):
         if args.multitask_training_type == "Train_Valid":
             if args.debug == True:
                 LOG("enter [DEBUG] Tran_Valid", logFile)
-                val_accs, val_losses, lr, model = Train_Valid_debug(model,[gender_test_loader, age_test_loader, smile_test_loader, emotion_test_loader],
-                                                                    [gender_criterion, age_mae_criterion, smile_criterion, age_cls_criterion, emotion_criterion, age_gaussian_loss_criterion, age_euclidean_loss_criterion, age_rgs_criterion],
+                val_accs, val_losses, lr, model = Train_Valid_debug(model,[age_test_loader],
+                                                                    [age_mae_criterion, age_cls_criterion, age_gaussian_loss_criterion, age_euclidean_loss_criterion, age_rgs_criterion],
                                                                     optimizer, epoch, logFile, args, "valid")
             else:
                 LOG("enter [Normal] Tran_Valid", logFile)
-                val_accs, val_losses, lr, model = Train_Valid(model,[gender_test_loader, age_test_loader, smile_test_loader, emotion_test_loader],
-                                                        [gender_criterion, age_mae_criterion, smile_criterion, age_cls_criterion, emotion_criterion], optimizer, epoch, logFile, args, "valid")
+                val_accs, val_losses, lr, model = Train_Valid(model,[age_test_loader],
+                                                        [age_mae_criterion, age_cls_criterion], optimizer, epoch, logFile, args, "valid")
 
         elif args.multitask_training_type == "Train_Valid_2":
-            val_accs, val_losses, lr, model = Train_Valid_2(model,[gender_test_loader, age_test_loader, smile_test_loader, emotion_test_loader],
-                                                    [gender_criterion, age_mae_criterion, smile_criterion, age_cls_criterion, emotion_criterion], optimizer, epoch, logFile, args, "valid")
+            val_accs, val_losses, lr, model = Train_Valid_2(model,[age_test_loader],
+                                                    [age_mae_criterion, age_cls_criterion], optimizer, epoch, logFile, args, "valid")
         else:
             LOG("[Train_Valid, Train_Valid_2]", logFile)
 
 
-        LOG_variables_to_board([epochs_valid_gender_losses, epochs_valid_smile_losses, epochs_valid_emotion_losses, epochs_valid_age_losses, epochs_valid_age_mae_losses],
+        LOG_variables_to_board([epochs_valid_age_losses, epochs_valid_age_mae_losses],
                                 val_losses,
-                                ['val_gender_loss', 'val_smile_loss',  'val_emotion_loss', 'val_age_loss', 'val_age_mae', 'val_total_loss'],
-                                [epochs_valid_gender_accs, epochs_valid_smile_accs, epochs_valid_emotion_accs, epochs_valid_age_accs, epochs_valid_total_loss],
+                                [val_age_loss', 'val_age_mae', 'val_total_loss'],
+                                [epochs_valid_age_accs, epochs_valid_total_loss],
                                 val_accs,
-                                ['val_gender_acc', 'val_smile_acc', 'val_emotion_acc', 'val_age_acc'],
+                                ['val_age_acc'],
                                 "Valid", tensorboard_folder, epoch, logFile, writer)
 
         LOG("\n", logFile)
