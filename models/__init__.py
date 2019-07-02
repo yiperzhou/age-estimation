@@ -19,7 +19,7 @@ from .Elastic_MTL_DenseNet_121_model import (
 )
 
 from .MTL_AlexNet_model import (
-    MTL_AlexNet_model
+    Multi_loss_AlexNet_Model
 )
 
 from .MTL_VGG11_bn_model import (

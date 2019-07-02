@@ -150,7 +150,7 @@ def Train_Valid_debug(model, loader, criterion, optimizer, epoch, logFile, args,
 
     print("four tasks weights: ", args.loss_weights)
 
-    gender_criterion, age_mae_criterion, smile_criterion, age_cls_criterion, emotion_criterion = criterion[0], criterion[1], criterion[2], criterion[3], criterion[4]
+    , age_mae_criterion, smile_criterion, age_cls_criterion, emotion_criterion = criterion[0], criterion[1], criterion[2], criterion[3], criterion[4]
 
     age_gaussian_loss_criterion, age_euclidean_loss_criterion, age_rgs_criterion  = criterion[5], criterion[6], criterion[7]
 

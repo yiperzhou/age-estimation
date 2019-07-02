@@ -63,23 +63,27 @@ def main(**kwargs):
     # # parse config 
     # config = process_config(args.config)
 
-    # parse loss weight to sub folder name
-    args.folder_sub_name = parse_loss_weight(args)
+    # # parse loss weight to sub folder name
+    # args.folder_sub_name = parse_loss_weight(args)
 
     timestamp = datetime.datetime.now()
     ts_str = timestamp.strftime('%Y-%m-%d-%H-%M-%S')
 
     if args.debug:
         print("[Debug mode]")
-        path = os.path.join("./results", "Debug-"+ args.model, args.folder_sub_name + "_" + args.dataset, ts_str)
+        # path = os.path.join("./results", "Debug-"+ args.model, args.folder_sub_name + "_" + args.dataset, ts_str)
+        path = os.path.join("./results", "Debug-"+ args.model, "_" + args.dataset, ts_str)
     else:
-        path = "./results" + os.sep + args.model + os.sep + args.folder_sub_name + "_" + args.dataset + os.sep + ts_str
+        # path = "./results" + os.sep + args.model + os.sep + args.folder_sub_name + "_" + args.dataset + os.sep + ts_str
+        path = "./results" + os.sep + args.model + "_" + args.dataset + os.sep + ts_str
 
     if args.load_IMDB_WIKI_pretrained_model:
         print("load IMDB WIKI pretrained model")
-        path = "./results" + os.sep + "loaded_pretrained-" + args.model + os.sep + args.folder_sub_name + "_" + args.dataset + os.sep + ts_str
+        # path = "./results" + os.sep + "loaded_pretrained-" + args.model + os.sep + args.folder_sub_name + "_" + args.dataset + os.sep + ts_str
+        path = "./results" + os.sep + "loaded_pretrained-" + args.model + os.sep + "_" + args.dataset + os.sep + ts_str
     else:
-        path = "./results" + os.sep + args.model + os.sep + args.folder_sub_name + "_" + args.dataset + os.sep + ts_str
+        # path = "./results" + os.sep + args.model + os.sep + args.folder_sub_name + "_" + args.dataset + os.sep + ts_str
+        path = "./results" + os.sep + args.model + os.sep + "_" + args.dataset + os.sep + ts_str
 
 
     tensorboard_folder = os.path.join(path, "Graph")
@@ -175,12 +179,12 @@ def main(**kwargs):
             LOG("[Train_Valid, Train_Valid_2]", logFile)
 
 
-        LOG_variables_to_board([epochs_train_gender_losses, epochs_train_smile_losses, epochs_train_emotion_losses, epochs_train_age_losses, epochs_train_age_mae_losses],
+        LOG_variables_to_board([epochs_train_age_losses, epochs_train_age_mae_losses],
                                 train_losses, 
-                                ['train_gender_loss', 'train_smile_loss', 'train_emotion_loss', 'train_age_loss', 'train_age_mae', 'train_total_loss'],
-                                [epochs_train_gender_accs, epochs_train_smile_accs ,epochs_train_emotion_accs, epochs_train_age_accs, epochs_train_total_loss],
+                                ['train_age_loss', 'train_age_mae', 'train_total_loss'],
+                                [epochs_train_age_accs, epochs_train_total_loss],
                                 train_accs,
-                                ['train_gender_acc', 'train_smile_acc', 'train_emotion_acc', 'train_age_acc'],
+                                ['train_age_acc'],
                                 "Train", tensorboard_folder, epoch, logFile, writer)
 
 
@@ -204,7 +208,7 @@ def main(**kwargs):
 
         LOG_variables_to_board([epochs_valid_age_losses, epochs_valid_age_mae_losses],
                                 val_losses,
-                                [val_age_loss', 'val_age_mae', 'val_total_loss'],
+                                ['val_age_loss', 'val_age_mae', 'val_total_loss'],
                                 [epochs_valid_age_accs, epochs_valid_total_loss],
                                 val_accs,
                                 ['val_age_acc'],

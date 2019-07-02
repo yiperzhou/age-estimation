@@ -10,6 +10,11 @@
 ![Example](./master/example/example_03.png) -->
 
 
+### to do task
+
+[] clean the multitask learning source code to multi-loss age estimation task  
+[] 
+
 ### run experiments
 
 #### run multi-loss experiments on age estimation 

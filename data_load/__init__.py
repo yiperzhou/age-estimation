@@ -2,7 +2,7 @@ from .CVPR_16_ChaLearn_data_loader import (
     DatasetFolder,
     # Mix_Age_Gender_Emotion_Dataset,
     CVPR_AGE_load_dataset, 
-    get_CVPR_Age_Gender_Smile_data,
+    get_CVPR_Age_data,
     getstd, load_chalearn_dataset
 )   
 
