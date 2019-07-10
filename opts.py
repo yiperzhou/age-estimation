@@ -19,7 +19,7 @@ parser.add_argument('--lr_rate', type=float, default=0.001, help='learning rate 
 # neural network hyperparamter
 parser.add_argument('--lr_schedule', type=float, default=8, help='learning rate schedule')
 parser.add_argument('--batch_size', type=int, default=32, metavar='N',help='input batch size for training (default: 32)')
-parser.add_argument('--epoch', type=int, help="epoch number, default 1", default=2)
+parser.add_argument('--epoch', type=int, help="epoch number, default 1", default=60)
 
 parser.add_argument('--load_IMDB_WIKI_pretrained_model', type=bool, default=False, help="[False, True]")
 
@@ -28,6 +28,11 @@ parser.add_argument('--multitask_training_type', type=str, default = "Train_Vali
 
 parser.add_argument('--loss_weights', type=list, default = [0,0,0,1], 
                         help="[1,1,1,1], [0,0,0,1], multi-loss on age estimation, [classification loss, regression loss, gaussian distribution loss]")
+
+
+parser.add_argument('--ce_loss', type=list, default = [0,0,0,1], 
+                        help="[1,1,1,1], [0,0,0,1], multi-loss on age estimation, [classification loss, regression loss, gaussian distribution loss]")
+
 
 
 
@@ -41,9 +46,9 @@ parser.add_argument('--no_age_rgs_loss', type=bool, default=True, help="default 
 parser.add_argument('--age_rgs_loss_weight', type=float, default=0, help="gaussian_loss_weight")
 
 
-parser.add_argument('--5_classes_age_loss_type', type=bool, default=True, help="5_classes_age_loss_type")
-parser.add_argument('--10_classes_age_loss_type', type=bool, default=True, help="10_classes_age_loss_type")
-parser.add_argument('--20_classes_age_loss_type', type=bool, default=True, help="[20_classes_age_loss_type")
+parser.add_argument('--5_classes_age_loss_type', type=bool, default=False, help="5_classes_age_loss_type")
+parser.add_argument('--10_classes_age_loss_type', type=bool, default=False, help="10_classes_age_loss_type")
+parser.add_argument('--20_classes_age_loss_type', type=bool, default=False, help="[20_classes_age_loss_type")
 
 
 parser.add_argument('--age_loss_gaussian', type=str, default="age_loss_gaussian", help="age_loss_gaussian")

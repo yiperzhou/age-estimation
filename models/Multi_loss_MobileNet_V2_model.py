@@ -109,9 +109,9 @@ def mobilenet_v2(pretrained=False, **kwargs):
 #     print("mobilenet_v2")
 
 
-class MTL_MobileNet_V2_model(torch.nn.Module):
+class Multi_loss_MobileNet_V2_model(torch.nn.Module):
   def __init__(self, gen_classes= 2, smile_classes = 2, emo_classes = 7, age_classes = 100):
-    super(MTL_MobileNet_V2_model, self).__init__()
+    super(Multi_loss_MobileNet_V2_model, self).__init__()
 
     backbone_model = mobilenet_v2(pretrained=True)
 

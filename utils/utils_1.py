@@ -5,7 +5,7 @@ import sys
 # sys.path.append("/models/")
 
 # print(dirname(__file__))
-from models.MTL_AlexNet_model import Multi_loss_AlexNet_Model
+from models.Multi_loss_AlexNet_model import Multi_loss_AlexNet_Model
 # from models.MTL_DenseNet_121_model import MTL_DenseNet_121_model
 # from models.Elastic_MTL_DenseNet_121_model import Elastic_MTL_DenseNet_121_model
 # from models.MTL_ResNet_50_model import MTL_ResNet_50_model

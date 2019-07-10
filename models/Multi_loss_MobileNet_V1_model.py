@@ -72,9 +72,9 @@ class MobileNet(nn.Module):
         return x
 
 
-class MTL_MobileNet_V1_model(torch.nn.Module):
-    def __init__(self, gen_classes=2, smile_classes=2, emo_classes=7, age_classes=100):
-        super(MTL_MobileNet_V1_model, self).__init__()
+class Multi_loss_MobileNet_V1_Model(torch.nn.Module):
+    def __init__(self, args, age_classes=100):
+        super(Multi_loss_MobileNet_V1_Model, self).__init__()
         
         mobilenet_v1_model = Elastic_MobileNet()
         # mobilenet_v1_model = self.load_MobileNet_V1_ImageNet_pretrained_weight(mobilenet_v1_model)
@@ -89,29 +89,8 @@ class MTL_MobileNet_V1_model(torch.nn.Module):
 
         self.use_gpu = torch.cuda.is_available()
 
-        # gender branch
-        self.gender_clf = nn.Sequential(
-            nn.Linear(self.features_length, 256),
-            nn.ReLU(inplace=True),
-            nn.Dropout(p=0.5, inplace=False),
-            nn.Linear(256, gen_classes)
-        )
-
-        # smile branch
-        self.smile_clf = nn.Sequential(
-            nn.Linear(self.features_length, 256),
-            nn.ReLU(inplace=True),
-            nn.Dropout(p=0.5, inplace=False),
-            nn.Linear(256, smile_classes)
-        )
-
-        # emotion branch
-        self.emotion_clf = nn.Sequential(
-            nn.Linear(self.features_length, 256),
-            nn.ReLU(inplace=True),
-            nn.Dropout(p=0.5, inplace=False),
-            nn.Linear(256, emo_classes)
-        )
+        self.args = args
+        self.age_divide = self.get_age_rgs_number_class()
 
         self.age_clf = nn.Sequential(
             nn.Linear(self.features_length, 256),
@@ -119,6 +98,13 @@ class MTL_MobileNet_V1_model(torch.nn.Module):
             nn.Dropout(p=0.5, inplace=False),
             nn.Linear(256, age_classes)
         )
+
+        self.age_rgs_clf = nn.Sequential(
+            nn.Linear(self.features_length, 256),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=0.5, inplace=False),
+            nn.Linear(256, self.age_divide)
+        )        
 
     def load_MobileNet_V1_ImageNet_pretrained_weight(self, mobilenet_v1_model):
         tar = torch.load(model_urls['mobilenetV1'])
@@ -137,6 +123,23 @@ class MTL_MobileNet_V1_model(torch.nn.Module):
 
         return mobilenet_v1_model
 
+    def get_age_rgs_number_class(self):
+
+        if self.args.age_loss_type == "10_age_cls_loss":
+            age_divide = 10
+            # print("10_age_cls_loss")
+        elif self.args.age_loss_type == "5_age_cls_loss":
+            age_divide = 20
+            # print("5_age_cls_loss")
+        elif self.args.age_loss_type == "20_age_cls_loss":
+            age_divide = 5
+            # print("20_age_cls_loss")
+        else:
+            print("10_age_cls_loss, 5_age_cls_loss, 20_age_cls_loss")
+            ValueError
+
+        return age_divide
+
 
     def forward(self, x):
         x = self.MTL_MobileNet_V1_model_feature(x)
@@ -145,12 +148,11 @@ class MTL_MobileNet_V1_model(torch.nn.Module):
         x = x.view(x.size(0), -1)
         # print(x.size())   # torch.Size([8, 62720])
 
-        gen_pred = self.gender_clf(x)
-        smile_pred = self.smile_clf(x)
-        emo_pred = self.emotion_clf(x)
         age_pred = self.age_clf(x)
+        age_pred_rgs = self.age_rgs_clf(x)
 
-        return gen_pred, smile_pred, emo_pred, age_pred
+        # return gen_pred, smile_pred, emo_pred, age_pred, age_pred_rgs
+        return age_pred, age_pred_rgs
 
 
 # if __name__ == "__main__":

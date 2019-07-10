@@ -12,8 +12,12 @@
 
 ### to do task
 
-[] clean the multitask learning source code to multi-loss age estimation task  
-[] 
+[] clean the multitask learning source code to multi-loss age estimation task, 
+        1. set the flag of different idea as the flag in the main file,
+        2. for multi-task learning as one branch,
+        3. for multi-loss learning as one branch. 
+[x] reference ni xingyang's repository.
+
 
 ### run experiments
 

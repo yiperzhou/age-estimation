@@ -5,37 +5,13 @@ import torch.nn.functional as F
 
 
 class Multi_loss_AlexNet_Model(nn.Module):
-    def __init__(self, args, logFile, gen_classes= 2, smile_classes = 2, emo_classes = 7, age_classes = 88):
+    def __init__(self, args, logFile, age_classes = 88):
         super(Multi_loss_AlexNet_Model, self).__init__()
         self.MTL_AlexNet_features = models.alexnet(pretrained=True).features
         
         self.features_length = 9216
         self.args = args
         self.age_divide = self.get_age_rgs_number_class()
-
-        # # gender branch
-        # self.gender_clf = nn.Sequential(
-        #     nn.Linear(self.features_length, 256),
-        #     nn.ReLU(inplace=True),
-        #     nn.Dropout(p=0.5, inplace=False),
-        #     nn.Linear(256, gen_classes)
-        # )
-
-        # # smile branch
-        # self.smile_clf = nn.Sequential(
-        #     nn.Linear(self.features_length, 256),
-        #     nn.ReLU(inplace=True),
-        #     nn.Dropout(p=0.5, inplace=False),
-        #     nn.Linear(256, smile_classes)
-        # )
-        
-        # # emotion branch
-        # self.emotion_clf = nn.Sequential(
-        #     nn.Linear(self.features_length, 256),
-        #     nn.ReLU(inplace=True),
-        #     nn.Dropout(p=0.5, inplace=False),
-        #     nn.Linear(256, emo_classes)
-        # )
 
         self.age_clf = nn.Sequential(
             nn.Linear(self.features_length, 256),
@@ -73,15 +49,10 @@ class Multi_loss_AlexNet_Model(nn.Module):
         x = self.MTL_AlexNet_features(x)
         x = x.view(x.size(0), -1)
 
-        # gen_pred  = self.gender_clf(x)
-        # smile_pred  = self.smile_clf(x)
-        # emo_pred  = self.emotion_clf(x)
         age_pred  = self.age_clf(x)
 
         age_pred_rgs = self.age_rgs_clf(x)
 
-
-        # return gen_pred, smile_pred, emo_pred, age_pred, age_pred_rgs 
         return age_pred, age_pred_rgs 
 
 

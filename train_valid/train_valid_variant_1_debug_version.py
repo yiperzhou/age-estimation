@@ -107,26 +107,29 @@ def age_rgs_criterion_Encapsulation(age_rgs_criterion, y_pred, y_true, args):
     return age_loss_rgs
 
 
-def Train_Valid_debug(model, loader, criterion, optimizer, epoch, logFile, args, pharse):
+def Train_Valid(model, loader, criterion, optimizer, epoch, logFile, args, pharse, debug):
+
+    if debug == True:
+        LOG("enter [DEBUG] Tran_Valid", logFile)
 
     LOG("[" + pharse + "]: Starting, Epoch: " + str(epoch), logFile)
 
-    best_gen_acc = 0.
+    # best_gen_acc = 0.
     best_age_mae = 99.
-    best_emotion_acc = 0.
+    # best_emotion_acc = 0.
     
     not_reduce_rounds = 0
 
     loss = 0
 
-    gender_epoch_loss = AverageMeter()                      
-    smile_epoch_loss = AverageMeter()
-    emo_epoch_loss = AverageMeter()
+    # gender_epoch_loss = AverageMeter()                      
+    # smile_epoch_loss = AverageMeter()
+    # emo_epoch_loss = AverageMeter()
     age_epoch_loss = AverageMeter()
 
-    gender_epoch_acc = AverageMeter()
-    smile_epoch_acc = AverageMeter()
-    emo_epoch_acc = AverageMeter()
+    # gender_epoch_acc = AverageMeter()
+    # smile_epoch_acc = AverageMeter()
+    # emo_epoch_acc = AverageMeter()
     age_epoch_acc = AverageMeter()
 
     age_epoch_mae = AverageMeter()
@@ -150,15 +153,15 @@ def Train_Valid_debug(model, loader, criterion, optimizer, epoch, logFile, args,
 
     print("four tasks weights: ", args.loss_weights)
 
-    , age_mae_criterion, smile_criterion, age_cls_criterion, emotion_criterion = criterion[0], criterion[1], criterion[2], criterion[3], criterion[4]
+    age_mae_criterion, age_cls_criterion, age_gaussian_loss_criterion, age_euclidean_loss_criterion, age_rgs_criterion = criterion[0], criterion[1], criterion[2], criterion[3], criterion[4]
 
-    age_gaussian_loss_criterion, age_euclidean_loss_criterion, age_rgs_criterion  = criterion[5], criterion[6], criterion[7]
+    # gender_loader, age_loader, smile_loader, emotion_loader = loader[0], loader[1], loader[2], loader[3]
 
-    gender_loader, age_loader, smile_loader, emotion_loader = loader[0], loader[1], loader[2], loader[3]
+    age_loader = loader[0]
 
 
-    del gender_loader, smile_loader, emotion_loader
-    del gender_criterion, smile_criterion, emotion_criterion
+    # del gender_loader, smile_loader, emotion_loader
+    # del gender_criterion, smile_criterion, emotion_criterion
 
     # for j, (emo_img, emo_label) in enumerate(emotion_loader):
     for j_batch_idx, (age_img, age_label) in enumerate(age_loader):
@@ -184,7 +187,10 @@ def Train_Valid_debug(model, loader, criterion, optimizer, epoch, logFile, args,
         # age
         age_img = age_img.cuda()
         age_label = age_label.cuda()
-        gender_out_1, smile_out_1, emo_out_1, age_out_1, age_out_rgs_1  = model(age_img)
+        # gender_out_1, smile_out_1, emo_out_1, 
+
+        age_out_1, age_out_rgs_1  = model(age_img)
+
         # print("age_out_1: ", age_out_1)
         # print("age_label: ", age_label)
         # age_label_one_hot = convert_to_onehot_tensor(age_label, 88)
@@ -223,43 +229,8 @@ def Train_Valid_debug(model, loader, criterion, optimizer, epoch, logFile, args,
         # print("age_loss_euclidean: ", age_loss_euclidean)
 
 
-
-        
-        # # gender
-        # gender_img = gender_img.cuda()
-        # gender_label = gender_label.cuda()
-        # gender_out_2, smile_out_2, emo_out_2, age_out_2 = model(gender_img)
-        # # print("gender_out_2: ", gender_out_2)
-        # # gender_target = gender_label.view(-1)
-        # gender_loss = gender_criterion(gender_out_2, gender_label)
-        # # gender_loss = Variable(gender_loss, requires_grad = True) 
-        # gender_epoch_loss.update(gender_loss.item(), gender_label.size(0))
-        # # print("gender loss: ", gender_loss.item())
-        # gender_prec1 = accuracy(gender_out_2.data, gender_label)
-        # gender_epoch_acc.update(gender_prec1[0].item(), gender_label.size(0))
-
-
-        # # emotion 
-        # emo_img = emo_img.cuda()
-        # emo_label = emo_label.cuda()
-        # gender_out_3, smile_out_3, emo_out_3, age_out_3 = model(emo_img)
-        # emo_loss = emotion_criterion(emo_out_3, emo_label)
-        # emo_epoch_loss.update(emo_loss.item(), emo_label.size(0))
-        # emo_prec1 = accuracy(emo_out_3.data, emo_label)
-        # emo_epoch_acc.update(emo_prec1[0].item(), emo_label.size(0))
-
-
-        # # smile            
-        # smile_img = smile_img.cuda()
-        # smile_label = smile_label.cuda()
-        # gender_out_4, smile_out_4, emo_out_4, age_out_4 = model(smile_img)
-        # smile_loss = smile_criterion(smile_out_4, smile_label)
-        # smile_epoch_loss.update(smile_loss.item(), smile_label.size(0))
-        # smile_prec1 = accuracy(smile_out_4.data, smile_label)
-        # smile_epoch_acc.update(smile_prec1[0].item(), smile_label.size(0))
-
-
-        reduce_gen_loss, reduce_smile_loss, reduce_emo_loss, reduce_age_cls_loss  = args.loss_weights[0], args.loss_weights[1], args.loss_weights[2], args.loss_weights[3]
+        # reduce_gen_loss, reduce_smile_loss, reduce_emo_loss, reduce_age_cls_loss  = args.loss_weights[0], args.loss_weights[1], args.loss_weights[2], args.loss_weights[3]
+        reduce_age_cls_loss  = args.loss_weights[3]
 
         age_rgs_loss_weight = args.age_rgs_loss_weight
         age_gaussian_loss_weight = args.age_gaussian_loss_weight
@@ -285,12 +256,6 @@ def Train_Valid_debug(model, loader, criterion, optimizer, epoch, logFile, args,
             print("pharse should be in [train, valid]")
             NotImplementedError
 
-        # print("[", pharse," LOSS]", "total: ", loss.item())
-        # print("              Gender: ", gender_loss.item())
-        # print("              Smile: ", smile_loss.item())
-        # print("              Emotion: ", emo_loss.item()) 
-        # print("              Age: ", age_loss.item())
-
         # # age_prec1 = accuracy(age_out.data, age_target.view(-1))
 
         # # age_epoch_loss.update(age_loss.item(), age_label.size(0))
@@ -313,11 +278,11 @@ def Train_Valid_debug(model, loader, criterion, optimizer, epoch, logFile, args,
         # # (age_rgs_loss*0.1).backward()
         # # optimizer.step()
 
-    accs = [gender_epoch_acc.avg, smile_epoch_acc.avg, emo_epoch_acc.avg, age_epoch_acc.avg]
-    losses = [gender_epoch_loss.avg, smile_epoch_loss.avg, emo_epoch_loss.avg, age_epoch_loss.avg, age_epoch_mae.avg, total_loss.avg]
+    accs = [age_epoch_acc.avg]
+    losses = [age_epoch_loss.avg, age_epoch_mae.avg, total_loss.avg]
     
-    LOG("[" + pharse +"] [ACC(%)], [gender, smile, emotion, age        ]: " + str(accs), logFile)
-    LOG("[" + pharse +"] [Loss  ], [gender, smile, emotion, age, age_mae, total]: " + str(losses), logFile)
+    LOG("[" + pharse +"] [ACC(%)], [age        ]: " + str(accs), logFile)
+    LOG("[" + pharse +"] [Loss  ], [age, age_mae, total]: " + str(losses), logFile)
     LOG("[" + pharse +"] age_epoch_mae_own_list, mean age                       : " + str(np.mean(age_epoch_mae_own_list)), logFile)
     try:
         lr = float(str(optimizer).split("\n")[3].split(" ")[-1])
