@@ -75,15 +75,10 @@ class MobileNet(nn.Module):
 class Multi_loss_MobileNet_V1_Model(torch.nn.Module):
     def __init__(self, args, age_classes=100):
         super(Multi_loss_MobileNet_V1_Model, self).__init__()
-        
+    
         mobilenet_v1_model = Elastic_MobileNet()
-        # mobilenet_v1_model = self.load_MobileNet_V1_ImageNet_pretrained_weight(mobilenet_v1_model)
-
-        # print(mobilenet_v1_model)
         
         self.MTL_MobileNet_V1_model_feature = mobilenet_v1_model.model
-
-        # self.MTL_MobileNet_V1_model_feature = mobilenet_v1_model
 
         self.features_length = 1024
 
@@ -151,7 +146,6 @@ class Multi_loss_MobileNet_V1_Model(torch.nn.Module):
         age_pred = self.age_clf(x)
         age_pred_rgs = self.age_rgs_clf(x)
 
-        # return gen_pred, smile_pred, emo_pred, age_pred, age_pred_rgs
         return age_pred, age_pred_rgs
 
 

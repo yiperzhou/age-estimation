@@ -34,6 +34,6 @@ from .Multi_loss_MobileNet_V1_model import (
     Multi_loss_MobileNet_V1_Model
 )
 
-from .Multi_loss_MObileNet_V2_model import (
+from .Multi_loss_MobileNet_V2_model import (
     Multi_loss_MobileNet_V2_model
 )

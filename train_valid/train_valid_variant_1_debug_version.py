@@ -31,14 +31,14 @@ from utils import *
 from utils.helper_4 import convert_to_onehot_tensor
 # from train_valid.age_losses_methods import Age_rgs_loss
 
-def age_mae_criterion_Encapsulation(age_criterion, age_out_1, age_label):
-    # print("age_out_1: ", age_out_1)
+def age_mae_criterion_Encapsulation(age_criterion, age_out_cls, age_label):
+    # print("age_out_cls: ", age_out_cls)
 
     
-    # print("age_out_1: ", age_out_1)
+    # print("age_out_cls: ", age_out_cls)
     # print("age_label: ", age_label)
 
-    _, pred_ages = torch.max(age_out_1, 1)
+    _, pred_ages = torch.max(age_out_cls, 1)
     # pred_age = pred_age.view(-1).cpu().numpy()
     # pred_ages = []
     # for p in pred_age:
@@ -55,7 +55,7 @@ def age_mae_criterion_Encapsulation(age_criterion, age_out_1, age_label):
 
     # age_label = age_label.reshape([age_label.size()[1], 1])
     # age_label = age_label.squeeze(1)
-    # # print("age_out_1: ", age_out_1.size())
+    # # print("age_out_cls: ", age_out_cls.size())
     # # print("age_label: ", age_label)
     # # print(age_label)
 
@@ -91,8 +91,6 @@ def age_rgs_criterion_Encapsulation(age_rgs_criterion, y_pred, y_true, args):
     else:
         print("10_age_cls_loss, 5_age_cls_loss, 20_age_cls_loss")
         
-        
-    # def forward(self, y_pred, y_true, age_rgs_criterion):
 
     y_true_rgs = torch.div(y_true, age_divide)
     
@@ -114,22 +112,18 @@ def Train_Valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
 
     LOG("[" + pharse + "]: Starting, Epoch: " + str(epoch), logFile)
 
-    # best_gen_acc = 0.
     best_age_mae = 99.
-    # best_emotion_acc = 0.
     
     not_reduce_rounds = 0
 
     loss = 0
 
-    # gender_epoch_loss = AverageMeter()                      
-    # smile_epoch_loss = AverageMeter()
-    # emo_epoch_loss = AverageMeter()
+    age_cls_epoch_loss = AverageMeter()
+    age_l1_rgs_epoch_loss = AverageMeter()                   
+    age_euclidean_epoch_loss = AverageMeter()
+    age_gaussian_epoch_loss = AverageMeter()
+    
     age_epoch_loss = AverageMeter()
-
-    # gender_epoch_acc = AverageMeter()
-    # smile_epoch_acc = AverageMeter()
-    # emo_epoch_acc = AverageMeter()
     age_epoch_acc = AverageMeter()
 
     age_epoch_mae = AverageMeter()
@@ -139,110 +133,87 @@ def Train_Valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
 
     if pharse == "train":
         model.train()
-
     elif pharse == "valid":
         model.eval()
-
     else:
         NotImplementedError
-
-
     torch.cuda.empty_cache()
 
     epoch_start_time = time.time()
 
-    print("four tasks weights: ", args.loss_weights)
-
-    age_mae_criterion, age_cls_criterion, age_gaussian_loss_criterion, age_euclidean_loss_criterion, age_rgs_criterion = criterion[0], criterion[1], criterion[2], criterion[3], criterion[4]
-
-    # gender_loader, age_loader, smile_loader, emotion_loader = loader[0], loader[1], loader[2], loader[3]
+    age_cls_criterion, age_l1_mae_criterion, age_euclidean_loss_criterion, age_gaussian_loss_criterion = criterion[0], criterion[1], criterion[2], criterion[3]
 
     age_loader = loader[0]
 
-
-    # del gender_loader, smile_loader, emotion_loader
-    # del gender_criterion, smile_criterion, emotion_criterion
-
-    # for j, (emo_img, emo_label) in enumerate(emotion_loader):
     for j_batch_idx, (age_img, age_label) in enumerate(age_loader):
 
         if pharse == "train":
             optimizer.zero_grad()
-
-        # print("train loader")
-        # # age_img, gender_img, emotion_img = data
-        # # age_label, gender_label, emotion_label = labels
-        # print("age label: ", age_label)
-        # print("age_img: ", age_img.size())
-
-        # print("gender_label: ", gender_label)
-        # print("gender_img: ", gender_img.size())
-
-        # print("smile_label: ", smile_label)
-        # print("smile_img: ", smile_img.size())
-
-        # print("gender_label: ", gender_label)
-        # print("emotion_label: ", emotion_label)
         
         # age
         age_img = age_img.cuda()
         age_label = age_label.cuda()
         # gender_out_1, smile_out_1, emo_out_1, 
 
-        age_out_1, age_out_rgs_1  = model(age_img)
+        age_out_cls, age_out_rgs  = model(age_img)
+        # age_out_cls is for classification, age_out_rgs is for regression including l1 regression, euclidean distance, gaussian loss.
 
-        # print("age_out_1: ", age_out_1)
+        # age classification crossentropy loss
+
+        # print("age_out_cls: ", age_out_cls)
         # print("age_label: ", age_label)
         # age_label_one_hot = convert_to_onehot_tensor(age_label, 88)
         # print("age_label_one_hot: ", age_label_one_hot)
-        # age_loss = age_cls_criterion(age_out_1, age_label_one_hot)
-        age_loss = age_cls_criterion(age_out_1, age_label)
+        # age_loss = age_cls_criterion(age_out_cls, age_label_one_hot)
+
+        age_loss_cls = age_cls_criterion(age_out_cls, age_label)
 
         # print("age_cls_label: ", age_label)
-        # print("age_out      : ", age_out_1)
+        # print("age_out_cls      : ", age_out_cls)
 
-        age_loss_mae = age_mae_criterion_Encapsulation(age_mae_criterion, age_out_1, age_label)
+        # age l1 regrssion loss
+        age_loss_rgs_l1 = age_mae_criterion_Encapsulation(age_l1_mae_criterion, age_out_rgs, age_label)
+
         # print("age_loss_mae.size(0): ", age_loss_mae.size(0))
 
-        age_epoch_loss.update(age_loss.item(), age_label.size(0))
-        age_prec1 = accuracy(age_out_1.data, age_label)
-        age_epoch_acc.update(age_prec1[0].item(), age_label.size(0))
-        age_epoch_mae.update(age_loss_mae.item(), 1)
+        # age_epoch_loss.update(age_loss.item(), age_label.size(0))
 
-        age_epoch_mae_own_list.append(age_loss_mae.item())
+        age_prec1 = accuracy(age_out_cls.data, age_label)
+        age_epoch_acc.update(age_prec1[0].item(), age_label.size(0))
+
+        # age_epoch_mae.update(age_loss_mae.item(), 1)
+
+        age_epoch_mae_own_list.append(age_loss_rgs_l1.item())
         
         # print("age_loss   : ", age_loss)
         # print("age_cls_acc: ", age_prec1[0].item())
 
+        # age euclidean loss
+        age_loss_rgs_euclidean = age_euclidean_loss_criterion(age_out_rgs, age_label)
 
-        age_loss_gaussian = age_gaussian_loss_criterion(age_out_1, age_label)
-        
-        
+        # age gaussian loss
+        age_loss_gaussian = age_gaussian_loss_criterion(age_out_rgs, age_label)
+
+        # age_loss_rgs_l1 = age_rgs_criterion_Encapsulation(age_rgs_criterion, age_out_rgs, age_label, args)
+        # age_l1_rgs_epoch_loss.update(age_loss_rgs_l1, age_label.size())
+
+        reduce_age_cls_loss, reduce_age_l1_rgs_loss, reduce_age_euclidean_loss, reduce_age_gaussian_loss  = args.loss_weights[0], args.loss_weights[1], args.loss_weights[2], args.loss_weights[3]
+
+        age_loss_cls = age_loss_cls * reduce_age_cls_loss 
+        age_loss_rgs_l1 = age_loss_rgs_l1 * reduce_age_l1_rgs_loss
+        age_loss_rgs_euclidean = age_loss_rgs_euclidean * reduce_age_euclidean_loss
+        age_loss_gaussian = age_loss_gaussian * reduce_age_gaussian_loss
 
 
-        age_loss_rgs = age_rgs_criterion_Encapsulation(age_rgs_criterion, age_out_rgs_1, age_label, args)
-        # print("age_loss_rgs: ", age_loss_rgs)
+        age_cls_epoch_loss.update(age_loss_cls.item(), 1)
+        age_l1_rgs_epoch_loss.update(age_loss_rgs_l1.item(), 1)
+        age_euclidean_epoch_loss.update(age_loss_rgs_euclidean.item(), 1)
+        age_gaussian_epoch_loss.update(age_loss_gaussian.item(), 1)
 
 
-        # age_loss_euclidean = age_euclidean_loss_criterion(age_out_1, age_label)
+        # print("[age_loss_cls, age_loss_rgs_l1, age_loss_rgs_euclidean, age_gaussian_loss]: ", [age_loss_cls, age_loss_rgs_l1, age_loss_rgs_euclidean, age_loss_gaussian])
 
-        # print("age_loss_euclidean: ", age_loss_euclidean)
-
-
-        # reduce_gen_loss, reduce_smile_loss, reduce_emo_loss, reduce_age_cls_loss  = args.loss_weights[0], args.loss_weights[1], args.loss_weights[2], args.loss_weights[3]
-        reduce_age_cls_loss  = args.loss_weights[3]
-
-        age_rgs_loss_weight = args.age_rgs_loss_weight
-        age_gaussian_loss_weight = args.age_gaussian_loss_weight
-
-        
-        loss = age_loss * reduce_age_cls_loss
-        
-        loss = loss + age_loss_rgs * age_rgs_loss_weight
-
-        loss = loss + age_loss_gaussian * age_gaussian_loss_weight
-
-        # print(loss)
+        loss = age_loss_cls + age_loss_rgs_l1 + age_loss_rgs_euclidean + age_loss_gaussian
 
         total_loss.update(loss.item(), 1)
 
@@ -256,33 +227,12 @@ def Train_Valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
             print("pharse should be in [train, valid]")
             NotImplementedError
 
-        # # age_prec1 = accuracy(age_out.data, age_target.view(-1))
-
-        # # age_epoch_loss.update(age_loss.item(), age_label.size(0))
-        # # print("age loss: ", age_loss.item())
-        # # age_epoch_acc.update(age_prec1[0].item(), inputs.size(0))
-        # # print("acc: ", age_prec1[0].item())
-
-        # _, pred_age = torch.max(pred_ages, 1)
-        # pred_age = pred_age.view(-1).cpu().numpy()
-        # # age_true    = age_target.view(-1).cpu().numpy()
-        # age_rgs_loss = sum(np.abs(pred_age - age_label.view(-1)))/age_label.size(0)
-        # # print("age prediction MAE in batch size:", age_rgs_loss)
-        # age_epoch_rgs_loss.update(age_rgs_loss, age_label.size(0))
-
-
-
-        # emotion_prec1 = accuracy(emo_out_3.data, emotion_label)
-        # emotion_epoch_loss.update(emotion_prec1[0].item(), emotion_label.size(0))
-
-        # # (age_rgs_loss*0.1).backward()
-        # # optimizer.step()
-
     accs = [age_epoch_acc.avg]
-    losses = [age_epoch_loss.avg, age_epoch_mae.avg, total_loss.avg]
-    
+    # losses = [total_loss.avg.item(), age_cls_epoch_loss.avg.item(), age_l1_rgs_epoch_loss.avg.item(), age_euclidean_epoch_loss.avg.item(), age_gaussian_epoch_loss.avg.item()]
+    losses = [total_loss.avg, age_cls_epoch_loss.avg, age_l1_rgs_epoch_loss.avg, age_euclidean_epoch_loss.avg, age_gaussian_epoch_loss.avg]
+
     LOG("[" + pharse +"] [ACC(%)], [age        ]: " + str(accs), logFile)
-    LOG("[" + pharse +"] [Loss  ], [age, age_mae, total]: " + str(losses), logFile)
+    LOG("[" + pharse +"] [Loss  ], [total, cls, l1, euclidean, gaussian ]: " + str(losses), logFile)
     LOG("[" + pharse +"] age_epoch_mae_own_list, mean age                       : " + str(np.mean(age_epoch_mae_own_list)), logFile)
     try:
         lr = float(str(optimizer).split("\n")[3].split(" ")[-1])

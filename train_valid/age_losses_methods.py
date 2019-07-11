@@ -74,12 +74,17 @@ class Euclidean_age_loss(nn.Module):
         
         
     def forward(self, y_pred, y_true):
+
+        _, y_pred = torch.max(y_pred, 1)
+
         y_true = y_true.type(torch.cuda.FloatTensor)
         y_pred = y_pred.type(torch.cuda.FloatTensor)
 
         temp_1 = y_pred - y_true
 
-        loss1 = (1-LAMDA) * (1.0/2.0) * torch.pow(temp_1, 2)
+        loss1 = (1.0/2.0) * torch.pow(temp_1, 2)
+
+        loss1 = torch.mean(loss1)
 
         return loss1
 
@@ -134,36 +139,6 @@ class Age_rgs_loss(nn.Module):
 
         return age_loss_rgs
 
-
-
-
-
-# def euclidean_age_loss(y_true,y_pred):
-    
-#     '''
-#     euclidean loss
-
-#     loss1 = (1-\lambda) \frac{1}{2}(y-a)^{2}
-#     '''
-
-#     global LAMDA,SIGMOID
-    
-#     loss1 = (1-LAMDA) * (1.0/2.0) * torch.pow((y_pred - y_true), 2)
-    
-#     # torch.pow((y_pred - y_true), 2)
-
-#     return loss1
-
-
-# def gaussian_age_loss(y_true, y_pred):
-#     '''
-#     loss2 = \lambda\left(1-\exp \left(-\frac{(y-a)^{2}}{2 \sigma^{2}}\right)\right)
-#     '''
-#     # torch.exp()
-    # loss2 = LAMDA *(1 - torch.exp(-(torch.pow((y-pred-y_true), 2)/(2* SIGMOID))))
-    
-
-#     return loss2
 
 
 

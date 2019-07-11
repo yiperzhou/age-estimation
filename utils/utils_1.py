@@ -13,7 +13,7 @@ from models.Multi_loss_AlexNet_model import Multi_loss_AlexNet_Model
 # from models.agegenpredmodel import AgeGenPredModel
 # from models.MTL_VGG11_bn_model import MTL_VGG11_bn_model
 # from models.MTL_MobileNet_V2_model import MTL_MobileNet_V2_model
-from models.MTL_MobileNet_V1_model import Multi_loss_MobileNet_V1_Model
+from models.Multi_loss_MobileNet_V1_model import Multi_loss_MobileNet_V1_Model
 
 from .helper_2 import LOG
 

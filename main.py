@@ -41,8 +41,8 @@ from opts import args
 
 def parse_loss_weight(args):
 
-    folder_sub_name = "_" + args.subtasks[0]+ "_" + str(args.loss_weights[0]) + "_" + args.subtasks[1] +"_" + str(args.loss_weights[1]) + \
-                        "_" + args.subtasks[2] + "_" +  str(args.loss_weights[2]) + "_" + args.subtasks[3] + "_" + str(args.loss_weights[3])
+    folder_sub_name = "_" + args.all_losses[0]+ "_" + str(args.loss_weights[0]) + "_" + args.all_losses[1] +"_" + str(args.loss_weights[1]) + \
+                        "_" + args.all_losses[2] + "_" +  str(args.loss_weights[2]) + args.all_losses[3] + "_" +  str(args.loss_weights[3])
 
     return folder_sub_name
 
@@ -54,29 +54,23 @@ def main(**kwargs):
     for arg, v in kwargs.items():
         args.__setattr__(arg, v)
 
-    # # parse config 
-    # config = process_config(args.config)
-
-    # # parse loss weight to sub folder name
-    # args.folder_sub_name = parse_loss_weight(args)
+    # parse loss weight to sub folder name
+    args.folder_sub_name = parse_loss_weight(args)
 
     timestamp = datetime.datetime.now()
     ts_str = timestamp.strftime('%Y-%m-%d-%H-%M-%S')
 
     if args.debug:
         print("[Debug mode]")
-        path = os.path.join("./results", "Debug-"+ args.model, "_" + args.dataset, ts_str)
+        path = os.path.join("./results", "Debug-"+ args.model, "_" + args.dataset, args.folder_sub_name, ts_str)
     else:
-        # path = "./results" + os.sep + args.model + os.sep + args.folder_sub_name + "_" + args.dataset + os.sep + ts_str
-        path = "./results" + os.sep + args.model + "_" + args.dataset + os.sep + ts_str
+        path = "./results" + os.sep + args.model + "_" + args.dataset + os.sep + args.folder_sub_name + os.sep + ts_str
 
     if args.load_IMDB_WIKI_pretrained_model:
         print("load IMDB WIKI pretrained model")
-        # path = "./results" + os.sep + "loaded_pretrained-" + args.model + os.sep + args.folder_sub_name + "_" + args.dataset + os.sep + ts_str
-        path = "./results" + os.sep + "loaded_pretrained-" + args.model + os.sep + "_" + args.dataset + os.sep + ts_str
+        path = "./results" + os.sep + "loaded_pretrained-" + args.model + os.sep + "_" + args.dataset + os.sep + args.folder_sub_name + os.sep + ts_str
     else:
-        # path = "./results" + os.sep + args.model + os.sep + args.folder_sub_name + "_" + args.dataset + os.sep + ts_str
-        path = "./results" + os.sep + args.model + os.sep + "_" + args.dataset + os.sep + ts_str
+        path = "./results" + os.sep + args.model + os.sep + "_" + args.dataset + os.sep + args.folder_sub_name + os.sep + ts_str
 
 
     tensorboard_folder = os.path.join(path, "Graph")
@@ -109,10 +103,11 @@ def main(**kwargs):
 
     age_cls_criterion = nn.CrossEntropyLoss()
     age_mae_criterion = nn.L1Loss()
-    
-    age_gaussian_loss_criterion = Gaussian_age_loss()
     age_euclidean_loss_criterion = Euclidean_age_loss()
-    age_rgs_criterion = nn.CrossEntropyLoss()
+
+    age_gaussian_loss_criterion = Gaussian_age_loss()
+    
+    # age_rgs_criterion = nn.CrossEntropyLoss()
 
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', threshold=1e-5, patience=10)
     
@@ -125,28 +120,29 @@ def main(**kwargs):
         age_cls_criterion = age_cls_criterion.cuda()
 
         age_mae_criterion = age_mae_criterion.cuda()
+        age_euclidean_loss_criterion = age_euclidean_loss_criterion.cuda()
 
         age_gaussian_loss_criterion = age_gaussian_loss_criterion.cuda()
-        age_euclidean_loss_criterion = age_euclidean_loss_criterion.cuda()
-        age_rgs_criterion = age_rgs_criterion.cuda()
+        
+        # age_rgs_criterion = age_rgs_criterion.cuda()
 
     epochs_train_total_loss, epochs_valid_total_loss = [], []
+    epochs_train_age_cls_loss, epochs_valid_age_cls_loss = [], []
+    epochs_train_age_rgs_mae_loss, epochs_valid_age_rgs_mae_loss = [], []
+    epochs_train_age_rgs_euclidean_loss, epochs_valid_age_rgs_euclidean_loss = [], []
+    epochs_train_age_gaussian_loss, epochs_valid_age_gaussian_loss = [], []
 
-    epochs_train_age_accs, epochs_train_age_losses = [], []
-    epochs_valid_age_accs, epochs_valid_age_losses = [], []
-
-    epochs_train_age_mae_losses = []
-    epochs_valid_age_mae_losses = []
+    epochs_train_age_accs, epochs_valid_age_accs = [], []
 
     epochs_train_lr = []
 
     lowest_loss = 100000
 
     columns = ['Timstamp', 'Epoch', 'lr', 
-                'train_age_loss', 'train_age_mae', 'train_total_loss'
+                'train_total_loss', 'train_age_cls_loss', 'train_age_l1_mae_loss', 'train_age_euclidean_loss', 'train_age_gaussian_loss',
                 'train_age_acc',
-                'val_age_loss', 'val_age_mae', 'val_total_loss',
-                'val_age_loss']
+                'val_total_loss', 'val_age_cls_loss', 'val_age_l1_mae_loss', 'val_age_euclidean_loss', 'val_age_gaussian_loss',
+                'val_age_acc']
 
     csv_checkpoint = pd.DataFrame(data=[], columns=columns)
     
@@ -155,26 +151,26 @@ def main(**kwargs):
     for epoch in range(0, args.epoch):
 
         train_accs, train_losses, lr, model = Train_Valid(model, [age_train_loader], 
-                                                                [age_mae_criterion, age_cls_criterion, age_gaussian_loss_criterion, age_euclidean_loss_criterion, age_rgs_criterion],
+                                                                [age_cls_criterion, age_mae_criterion, age_euclidean_loss_criterion, age_gaussian_loss_criterion],
                                                                 optimizer, epoch, logFile, args, "train", args.debug)
 
-        LOG_variables_to_board([epochs_train_age_losses, epochs_train_age_mae_losses],
+        LOG_variables_to_board([epochs_train_total_loss, epochs_train_age_cls_loss, epochs_train_age_rgs_mae_loss, epochs_train_age_rgs_euclidean_loss, epochs_train_age_gaussian_loss],
                                 train_losses, 
-                                ['train_age_loss', 'train_age_mae', 'train_total_loss'],
-                                [epochs_train_age_accs, epochs_train_total_loss],
+                                ['train_total_loss', 'train_age_cls_loss', 'train_age_mae_loss', 'train_age_euclidean_loss', 'train_age_gaussian_loss'],
+                                [epochs_train_age_accs],
                                 train_accs,
                                 ['train_age_acc'],
                                 "Train", tensorboard_folder, epoch, logFile, writer)
 
         val_accs, val_losses, lr, model = Train_Valid(model,[age_test_loader],
-                                                            [age_mae_criterion, age_cls_criterion, age_gaussian_loss_criterion, age_euclidean_loss_criterion, age_rgs_criterion],
+                                                            [age_cls_criterion, age_mae_criterion, age_euclidean_loss_criterion, age_gaussian_loss_criterion],
                                                             optimizer, epoch, logFile, args, "valid", args.debug)
 
 
-        LOG_variables_to_board([epochs_valid_age_losses, epochs_valid_age_mae_losses],
+        LOG_variables_to_board([epochs_valid_total_loss, epochs_valid_age_cls_loss, epochs_valid_age_rgs_mae_loss, epochs_valid_age_rgs_euclidean_loss, epochs_valid_age_gaussian_loss],
                                 val_losses,
-                                ['val_age_loss', 'val_age_mae', 'val_total_loss'],
-                                [epochs_valid_age_accs, epochs_valid_total_loss],
+                                ['val_total_loss', 'val_age_cls_loss', 'val_age_l1_mae_loss', 'val_age_euclidean_loss', 'val_age_gaussian_loss'],
+                                [epochs_valid_age_accs],
                                 val_accs,
                                 ['val_age_acc'],
                                 "Valid", tensorboard_folder, epoch, logFile, writer)
