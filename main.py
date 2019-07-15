@@ -75,8 +75,6 @@ def main(**kwargs):
 
     tensorboard_folder = os.path.join(path, "Graph")
     
-    # csv_path = path + os.sep + "log.csv"
-    
     os.makedirs(path)
 
     global logFile
@@ -204,9 +202,6 @@ def main(**kwargs):
     writer.close()
     LOG("done", logFile)
     LOG(args, logFile)
-
-
-
 
 
 if __name__ == "__main__":

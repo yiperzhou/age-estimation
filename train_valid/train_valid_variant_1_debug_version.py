@@ -113,8 +113,6 @@ def Train_Valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
     LOG("[" + pharse + "]: Starting, Epoch: " + str(epoch), logFile)
 
     best_age_mae = 99.
-    
-    not_reduce_rounds = 0
 
     loss = 0
 
@@ -166,6 +164,7 @@ def Train_Valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
         # print("age_label_one_hot: ", age_label_one_hot)
         # age_loss = age_cls_criterion(age_out_cls, age_label_one_hot)
 
+        
         age_loss_cls = age_cls_criterion(age_out_cls, age_label)
 
         # print("age_cls_label: ", age_label)
@@ -181,9 +180,9 @@ def Train_Valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
         age_prec1 = accuracy(age_out_cls.data, age_label)
         age_epoch_acc.update(age_prec1[0].item(), age_label.size(0))
 
-        # age_epoch_mae.update(age_loss_mae.item(), 1)
+        age_epoch_mae.update(age_loss_rgs_l1.item(), 1)
 
-        age_epoch_mae_own_list.append(age_loss_rgs_l1.item())
+        # age_epoch_mae_own_list.append(age_loss_rgs_l1.item())
         
         # print("age_loss   : ", age_loss)
         # print("age_cls_acc: ", age_prec1[0].item())
@@ -228,12 +227,11 @@ def Train_Valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
             NotImplementedError
 
     accs = [age_epoch_acc.avg]
-    # losses = [total_loss.avg.item(), age_cls_epoch_loss.avg.item(), age_l1_rgs_epoch_loss.avg.item(), age_euclidean_epoch_loss.avg.item(), age_gaussian_epoch_loss.avg.item()]
     losses = [total_loss.avg, age_cls_epoch_loss.avg, age_l1_rgs_epoch_loss.avg, age_euclidean_epoch_loss.avg, age_gaussian_epoch_loss.avg]
 
     LOG("[" + pharse +"] [ACC(%)], [age        ]: " + str(accs), logFile)
     LOG("[" + pharse +"] [Loss  ], [total, cls, l1, euclidean, gaussian ]: " + str(losses), logFile)
-    LOG("[" + pharse +"] age_epoch_mae_own_list, mean age                       : " + str(np.mean(age_epoch_mae_own_list)), logFile)
+    LOG("[" + pharse +"] , MAE                  : " + str(age_epoch_mae.avg), logFile)
     try:
         lr = float(str(optimizer).split("\n")[3].split(" ")[-1])
     except:
