@@ -3,6 +3,31 @@ import torch.nn as nn
 
 # test different age estimation loss function.
 
+from utils.helper import indexes_to_one_hot
+
+
+
+
+def apply_label_smoothing(y_true, epsilon=0.1):
+    # https://github.com/keras-team/keras/pull/4723
+    # https://github.com/wangguanan/Pytorch-Person-REID-Baseline-Bag-of-Tricks/blob/master/tools/loss.py#L6
+    # https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Szegedy_Rethinking_the_Inception_CVPR_2016_paper.pdf
+
+    # convert the y_true from torch cuda variable to cpu variable.
+    y_true = y_true.type(torch.IntTensor)
+
+    y_true = indexes_to_one_hot(y_true, n_dims=100)
+
+    # convert back from cpu variable to gpu variable
+    y_true = y_true.type(torch.cuda.FloatTensor)
+
+    y_true = (1 - epsilon) * y_true + epsilon / y_true.shape[1]
+
+    # print("y_true:  ", )
+    return y_true
+
+
+
 def pure_age_l1_loss():
     '''
     use l1_loss to calcualte age loss, but after many experiments, the result is not good.

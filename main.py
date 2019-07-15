@@ -99,7 +99,11 @@ def main(**kwargs):
 
     optimizer = optim.SGD(filter(lambda p: p.requires_grad, model.parameters()), momentum=0.9, lr=args.lr_rate, weight_decay=args.weight_decay)
 
-    age_cls_criterion = nn.CrossEntropyLoss()
+    # age_cls_criterion = nn.CrossEntropyLoss()
+
+    # change the criterion from crossentropy to multilabelsoftmarginloss
+    age_cls_criterion = nn.MultiLabelSoftMarginLoss()
+
     age_mae_criterion = nn.L1Loss()
     age_euclidean_loss_criterion = Euclidean_age_loss()
 

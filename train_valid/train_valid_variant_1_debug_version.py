@@ -31,6 +31,9 @@ from utils import *
 from utils.helper_4 import convert_to_onehot_tensor
 # from train_valid.age_losses_methods import Age_rgs_loss
 
+from train_valid.age_losses_methods import apply_label_smoothing
+
+
 def age_mae_criterion_Encapsulation(age_criterion, age_out_cls, age_label):
     # print("age_out_cls: ", age_out_cls)
 
@@ -164,34 +167,41 @@ def Train_Valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
         # print("age_label_one_hot: ", age_label_one_hot)
         # age_loss = age_cls_criterion(age_out_cls, age_label_one_hot)
 
+
+        # add label smoothing technique to test the effect.
+        age_label_one_hot = apply_label_smoothing(age_label)
+
+        age_label_one_hot = age_label_one_hot.type(torch.cuda.FloatTensor)
         
-        age_loss_cls = age_cls_criterion(age_out_cls, age_label)
+        age_loss_cls = age_cls_criterion(age_out_cls, age_label_one_hot)
 
         # print("age_cls_label: ", age_label)
         # print("age_out_cls      : ", age_out_cls)
 
-        # age l1 regrssion loss
+        # # age l1 regrssion loss
         age_loss_rgs_l1 = age_mae_criterion_Encapsulation(age_l1_mae_criterion, age_out_rgs, age_label)
+
+        # age_loss_rgs_l1 = 0
 
         # print("age_loss_mae.size(0): ", age_loss_mae.size(0))
 
         # age_epoch_loss.update(age_loss.item(), age_label.size(0))
 
-        age_prec1 = accuracy(age_out_cls.data, age_label)
-        age_epoch_acc.update(age_prec1[0].item(), age_label.size(0))
+        # age_prec1 = accuracy(age_out_cls.data, age_label)
+        # age_epoch_acc.update(age_prec1[0].item(), age_label.size(0))
 
         age_epoch_mae.update(age_loss_rgs_l1.item(), 1)
 
-        # age_epoch_mae_own_list.append(age_loss_rgs_l1.item())
+        age_epoch_mae_own_list.append(age_loss_rgs_l1.item())
         
         # print("age_loss   : ", age_loss)
         # print("age_cls_acc: ", age_prec1[0].item())
 
-        # age euclidean loss
-        age_loss_rgs_euclidean = age_euclidean_loss_criterion(age_out_rgs, age_label)
-
-        # age gaussian loss
-        age_loss_gaussian = age_gaussian_loss_criterion(age_out_rgs, age_label)
+        # # age euclidean loss
+        # age_loss_rgs_euclidean = age_euclidean_loss_criterion(age_out_rgs, age_label)
+        #
+        # # age gaussian loss
+        # age_loss_gaussian = age_gaussian_loss_criterion(age_out_rgs, age_label)
 
         # age_loss_rgs_l1 = age_rgs_criterion_Encapsulation(age_rgs_criterion, age_out_rgs, age_label, args)
         # age_l1_rgs_epoch_loss.update(age_loss_rgs_l1, age_label.size())
@@ -199,20 +209,21 @@ def Train_Valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
         reduce_age_cls_loss, reduce_age_l1_rgs_loss, reduce_age_euclidean_loss, reduce_age_gaussian_loss  = args.loss_weights[0], args.loss_weights[1], args.loss_weights[2], args.loss_weights[3]
 
         age_loss_cls = age_loss_cls * reduce_age_cls_loss 
-        age_loss_rgs_l1 = age_loss_rgs_l1 * reduce_age_l1_rgs_loss
-        age_loss_rgs_euclidean = age_loss_rgs_euclidean * reduce_age_euclidean_loss
-        age_loss_gaussian = age_loss_gaussian * reduce_age_gaussian_loss
+        # age_loss_rgs_l1 = age_loss_rgs_l1 * reduce_age_l1_rgs_loss
+        # age_loss_rgs_euclidean = age_loss_rgs_euclidean * reduce_age_euclidean_loss
+        # age_loss_gaussian = age_loss_gaussian * reduce_age_gaussian_loss
 
 
         age_cls_epoch_loss.update(age_loss_cls.item(), 1)
-        age_l1_rgs_epoch_loss.update(age_loss_rgs_l1.item(), 1)
-        age_euclidean_epoch_loss.update(age_loss_rgs_euclidean.item(), 1)
-        age_gaussian_epoch_loss.update(age_loss_gaussian.item(), 1)
+        # age_l1_rgs_epoch_loss.update(age_loss_rgs_l1.item(), 1)
+        # age_euclidean_epoch_loss.update(age_loss_rgs_euclidean.item(), 1)
+        # age_gaussian_epoch_loss.update(age_loss_gaussian.item(), 1)
 
 
         # print("[age_loss_cls, age_loss_rgs_l1, age_loss_rgs_euclidean, age_gaussian_loss]: ", [age_loss_cls, age_loss_rgs_l1, age_loss_rgs_euclidean, age_loss_gaussian])
 
-        loss = age_loss_cls + age_loss_rgs_l1 + age_loss_rgs_euclidean + age_loss_gaussian
+        loss = age_loss_cls
+        # loss = age_loss_cls + age_loss_rgs_l1 + age_loss_rgs_euclidean + age_loss_gaussian
 
         total_loss.update(loss.item(), 1)
 
