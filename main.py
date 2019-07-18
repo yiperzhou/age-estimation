@@ -33,7 +33,6 @@ from utils.helper import save_checkpoint, load_model_weights
 from utils.config import process_config
 
 from train_valid.train_valid_variant_1_debug_version import Train_Valid
-from train_valid.age_losses_methods import Gaussian_age_loss, Euclidean_age_loss, Age_rgs_loss
 
 
 from opts import args
@@ -91,7 +90,6 @@ def main(**kwargs):
 
     model = get_model(args, logFile)
 
-
     #load pretrained model 
     if args.load_IMDB_WIKI_pretrained_model:
         model = load_model_weights(model, pretrained_model_weight_path)
@@ -101,16 +99,6 @@ def main(**kwargs):
 
     # age_cls_criterion = nn.CrossEntropyLoss()
     age_cls_criterion = nn.SoftMarginLoss()
-
-    # change the criterion from crossentropy to multilabelsoftmarginloss
-    # age_cls_criterion = nn.MultiLabelSoftMarginLoss()
-
-    age_mae_criterion = nn.L1Loss()
-    age_euclidean_loss_criterion = Euclidean_age_loss()
-
-    age_gaussian_loss_criterion = Gaussian_age_loss()
-    
-    # age_rgs_criterion = nn.CrossEntropyLoss()
 
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', threshold=1e-5, patience=10)
     
@@ -122,18 +110,8 @@ def main(**kwargs):
         model = model.cuda()
         age_cls_criterion = age_cls_criterion.cuda()
 
-        age_mae_criterion = age_mae_criterion.cuda()
-        age_euclidean_loss_criterion = age_euclidean_loss_criterion.cuda()
-
-        age_gaussian_loss_criterion = age_gaussian_loss_criterion.cuda()
-        
-        # age_rgs_criterion = age_rgs_criterion.cuda()
-
     epochs_train_total_loss, epochs_valid_total_loss = [], []
     epochs_train_age_cls_loss, epochs_valid_age_cls_loss = [], []
-    epochs_train_age_rgs_mae_loss, epochs_valid_age_rgs_mae_loss = [], []
-    epochs_train_age_rgs_euclidean_loss, epochs_valid_age_rgs_euclidean_loss = [], []
-    epochs_train_age_gaussian_loss, epochs_valid_age_gaussian_loss = [], []
 
     epochs_train_age_accs, epochs_valid_age_accs = [], []
 
@@ -142,9 +120,9 @@ def main(**kwargs):
     lowest_loss = 100000
 
     columns = ['Timstamp', 'Epoch', 'lr', 
-                'train_total_loss', 'train_age_cls_loss', 'train_age_l1_mae_loss', 'train_age_euclidean_loss', 'train_age_gaussian_loss',
+                'train_total_loss', 'train_age_cls_loss',
                 'train_age_acc',
-                'val_total_loss', 'val_age_cls_loss', 'val_age_l1_mae_loss', 'val_age_euclidean_loss', 'val_age_gaussian_loss',
+                'val_total_loss', 'val_age_cls_loss',
                 'val_age_acc']
 
     csv_checkpoint = pd.DataFrame(data=[], columns=columns)
@@ -154,25 +132,25 @@ def main(**kwargs):
     for epoch in range(0, args.epoch):
 
         train_accs, train_losses, lr, model = Train_Valid(model, [age_train_loader], 
-                                                                [age_cls_criterion, age_mae_criterion, age_euclidean_loss_criterion, age_gaussian_loss_criterion],
+                                                                [age_cls_criterion],
                                                                 optimizer, epoch, logFile, args, "train", args.debug)
 
-        LOG_variables_to_board([epochs_train_total_loss, epochs_train_age_cls_loss, epochs_train_age_rgs_mae_loss, epochs_train_age_rgs_euclidean_loss, epochs_train_age_gaussian_loss],
+        LOG_variables_to_board([epochs_train_total_loss, epochs_train_age_cls_loss],
                                 train_losses, 
-                                ['train_total_loss', 'train_age_cls_loss', 'train_age_mae_loss', 'train_age_euclidean_loss', 'train_age_gaussian_loss'],
+                                ['train_total_loss', 'train_age_cls_loss'],
                                 [epochs_train_age_accs],
                                 train_accs,
                                 ['train_age_acc'],
                                 "Train", tensorboard_folder, epoch, logFile, writer)
 
         val_accs, val_losses, lr, model = Train_Valid(model,[age_test_loader],
-                                                            [age_cls_criterion, age_mae_criterion, age_euclidean_loss_criterion, age_gaussian_loss_criterion],
+                                                            [age_cls_criterion],
                                                             optimizer, epoch, logFile, args, "valid", args.debug)
 
 
-        LOG_variables_to_board([epochs_valid_total_loss, epochs_valid_age_cls_loss, epochs_valid_age_rgs_mae_loss, epochs_valid_age_rgs_euclidean_loss, epochs_valid_age_gaussian_loss],
+        LOG_variables_to_board([epochs_valid_total_loss, epochs_valid_age_cls_loss],
                                 val_losses,
-                                ['val_total_loss', 'val_age_cls_loss', 'val_age_l1_mae_loss', 'val_age_euclidean_loss', 'val_age_gaussian_loss'],
+                                ['val_total_loss', 'val_age_cls_loss'],
                                 [epochs_valid_age_accs],
                                 val_accs,
                                 ['val_age_acc'],

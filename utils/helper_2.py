@@ -19,14 +19,16 @@ def LOG_variables_to_board(epoch_losses, losses, losses_name, epoch_accs, accs, 
     # LOG(phrase + " epoch    " + str(epoch+1) + ":", logFile)
     for e_loss, l, l_n in zip(epoch_losses, losses, losses_name):
         e_loss.append(l)
-        writer.add_scalar(folder + os.sep + "data" + os.sep + l_n, l, epoch)
+        # writer.add_scalar(folder + os.sep + "data" + os.sep + l_n, l, epoch)
+        writer.add_scalar(l_n, l, epoch)
         # LOG("          " + l_n + ": "+ str(l), logFile)
 
     # LOG("\n", logFile)
 
     for e_acc, ac, ac_n in zip(epoch_accs, accs, accs_name):
         e_acc.append(ac)
-        writer.add_scalar(folder + os.sep + "data" + os.sep + ac_n, ac, epoch)
+        # writer.add_scalar(folder + os.sep + "data" + os.sep + ac_n, ac, epoch)
+        writer.add_scalar(ac_n, ac, epoch)
         # LOG("          " + ac_n + ": "+ str(ac), logFile)
     # LOG("---------------", logFile)
     

@@ -12,14 +12,14 @@ parser.add_argument('--weight_decay', type=float, default=1e-6)
 
 
 parser.add_argument('--dataset', type=str, default="CVPR_16_ChaLearn", help="CVPR_16_ChaLearn, IMDB_WIKI")
-parser.add_argument('--model', type=str, default = "Multi_loss_MobileNet_V1",
+parser.add_argument('--model', type=str, default = "Multi_loss_AlexNet",
                      help="[Multi_loss_AlexNet, Multi_loss_MobileNet_V1]")
 parser.add_argument('--lr_rate', type=float, default=0.001, help='learning rate (default: 0.001)')
 
 # neural network hyperparamter
 parser.add_argument('--lr_schedule', type=float, default=8, help='learning rate schedule')
-parser.add_argument('--batch_size', type=int, default=32, metavar='N',help='input batch size for training (default: 32)')
-parser.add_argument('--epoch', type=int, help="epoch number, default 1", default=80)
+parser.add_argument('--batch_size', type=int, default=64, metavar='N',help='input batch size for training (default: 32)')
+parser.add_argument('--epoch', type=int, help="epoch number, default 1", default=10)
 
 parser.add_argument('--load_IMDB_WIKI_pretrained_model', type=bool, default=False, help="[False, True]")
 
@@ -61,7 +61,7 @@ parser.add_argument('--debug', type=bool, default=True, help="[True, False]")
 # parser.add_argument('--no_age_loss_gaussian', type=bool, default=True, help="default false")
 # parser.add_argument('--age_gaussian_loss_weight', type=float, default=0, help="age_gaussian_loss_weight")
 
-parser.add_argument('--description', type=str, default="test model with only usng Gaussian loss", help="")
+parser.add_argument('--description', type=str, default="", help="SoftMarginLoss function")
 
 # test different technique
 
