@@ -57,4 +57,5 @@ using Yue's processed images on ChaLearn CVPR 2016 dataset.
 
 ## reference
 
-1. ChaLearn Looking at People and Faces of the World 2016, https://competitions.codalab.org/competitions/7511#learn_the_details-evaluation 
+1. the current state of the art approach, [BridgeNet](https://arxiv.org/abs/1904.03358) CVPR 2019
+2. the demo paper for writing, [SAF- BAGE](https://arxiv.org/abs/1803.05719), it was accepted by WACV 2019.
