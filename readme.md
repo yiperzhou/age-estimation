@@ -5,7 +5,8 @@
 1. label_smoothing, git checkout label_smoothing
 
 ### task
-
+- [x] experimented the **label smoothing** idea, it improves.
+- [x] ~~Gaussian Loss function does not work, no gradient problem~~
 - [x] ~~clean the multitask learning source code to multi-loss age estimation task,~~  
 - [x] ~~reference ni xingyang's repository.~~
 
@@ -16,12 +17,14 @@
 * [experiments](#experiments)
 * [age dataset](#age-dataset)
 * [face detection and alignment](#face-detection-and-alignment)
-* [reference](#reference)
+* [reference and other materials](#reference-and-other-materials)
 ****
 
 
-#### pdf report
-[overleaf](https://www.overleaf.com/project/5d2310338e2b2d7e89e37358)
+#### other materials
+
+* pdf report, [overleaf](https://www.overleaf.com/project/5d2310338e2b2d7e89e37358)
+* [Multitask learning on Google Drive](https://drive.google.com/drive/folders/1JSRQxQfCnNyKONFnrRL7D_sDituPLR73?usp=sharing), [Multiloss on age estimation loss](https://drive.google.com/drive/folders/1BNY4DsRx3oGBibo3Xi8oLNVaaYFMRAjl?usp=sharing)
 
 #### run experiments for the age estimation 
 
@@ -49,7 +52,7 @@ python main.py
 
 
 
-## reference
+## reference and other materials
 
 1. the current state of the art approach, [BridgeNet](https://arxiv.org/abs/1904.03358) CVPR 2019
 2. the demo paper for writing, [SAF- BAGE](https://arxiv.org/abs/1803.05719), it was accepted by WACV 2019.
