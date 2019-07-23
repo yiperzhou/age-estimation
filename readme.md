@@ -17,7 +17,7 @@
 * [experiments](#experiments)
 * [age dataset](#age-dataset)
 * [face detection and alignment](#face-detection-and-alignment)
-* [reference](#reference)
+* [reference and other materials](#reference-and-other-materials)
 ****
 
 
@@ -50,8 +50,9 @@ python main.py
 
 
 
-## reference
+## reference and other materials
 
 1. the current state of the art approach, [BridgeNet](https://arxiv.org/abs/1904.03358) CVPR 2019
 2. the demo paper for writing, [SAF- BAGE](https://arxiv.org/abs/1803.05719), it was accepted by WACV 2019.
 3. the similar idea as the head pose estimation, [hopenet](https://arxiv.org/abs/1710.00925), the GitHub repository is [here](https://github.com/natanielruiz/deep-head-pose)
+4. [Multitask learning on Google Drive](https://drive.google.com/drive/folders/1JSRQxQfCnNyKONFnrRL7D_sDituPLR73?usp=sharing), [Multiloss on age estimation loss](https://drive.google.com/drive/folders/1BNY4DsRx3oGBibo3Xi8oLNVaaYFMRAjl?usp=sharing)
