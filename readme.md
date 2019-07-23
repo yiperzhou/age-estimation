@@ -1,10 +1,25 @@
 ## Multi-loss function for age estimation
 
-### Git repository branch
+### the gitflow of this repository
 
-1. label_smoothing, git checkout label_smoothing
+```bash
+|--- master
+       |----------- label_smoothing
+       |----------- regression_loss_combination 
+    
+% label_smoothing branch
+git checkout label_smoothing
+
+% regression_loss_combination branch
+git checkout regression_loss_combination
+```
+    
 
 ### task
+- [ ] create new branch - regression_loss_combination, to experiments all possible experiments, $2^{4}-1$
+- [ ] reply Yanlin that I am interested in the barcode detection project, the [news here](https://businesstampere.com/scandit-opens-rd-office-in-tampere-to-strengthen-leadership-in-mobile-computer-vision-and-augmented-reality/)
+- [ ] solve the Gaussian loss calculation in the age classification branch. 
+- [ ] use the notepad application, which intergates markdown, to do list in one tool. I remember that I have browsed the website.
 - [x] experimented the **label smoothing** idea, it improves.
 - [x] ~~Gaussian Loss function does not work, no gradient problem~~
 - [x] ~~clean the multitask learning source code to multi-loss age estimation task,~~  
@@ -28,8 +43,8 @@
 
 #### run experiments for the age estimation 
 
-```python
-python main.py  
+```sh
+$ python main.py  
 ```
 
 #### age dataset
