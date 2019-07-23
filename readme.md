@@ -1,5 +1,3 @@
-[[_TOC_]]
-
 ## Multi-loss function for age estimation
 
 ### Git repository branch
@@ -10,6 +8,16 @@
 
 - [x] ~~clean the multitask learning source code to multi-loss age estimation task,~~  
 - [x] ~~reference ni xingyang's repository.~~
+
+
+****
+## Contents
+* [task](#task)
+* [experiments](#experiments)
+* [age dataset](#age-dataset)
+* [face detection and alignment](#face-detection-and-alignment)
+* [reference](#reference)
+****
 
 
 ### experiments
