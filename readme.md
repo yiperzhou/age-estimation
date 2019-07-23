@@ -1,3 +1,5 @@
+[[_TOC_]]
+
 ## Multi-loss function for age estimation
 
 ### Git repository branch
