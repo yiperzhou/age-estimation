@@ -5,7 +5,8 @@
 1. label_smoothing, git checkout label_smoothing
 
 ### task
-
+- [x] experimented the **label smoothing** idea, it improves.
+- [x] ~~Gaussian Loss function does not work, no gradient problem
 - [x] ~~clean the multitask learning source code to multi-loss age estimation task,~~  
 - [x] ~~reference ni xingyang's repository.~~
 
