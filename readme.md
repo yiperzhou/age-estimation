@@ -15,11 +15,13 @@ git checkout regression_loss_combination
 ```
 
 #### task
-- [ ] learn latex
+- [ ] continue implementing the bar chart drawing function, the reference link is [here](https://pythonspot.com/matplotlib-bar-chart/)
+- [ ] implement epilson error function
+- [ ] learn LaTex
 - [ ] learn markdown
 - [ ] create new branch - regression_loss_combination, to experiments all possible experiments, $15 = 2^{4}-1$
 - [ ] reply Yanlin that I am interested in the barcode detection project, the [news here](https://businesstampere.com/scandit-opens-rd-office-in-tampere-to-strengthen-leadership-in-mobile-computer-vision-and-augmented-reality/)
-- [ ] solve the Gaussian loss calculation in the age classification branch. 
+- [ ] **solve the Gaussian loss calculation in the age classification branch. **
 - [ ] use the notepad application, which intergates markdown, to do list in one tool. I remember that I have browsed the website.
 - [x] experimented the **label smoothing** idea, it improves.
 - [x] ~~Gaussian Loss function does not work, no gradient problem~~
@@ -38,6 +40,7 @@ git checkout regression_loss_combination
     - [face detection and alignment](#face-detection-and-alignment)
     - [the state of the art result on age estimation from the BridgeNet paper](#the-state-of-the-art-result-on-age-estimation-from-the-bridgenet-paper)
     - [reference and other materials](#reference-and-other-materials)
+  - [test function](#test-function)
 ****
 
 
@@ -78,3 +81,7 @@ using Yue's processed images on ChaLearn CVPR 2016 dataset;
 1. the current state of the art approach, [BridgeNet](https://arxiv.org/abs/1904.03358) CVPR 2019
 2. the demo paper for writing, [SAF- BAGE](https://arxiv.org/abs/1803.05719), it was accepted by WACV 2019.
 3. the similar idea as the head pose estimation, [hopenet](https://arxiv.org/abs/1710.00925), the GitHub repository is [here](https://github.com/natanielruiz/deep-head-pose)
+
+### test function
+
+$l_{n}=-w_{n}\left[t_{n} \cdot \log \sigma\left(x_{n}\right)+\left(1-t_{n}\right) \cdot \log \left(1-\sigma\left(x_{n}\right)\right)\right]$
