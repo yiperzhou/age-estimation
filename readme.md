@@ -12,7 +12,20 @@ git checkout label_smoothing
 
 # regression_loss_combination branch
 git checkout regression_loss_combination
+
+# directory structure
+age_estimation_multi_loss repo
+├─┬ models
+│ ├── Multi_loss_AlexNet_model.py
+│ ├── Multi_loss_MobileNet_V1_model.py
+│ └── …
+└─┬ train_valid
+  ├── __init__.py
+  ├── train_valid_variant_1_debug_version.py
+  ├── age_losses_methods.py
+  └── 
 ```
+
 
 #### task
 - [ ] continue implementing the bar chart drawing function, the reference link is [here](https://pythonspot.com/matplotlib-bar-chart/)
