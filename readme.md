@@ -31,7 +31,6 @@ age_estimation_multi_loss repo
 - [ ] continue implementing the bar chart drawing function, the reference link is [here](https://pythonspot.com/matplotlib-bar-chart/)
 - [ ] implement epilson error function
 - [ ] learn LaTex
-- [ ] learn markdown
 - [ ] create new branch - regression_loss_combination, to experiments all possible experiments, $15 = 2^{4}-1$
 - [ ] reply Yanlin that I am interested in the barcode detection project, the [news here](https://businesstampere.com/scandit-opens-rd-office-in-tampere-to-strengthen-leadership-in-mobile-computer-vision-and-augmented-reality/)
 - [ ] **solve the Gaussian loss calculation in the age classification branch. **
