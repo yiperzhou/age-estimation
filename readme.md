@@ -87,13 +87,14 @@ $l_{n}=-w_{n}\left[t_{n} \cdot \log \sigma\left(x_{n}\right)+\left(1-t_{n}\right
 using Yue's processed images on ChaLearn CVPR 2016 dataset
 
 ### face detection
+
 - [MTCNN - Joint Face Detection and Alignment using Multi-task Cascaded Convolutional Networks](https://github.com/TropComplique/mtcnn-pytorch)
 - [ ] check [Tiny Face Detector](https://github.com/peiyunh/tiny)
 
 ### alignment
+
 - Dlib face alignment method is applied.
 - [ ] find out which exact algorithm it is.
-- 
 
 ## experiments
  
@@ -101,7 +102,9 @@ using Yue's processed images on ChaLearn CVPR 2016 dataset
 # run experiments for the age estimation
 $ python main.py  
 ```
+
 ### environment
+
 - ThinkStation
   - virtual environment: `pytorch`
   - PyTorch 1.1.0
@@ -109,9 +112,10 @@ $ python main.py
   - virtual environment: `dl`
   - PyTorch 1.0.1
 
+
 ### the STOA on age estimation
 
-- from the [BridgeNet](https://arxiv.org/abs/1904.03358) paper
+- from the [BridgeNet](##references) paper
 - ![Example](related_materials/state-of-the-art-result-age-estimation-on-chalearn-2016.png)
 
 ## references
