@@ -43,7 +43,7 @@ $l_{n}=-w_{n}\left[t_{n} \cdot \log \sigma\left(x_{n}\right)+\left(1-t_{n}\right
 - [ ] implement epsilon $\epsilon$ error function
 - [ ] ~~learn LaTex~~
 - [x] create new branch - regression_loss_combination, to experiments all possible experiments, $15 = 2^{4}-1$
-- [x] reply Yanlin that I am interested in the barcode detection project, the [news here](https://businesstampere.com/scandit-opens-rd-office-in-tampere-to-strengthen-leadership-in-mobile-computer-vision-and-augmented-reality/)
+- [x] ~~reply Yanlin that I am interested in the barcode detection project, the [news here](https://businesstampere.com/scandit-opens-rd-office-in-tampere-to-strengthen-leadership-in-mobile-computer-vision-and-augmented-reality/)~~
 - [ ] **solve the Gaussian loss calculation in the age classification branch**
 - [ ] ~~use the notion application, which intergates markdown, to do list in one tool. I remember that I have browsed the website.~~
 - [x] experimented the **label smoothing** idea, it improves.
@@ -71,15 +71,15 @@ $l_{n}=-w_{n}\left[t_{n} \cdot \log \sigma\left(x_{n}\right)+\left(1-t_{n}\right
 
 ## other materials
 
-* [Overleaf](https://www.overleaf.com/project/5d2310338e2b2d7e89e37358)
-* Original experimental result in Google Drive, [Multitask learning](https://drive.google.com/drive/folders/1JSRQxQfCnNyKONFnrRL7D_sDituPLR73?usp=sharing), [Multiloss on age estimation loss](https://drive.google.com/drive/folders/1BNY4DsRx3oGBibo3Xi8oLNVaaYFMRAjl?usp=sharing)
+- [manuscript in Overleaf](https://www.overleaf.com/project/5d2310338e2b2d7e89e37358)
+- Original experimental result in Google Drive, [Multitask learning](https://drive.google.com/drive/folders/1JSRQxQfCnNyKONFnrRL7D_sDituPLR73?usp=sharing), [Multiloss on age estimation loss](https://drive.google.com/drive/folders/1BNY4DsRx3oGBibo3Xi8oLNVaaYFMRAjl?usp=sharing)
 
 
 ## datasets
 
 1. [cleaned ChaLEARN CVPR 2016](http://chalearnlap.cvc.uab.es/dataset/19/description/) 
-2. [IMDB-WIKI](https://data.vision.ee.ethz.ch/cvl/rrothe/imdb-wiki/)
-3. [AgeDB](https://ibug.doc.ic.ac.uk/resources/agedb/)
+2. [IMDB-WIKI – 500k+ face images with age and gender labels](https://data.vision.ee.ethz.ch/cvl/rrothe/imdb-wiki/)
+3. [AgeDB: the first manually collected, in-the-wild age database](https://ibug.doc.ic.ac.uk/resources/agedb/)
 
 
 ## face detection and alignment
