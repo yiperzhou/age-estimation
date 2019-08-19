@@ -118,49 +118,118 @@ import numpy as np
 
 
 
-class MTL_VGG16_bn_model(torch.nn.Module):
-  def __init__(self, gen_classes= 2, smile_classes = 2, emo_classes = 7, age_classes = 100):
-    super(MTL_VGG16_bn_model, self).__init__()
+class Multi_loss_VGG16_bn_model(torch.nn.Module):
+    def __init__(self, args, age_classes = 100):
+        super(Multi_loss_VGG16_bn_model, self).__init__()
 
-    self.MTL_vgg16_bn_features = models.vgg16_bn(pretrained=True).features
+        self.MTL_vgg16_bn_features = models.vgg16_bn(pretrained=True).features
 
-    self.features_length = 25088
+        self.features_length = 25088
 
-    self.use_gpu = torch.cuda.is_available()
+        self.use_gpu = torch.cuda.is_available()
 
-    # gender branch
-    self.gender_clf = nn.Sequential(
-        nn.Linear(self.features_length, 256),
-        nn.ReLU(inplace=True),
-        nn.Dropout(p=0.5, inplace=False),
-        nn.Linear(256, gen_classes)
-    )
+        self.args = args
 
-    # smile branch
-    self.smile_clf = nn.Sequential(
-        nn.Linear(self.features_length, 256),
-        nn.ReLU(inplace=True),
-        nn.Dropout(p=0.5, inplace=False),
-        nn.Linear(256, smile_classes)
-    )
+        self.age_divide_100_classes, self.age_divide_20_classes, self.age_divide_10_classes, self.age_divide_5_classes = self.get_age_cls_class()
+        
+        
+        self.age_clf_100_classes = nn.Sequential(
+            nn.Linear(self.features_length, 256),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=0.5, inplace=False),
+            nn.Linear(256, 100)            
+        )
+
+        self.age_clf_20_classes = nn.Sequential(
+            nn.Linear(self.features_length, 256),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=0.5, inplace=False),
+            nn.Linear(256, 20)            
+        )
+
+        self.age_clf_10_classes = nn.Sequential(
+            nn.Linear(self.features_length, 256),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=0.5, inplace=False),
+            nn.Linear(256, 10)            
+        )        
+
+        self.age_clf_5_classes = nn.Sequential(
+            nn.Linear(self.features_length, 256),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=0.5, inplace=False),
+            nn.Linear(256, 5)                        
+        )    
+
+
+
+    # # gender branch
+    # self.gender_clf = nn.Sequential(
+    #     nn.Linear(self.features_length, 256),
+    #     nn.ReLU(inplace=True),
+    #     nn.Dropout(p=0.5, inplace=False),
+    #     nn.Linear(256, gen_classes)
+    # )
+
+    # # smile branch
+    # self.smile_clf = nn.Sequential(
+    #     nn.Linear(self.features_length, 256),
+    #     nn.ReLU(inplace=True),
+    #     nn.Dropout(p=0.5, inplace=False),
+    #     nn.Linear(256, smile_classes)
+    # )
     
-    # emotion branch
-    self.emotion_clf = nn.Sequential(
-        nn.Linear(self.features_length, 256),
-        nn.ReLU(inplace=True),
-        nn.Dropout(p=0.5, inplace=False),
-        nn.Linear(256, emo_classes)
-    )
+    # # emotion branch
+    # self.emotion_clf = nn.Sequential(
+    #     nn.Linear(self.features_length, 256),
+    #     nn.ReLU(inplace=True),
+    #     nn.Dropout(p=0.5, inplace=False),
+    #     nn.Linear(256, emo_classes)
+    # )
 
-    self.age_clf = nn.Sequential(
-        nn.Linear(self.features_length, 256),
-        nn.ReLU(inplace=True),
-        nn.Dropout(p=0.5, inplace=False),
-        nn.Linear(256, age_classes)
-    )
+    # self.age_clf = nn.Sequential(
+    #     nn.Linear(self.features_length, 256),
+    #     nn.ReLU(inplace=True),
+    #     nn.Dropout(p=0.5, inplace=False),
+    #     nn.Linear(256, age_classes)
+    # )
 
+    def get_age_cls_class(self):
 
+        age_divide_100_classes = False
+        age_divide_20_classes = False
+        age_divide_10_classes = False
+        age_divide_5_classes = False               
 
+        if self.args.age_classification_combination == [1, 0, 0, 0]:
+            age_divide_100_classes = True
+            age_divide_20_classes = False
+            age_divide_10_classes = False
+            age_divide_5_classes = False       
+                
+        elif self.args.age_classification_combination == [1, 1, 0, 0]:
+            age_divide_100_classes = True
+            age_divide_20_classes = True
+            age_divide_10_classes = False
+            age_divide_5_classes = False        
+            
+        elif self.args.age_classification_combination == [1, 1, 1, 0]:
+            age_divide_100_classes = True
+            age_divide_20_classes = True
+            age_divide_10_classes = True
+            age_divide_5_classes = False                    
+
+        elif self.args.age_classification_combination == [1, 1, 1, 1]:
+            age_divide_100_classes = True
+            age_divide_20_classes = True
+            age_divide_10_classes = True
+            age_divide_5_classes = True
+                            
+        else:
+            print("age_divide_100_classes, age_divide_20_classes, age_divide_10_classes, age_divide_5_classes")
+            ValueError
+
+        return age_divide_100_classes, age_divide_20_classes, age_divide_10_classes, age_divide_5_classes
 
 #   def get_face_attribute(self, last_conv_out):
 #     # last_conv_out = self.vgg11_bn.avgpool(last_conv_out)
@@ -181,17 +250,36 @@ class MTL_VGG16_bn_model(torch.nn.Module):
 #     return gen_pred, smile_pred, emo_pred, age_pred
 
 
-  def forward(self, x):
-    # last1 = self.get_convs_out(x)
-    x = self.MTL_vgg16_bn_features(x)
-    x = x.view(x.size(0), -1)
 
-    gen_pred  = self.gender_clf(x)
-    smile_pred  = self.smile_clf(x)
-    emo_pred  = self.emotion_clf(x)
-    age_pred  = self.age_clf(x)
 
-    return gen_pred, smile_pred, emo_pred, age_pred 
+    def forward(self, x):
+        # last1 = self.get_convs_out(x)
+        x = self.MTL_vgg16_bn_features(x)
+        x = x.view(x.size(0), -1)
+
+        # gen_pred  = self.gender_clf(x)
+        # smile_pred  = self.smile_clf(x)
+        # emo_pred  = self.emotion_clf(x)
+        # age_pred  = self.age_clf(x)
+
+        # return gen_pred, smile_pred, emo_pred, age_pred 
+
+        age_pred_100_classes, age_pred_20_classes, age_pred_10_classes, age_pred_5_classes = None, None, None, None
+        
+        if self.age_divide_100_classes == True:
+            age_pred_100_classes = self.age_clf_100_classes(x)
+
+        if self.age_divide_20_classes == True:
+            age_pred_20_classes = self.age_clf_20_classes(x)
+
+        if self.age_divide_10_classes == True:
+            age_pred_10_classes = self.age_clf_10_classes(x)
+
+        if self.age_divide_5_classes == True:
+            age_pred_5_classes = self.age_clf_5_classes(x)
+
+        return age_pred_100_classes, age_pred_20_classes, age_pred_10_classes, age_pred_5_classes
+
 
 
 if __name__ == "__main__":

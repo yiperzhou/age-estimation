@@ -12,8 +12,8 @@ parser.add_argument('--weight_decay', type=float, default=1e-6)
 
 
 parser.add_argument('--dataset', type=str, default="CVPR_16_ChaLearn", help="CVPR_16_ChaLearn, IMDB_WIKI")
-parser.add_argument('--model', type=str, default = "Multi_loss_AlexNet",
-                     help="[Multi_loss_AlexNet, Multi_loss_MobileNet_V1]")
+parser.add_argument('--model', type=str, default = "Multi_loss_InceptionV3",
+                     help="[Multi_loss_AlexNet, Multi_loss_MobileNet_V1, Multi_loss_VGG16_bn_model, Multi_loss_DenseNet_121_model, Multi_loss_InceptionV3]")
 parser.add_argument('--lr_rate', type=float, default=0.001, help='learning rate (default: 0.001)')
 
 # neural network hyperparamter
@@ -63,6 +63,8 @@ parser.add_argument('--debug', type=bool, default=True, help="[True, False]")
 
 parser.add_argument('--description', type=str, default="test model with only usng Gaussian loss", help="")
 
+parser.add_argument('--age_classification_combination', type=list, default=[1,0,0,0],
+                    help="100-classes age classification, 20-classes age classification, 10-classes age classification, 5-classes age classification")
 
 
 
