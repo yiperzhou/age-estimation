@@ -9,6 +9,8 @@
   - [other materials](#other-materials)
   - [datasets](#datasets)
   - [face detection and alignment](#face-detection-and-alignment)
+    - [face detection](#face-detection)
+    - [alignment](#alignment)
   - [experiments](#experiments)
     - [environment](#environment)
     - [the STOA on age estimation](#the-stoa-on-age-estimation)
@@ -28,6 +30,7 @@ git checkout label_smoothing
 # regression_loss_combination branch
 git checkout regression_loss_combination
 ```
+
 
 
 ## to do
@@ -54,6 +57,8 @@ git checkout regression_loss_combination
   - [other materials](#other-materials)
   - [datasets](#datasets)
   - [face detection and alignment](#face-detection-and-alignment)
+    - [face detection](#face-detection)
+    - [alignment](#alignment)
   - [experiments](#experiments)
     - [environment](#environment)
     - [the STOA on age estimation](#the-stoa-on-age-estimation)
@@ -76,7 +81,16 @@ git checkout regression_loss_combination
 
 ## face detection and alignment
 
-- using Yue's processed images on ChaLearn CVPR 2016 dataset
+using Yue's processed images on ChaLearn CVPR 2016 dataset
+
+### face detection
+- [MTCNN - Joint Face Detection and Alignment using Multi-task Cascaded Convolutional Networks](https://github.com/TropComplique/mtcnn-pytorch)
+- [ ] check [Tiny Face Detector](https://github.com/peiyunh/tiny)
+
+### alignment
+- Dlib face alignment method is applied.
+- [ ] find out which exact algorithm it is.
+- 
 
 ## experiments
  
@@ -86,10 +100,10 @@ $ python main.py
 ```
 ### environment
 - ThinkStation
-  - virtual environment: pytorch
+  - virtual environment: `pytorch`
   - PyTorch 1.1.0
 - Narvi
-  - virtual environment: dl
+  - virtual environment: `dl`
   - PyTorch 1.0.1
 
 ### the STOA on age estimation
@@ -99,6 +113,12 @@ $ python main.py
 
 ## references
 
-1. the current state of the art approach, Li, W., Lu, J., Feng, J., Xu, C., Zhou, J., & Tian, Q. (2019). BridgeNet: A Continuity-Aware Probabilistic Network for Age Estimation. ArXiv, abs/1904.03358，　[BridgeNet](https://arxiv.org/abs/1904.03358) CVPR 2019
-2. the demo paper for writing, [SAF- BAGE](https://arxiv.org/abs/1803.05719), it was accepted by WACV 2019.
-3. the similar idea from the head pose estimation, [hopenet](https://arxiv.org/abs/1710.00925), the GitHub repository is [here](https://github.com/natanielruiz/deep-head-pose)
+1. the current state of the art approach, 
+   1. [Li, W., Lu, J., Feng, J., Xu, C., Zhou, J., & Tian, Q. (2019). BridgeNet: A Continuity-Aware Probabilistic Network for Age Estimation. ArXiv, abs/1904.03358](https://arxiv.org/abs/1904.03358), [CVPR 2019](http://cvpr2019.thecvf.com/)
+2. the demo paper for instrucing the writing process
+   1. [SAF- BAGE: Salient Approach for Facial Soft-Biometric Classification - Age, Gender, and Facial Expression](https://arxiv.org/abs/1803.05719)
+   2. [WACV 2019](https://wacv19.wacv.net).
+3. the similar idea from the head pose estimation, 
+   1. [Fine-Grained Head Pose Estimation Without Keypoints](https://arxiv.org/abs/1710.00925)
+   2. [GitHub repository](https://github.com/natanielruiz/deep-head-pose)
+   3. [Computer Vision and Pattern Recognition Workshops (CVPRW) 2018](http://cvpr2018.thecvf.com/program/workshops)
