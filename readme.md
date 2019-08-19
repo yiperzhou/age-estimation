@@ -34,7 +34,10 @@ git checkout regression_loss_combination
 
 
 ## to do
-- [ ] test function, $l_{n}=-w_{n}\left[t_{n} \cdot \log \sigma\left(x_{n}\right)+\left(1-t_{n}\right) \cdot \log \left(1-\sigma\left(x_{n}\right)\right)\right]$
+- [ ] test function, 
+```math
+$l_{n}=-w_{n}\left[t_{n} \cdot \log \sigma\left(x_{n}\right)+\left(1-t_{n}\right) \cdot \log \left(1-\sigma\left(x_{n}\right)\right)\right]$
+```
 - [ ] elaborate the method of the face detection and face alignment, currently I can not remember.
 - [ ] continue implementing the bar chart drawing function, the reference link is [here](https://pythonspot.com/matplotlib-bar-chart/)
 - [ ] implement epsilon $\epsilon$ error function
