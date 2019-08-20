@@ -115,8 +115,8 @@ $ python main.py
 
 ### the STOA on age estimation
 
-- from the [BridgeNet](##references) paper
-- ![Example](related_materials/state-of-the-art-result-age-estimation-on-chalearn-2016.png)
+- from the **BridgeNet[references#1]**
+> ![STOA-on-chalearn-2016-dataset](related_materials/state-of-the-art-result-age-estimation-on-chalearn-2016.png)
 
 ## references
 
