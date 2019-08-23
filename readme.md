@@ -1,17 +1,17 @@
-# Multi-loss function for age estimation
+# Age Estimation
 
 <!-- TOC -->
 
-- [Multi-loss function for age estimation](#multi-loss-function-for-age-estimation)
-  - [gitflow](#gitflow)
+- [Age Estimation](#age-estimation)
+  - [Git Network graph](#git-network-graph)
   - [to do](#to-do)
-      - [table of contents](#table-of-contents)
-  - [other materials](#other-materials)
+  - [Writing in Overleaf](#writing-in-overleaf)
   - [datasets](#datasets)
   - [face detection and alignment](#face-detection-and-alignment)
     - [face detection](#face-detection)
-    - [alignment](#alignment)
+    - [face alignment](#face-alignment)
   - [experiments](#experiments)
+    - [results](#results)
     - [environment](#environment)
     - [the STOA on age estimation](#the-stoa-on-age-estimation)
   - [references](#references)
@@ -19,25 +19,21 @@
 <!-- /TOC -->
 
 
-## gitflow
+## Git Network graph
 
 ```sh
-|--- master
-       |----------- label_smoothing
-       |----------- regression_loss_combination 
-# label_smoothing branch
-git checkout label_smoothing
-# regression_loss_combination branch
-git checkout regression_loss_combination
+age-estimation
+        |----------- master
+        |----------- label_smoothing
+        |----------- classification_combination 
+        |----------- multiple_losses_on_age_estimation
 ```
 
 
 
 ## to do
 - [ ] test function, 
-```math
 $l_{n}=-w_{n}\left[t_{n} \cdot \log \sigma\left(x_{n}\right)+\left(1-t_{n}\right) \cdot \log \left(1-\sigma\left(x_{n}\right)\right)\right]$
-```
 - [ ] elaborate the method of the face detection and face alignment, currently I can not remember.
 - [ ] continue implementing the bar chart drawing function, the reference link is [here](https://pythonspot.com/matplotlib-bar-chart/)
 - [ ] implement epsilon $\epsilon$ error function
@@ -51,28 +47,10 @@ $l_{n}=-w_{n}\left[t_{n} \cdot \log \sigma\left(x_{n}\right)+\left(1-t_{n}\right
 - [x] ~~clean the multitask learning source code to multi-loss age estimation task,~~  
 - [x] ~~reference ni xingyang's repository.~~
 
-<!-- 
-#### table of contents
-- [Multi-loss function for age estimation](#multi-loss-function-for-age-estimation)
-  - [gitflow](#gitflow)
-  - [to do](#to-do)
-      - [table of contents](#table-of-contents)
-  - [other materials](#other-materials)
-  - [datasets](#datasets)
-  - [face detection and alignment](#face-detection-and-alignment)
-    - [face detection](#face-detection)
-    - [alignment](#alignment)
-  - [experiments](#experiments)
-    - [environment](#environment)
-    - [the STOA on age estimation](#the-stoa-on-age-estimation)
-  - [references](#references)
-****
- -->
 
-## other materials
+## Writing in Overleaf
 
 - [manuscript in Overleaf](https://www.overleaf.com/project/5d2310338e2b2d7e89e37358)
-- Original experimental result in Google Drive, [Multitask learning](https://drive.google.com/drive/folders/1JSRQxQfCnNyKONFnrRL7D_sDituPLR73?usp=sharing), [Multiloss on age estimation loss](https://drive.google.com/drive/folders/1BNY4DsRx3oGBibo3Xi8oLNVaaYFMRAjl?usp=sharing)
 
 
 ## datasets
@@ -87,24 +65,21 @@ $l_{n}=-w_{n}\left[t_{n} \cdot \log \sigma\left(x_{n}\right)+\left(1-t_{n}\right
 using Yue's processed images on ChaLearn CVPR 2016 dataset
 
 ### face detection
-
 - [MTCNN - Joint Face Detection and Alignment using Multi-task Cascaded Convolutional Networks](https://github.com/TropComplique/mtcnn-pytorch)
 - [ ] check [Tiny Face Detector](https://github.com/peiyunh/tiny)
 
-### alignment
-
+### face alignment
 - Dlib face alignment method is applied.
 - [ ] find out which exact algorithm it is.
+- 
 
 ## experiments
- 
-```sh
-# run experiments for the age estimation
-$ python main.py  
-```
+
+### results
+
+- Original experimental result in Google Drive, [Multitask learning](https://drive.google.com/drive/folders/1JSRQxQfCnNyKONFnrRL7D_sDituPLR73?usp=sharing), [Multiloss on age estimation loss](https://drive.google.com/drive/folders/1BNY4DsRx3oGBibo3Xi8oLNVaaYFMRAjl?usp=sharing) 
 
 ### environment
-
 - ThinkStation
   - virtual environment: `pytorch`
   - PyTorch 1.1.0
@@ -112,11 +87,16 @@ $ python main.py
   - virtual environment: `dl`
   - PyTorch 1.0.1
 
+```sh
+# run experiments for the age estimation
+$ python main.py  
+```
+
 
 ### the STOA on age estimation
 
-- from the **BridgeNet[references#1]**
-> ![STOA-on-chalearn-2016-dataset](related_materials/state-of-the-art-result-age-estimation-on-chalearn-2016.png)
+- from the [BridgeNet](https://arxiv.org/abs/1904.03358) paper
+- ![Example](related_materials/state-of-the-art-result-age-estimation-on-chalearn-2016.png)
 
 ## references
 

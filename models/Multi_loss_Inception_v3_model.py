@@ -9,9 +9,9 @@ import torchvision.models as models
 class Multi_loss_InceptionV3(nn.Module):
     def __init__(self, args):
         super(Multi_loss_InceptionV3, self).__init__()
-        self.inceptionv3 = self.get_Inception_V3()
+        self.Inception_v3_feature = self.get_Inception_V3()
         
-        self.features_length = 9216
+        self.features_length = 2048
         self.args = args
 
         self.age_divide_100_classes, self.age_divide_20_classes, self.age_divide_10_classes, self.age_divide_5_classes = self.get_age_cls_class()
@@ -45,23 +45,9 @@ class Multi_loss_InceptionV3(nn.Module):
         )
 
     def get_Inception_V3(self):
-        
-        # Inception_v3_feature = nn.Sequential(
-        #     models.Inception3.Conv2d_1a_3x3,
-        #     models.Inception3.Conv2d_2a_3x3,
-        #     models.Inception3.Conv2d_2b_3x3,
-        #     models.Inception3.Conv2d_3b_1x1,
-        #     models.Inception3.Conv2d_4a_3x3,
-        #     models.Inception3.Mixed_5b,
-        #     models.Inception3.Mixed_5c,
-        #     models.Inception3.Mixed_5d,
-        #     models.Inception3.Mixed_6a,
-        #     models.Inception3.Mixed_5c,
-        # )
 
+        Inception_v3_feature = nn.Sequential(*list(models.inception_v3(pretrained=True).children())[:-1])
 
-        removed = list(models.inception_v3.children())[:-1]
-        Inception_v3_feature = nn.Sequential(*self.removed)
 
         return Inception_v3_feature
 
@@ -105,7 +91,7 @@ class Multi_loss_InceptionV3(nn.Module):
 
     
     def forward(self, x):
-        x = self.inceptionv3(x)
+        x = self.Inception_v3_feature(x)
 
         x = x.view(x.size(0), -1)
 
