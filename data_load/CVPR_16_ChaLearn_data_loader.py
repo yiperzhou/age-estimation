@@ -75,18 +75,24 @@ def get_CVPR_Age_data(args, show_sample=False):
 
     augment = True
 
+    resize = 224
+    if args.model == "Multi_loss_InceptionV3":
+        resize = 299
+
+
     if augment == True:
+
         transform = transforms.Compose([
-            transforms.RandomCrop(224, padding=4),
+            transforms.RandomCrop(resize, padding=4),
             transforms.RandomHorizontalFlip(),
-            transforms.Resize(224),
+            transforms.Resize(resize),
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
 
     else:
         transform = transforms.Compose([
-            transforms.Resize(224),
+            transforms.Resize(resize),
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
