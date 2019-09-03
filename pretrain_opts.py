@@ -32,7 +32,7 @@ parser.add_argument('--subtasks', type=list, default = ["gender", "age"])
 
 
 # working machine environment
-parser.add_argument('--working_machine', type=str, default="narvi", help="thinkstation, narvi")
+parser.add_argument('--working_machine', type=str, default="Narvi", help="thinkstation, Narvi")
 
 
 # Init Environment

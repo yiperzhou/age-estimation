@@ -23,8 +23,8 @@ class FER2013(data.Dataset):
         self.split = split  # training set or test set
 
         if args.working_machine == "thinkstation":
-            self.data = h5py.File("/home/yi/narvi_yi_home/projects/MultitaskLearningFace/resources/FER2013/data.h5", 'r', driver='core')
-        elif args.working_machine == "narvi":
+            self.data = h5py.File("/home/yi/Narvi_yi_home/projects/MultitaskLearningFace/resources/FER2013/data.h5", 'r', driver='core')
+        elif args.working_machine == "Narvi":
             self.data = h5py.File("/home/zhouy/projects/MultitaskLearningFace/resources/FER2013/data.h5", 'r', driver='core')
         else:
             print("FER2013 dataset not found")

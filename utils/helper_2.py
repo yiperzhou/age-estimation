@@ -11,7 +11,7 @@ def LOG(message, logFile):
     print(msg)
 
 
-def LOG_variables_to_board(epoch_losses, losses, losses_name, epoch_accs, accs, accs_name, phrase, folder, epoch, logFile, writer):
+def log_variables_to_board(epoch_losses, losses, losses_name, epoch_accs, accs, accs_name, phrase, folder, epoch, logFile, writer):
     '''
     
     '''
