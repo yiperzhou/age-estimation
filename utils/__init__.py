@@ -1,5 +1,5 @@
 from .helper_2 import (
-    LOG, LOG_variables_to_board,
+    LOG, log_variables_to_board,
     save_csv_logging
 )
 from .helper import (

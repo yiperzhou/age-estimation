@@ -69,7 +69,7 @@ using Yue's processed images on ChaLearn CVPR 2016 dataset
 - [ ] check [Tiny Face Detector](https://github.com/peiyunh/tiny)
 
 ### face alignment
-- Dlib face alignment method is applied.
+- [dlib face alignment method](http://dlib.net/face_alignment.py.html) is applied.
 - [ ] find out which exact algorithm it is.
 - 
 

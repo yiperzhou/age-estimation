@@ -1,7 +1,7 @@
 from .CVPR_16_ChaLearn_data_loader import (
     DatasetFolder,
     CVPR_AGE_load_dataset, 
-    get_CVPR_Age_data,
+    get_CVPR_age_data,
     getstd, load_chalearn_dataset
 )   
 

@@ -36,7 +36,6 @@ from pretrain_opts import args
 def age_mae_criterion_Encapsulation_IMDB_WIKI(age_criterion, age_out_1, age_label):
     # print("age_out_1: ", age_out_1)
 
-    
     # print("age_out_1: ", age_out_1)
     # print("age_label: ", age_label)
 
@@ -77,8 +76,6 @@ def age_mae_criterion_Encapsulation_IMDB_WIKI(age_criterion, age_out_1, age_labe
         LOG("pred_ages: " + str(pred_ages), logFile)
         LOG("age_label: " + str(age_label), logFile)
 
-
-
         pass
     
     # age_loss_mae = Variable(age_loss_mae, requires_grad = True) 
@@ -92,7 +89,6 @@ def convert_one_hot_to_index_format(age_cls_label):
 
     age_cls_label = age_cls_label.reshape([len(age_cls_label), 101])
     _, age_cls_label = age_cls_label.max(1)
-    
 
     age_cls_label = age_cls_label.type(torch.cuda.LongTensor)
 
@@ -101,7 +97,6 @@ def convert_one_hot_to_index_format(age_cls_label):
 def Train_Valid(model, loader, criterion, optimizer, epoch, logFile, args, pharse):
 
     LOG("[" + pharse + "]: Starting, Epoch: " + str(epoch), logFile)
-
 
     best_gen_acc = 0.
     best_age_mae = 99.
@@ -141,7 +136,6 @@ def Train_Valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
 
     epoch_start_time = time.time()
 
-
     print("[Age, Gender] tasks weights: ", args.loss_weights)
 
     gender_criterion, age_criterion, age_cls_criterion = criterion[0], criterion[1], criterion[2]
@@ -155,11 +149,8 @@ def Train_Valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
         gender_label = gender_label.squeeze(-1)
         gender_label = gender_label.cuda()
 
-
-
         age_cls_label = age_cls_label.type(torch.cuda.LongTensor)
         # age_cls_label = age_cls_label.cuda()
-
 
         if args.multitask_training_type == 3:
             # optimizer.zero_grad()
@@ -194,7 +185,6 @@ def Train_Valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
 
             age_cls_loss = age_cls_criterion(age_out, age_cls_label)
 
-    
             age_loss_mae = age_mae_criterion_Encapsulation_IMDB_WIKI(age_criterion, age_out, age_cls_label)
 
             # print("gender_label: ", gender_label)
@@ -225,7 +215,6 @@ def Train_Valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
             age_prec1 = accuracy(age_out.data, age_cls_label)
             age_epoch_acc.update(age_prec1[0].item(), age_cls_label.size(0))
 
-
             if pharse == "train":
                 loss.backward()
                 optimizer.step()
@@ -243,7 +232,6 @@ def Train_Valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
         else:
             pass
 
-
         # print("train loader")
         if batch_idx % 1000 == 0:
             print(
@@ -252,10 +240,7 @@ def Train_Valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
             # pbar.update(batch_idx * len(input_img))
 
             print("[" + pharse +"] [ACC(%)], [gender, age        ]: " + str([gender_epoch_acc.avg, age_epoch_acc.avg]))
-            print("[" + pharse +"] [Loss  ], [gender, age, age_mae, total]: " + str([gender_epoch_loss.avg, age_epoch_mae.avg, age_epoch_loss.avg, total_epoch_loss.avg]))            
-
-
-
+            print("[" + pharse +"] [Loss  ], [gender, age, age_mae, total]: " + str([gender_epoch_loss.avg, age_epoch_mae.avg, age_epoch_loss.avg, total_epoch_loss.avg]))
     
     LOG("One [" + pharse + "] epoch took {} minutes".format((time.time() - epoch_start_time)/60), logFile)
 
@@ -277,13 +262,11 @@ def Train_Valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
     return accs, losses, lr, model 
 
 
-
 def parse_loss_weight(args):
 
     folder_sub_name = "_" + args.subtasks[0]+ "_" + str(args.loss_weights[0]) + "_" + args.subtasks[1] +"_" + str(args.loss_weights[1])
 
     return folder_sub_name
-
 
 
 def main(**kwargs):
@@ -297,7 +280,8 @@ def main(**kwargs):
     timestamp = datetime.datetime.now()
     ts_str = timestamp.strftime('%Y-%m-%d-%H-%M-%S')
 
-    path = "./results" + os.sep + "pretrained_" + args.model + os.sep + args.folder_sub_name + "_" + args.dataset + os.sep + ts_str
+    path = "./results" + os.sep + "pretrained_" + args.model + os.sep \
+           + args.folder_sub_name + "_" + args.dataset + os.sep + ts_str
     tensorboard_folder = path + os.sep + "Graph"
     # csv_path = path + os.sep + "log.csv"
     
@@ -323,7 +307,8 @@ def main(**kwargs):
     gender_criterion = nn.CrossEntropyLoss()
     
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', threshold=1e-5, patience=10)
-    # log model to logfile, so that I can check the logfile later to know the model detail, for example, the number of class for the age estimation
+    # log model to logfile, so that I can check the logfile later to know the model detail,
+    # for example, the number of class for the age estimation
     LOG(model, logFile)
 
     use_gpu = torch.cuda.is_available()

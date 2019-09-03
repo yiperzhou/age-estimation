@@ -4,10 +4,10 @@ caffe
 source activate caffe  
 
 
-## narvi zhouy computer environment
+## Narvi zhouy computer environment
 
 user name: zhouy  
-ssh zhouy@narvi.tut.fi  
+ssh zhouy@Narvi.tut.fi  
 
 
 source activate dl
@@ -16,13 +16,13 @@ module load CUDA
 
 # mount remote folder into local folder
 
-mkdir narvi  
-sshfs zhouy@narvi.tut.fi:/home/zhouy/local_elasticnn narvi/
+mkdir Narvi  
+sshfs zhouy@Narvi.tut.fi:/home/zhouy/local_elasticnn Narvi/
 
 
 ## mount remote folder permantely
 
-sshfs zhouy@narvi.tut.fi:/home/zhouy/local_elasticnn narvi/ xxx
+sshfs zhouy@Narvi.tut.fi:/home/zhouy/local_elasticnn Narvi/ xxx
 
 
 
@@ -41,9 +41,9 @@ conda env create -f tut_thinkstation_virtual_env_caffe.yml
 
 ## umount folder
 
-sudo umount narvi/
-sudo umount -l narvi_yi_home
-sudo umount -f narvi_yi_home/
+sudo umount Narvi/
+sudo umount -l Narvi_yi_home
+sudo umount -f Narvi_yi_home/
 
 ## mount folder since computer starts
 
@@ -142,9 +142,9 @@ squeue -u zhouy
 scancel 2865293  
 
 ## send file or folder to Narvi
-scp -r keras-2.1.5 zhouy@narvi.tut.fi:~  
+scp -r keras-2.1.5 zhouy@Narvi.tut.fi:~  
 
-# Jakko's template code folder on narvi
+# Jakko's template code folder on Narvi
 /sgn-data/VisionGrp/Landmarks/Landmark_recognition  
 
 #slurm  

@@ -71,9 +71,9 @@ ResNet-18-Age-10-classes-crossentropy  [11]                            |        
 
 
 
-[11] /home/yi/narvi_yi_home/projects/MultitaskLearningFace/results/MTL_ResNet_18_model/_gender_0_smile_0_emotion_0_age_1_CVPR_16_ChaLearn/2019-05-07-14-24-47_10-classes-crossentropy
+[11] /home/yi/Narvi_yi_home/projects/MultitaskLearningFace/results/MTL_ResNet_18_model/_gender_0_smile_0_emotion_0_age_1_CVPR_16_ChaLearn/2019-05-07-14-24-47_10-classes-crossentropy
 
-[12] /home/yi/narvi_yi_home/projects/MultitaskLearningFace/results/MTL_ResNet_18_model/_gender_0_smile_0_emotion_0_age_1_CVPR_16_ChaLearn/2019-05-07-14-13-05_100-class-10-classes-crossentropy
+[12] /home/yi/Narvi_yi_home/projects/MultitaskLearningFace/results/MTL_ResNet_18_model/_gender_0_smile_0_emotion_0_age_1_CVPR_16_ChaLearn/2019-05-07-14-13-05_100-class-10-classes-crossentropy
 
 
 

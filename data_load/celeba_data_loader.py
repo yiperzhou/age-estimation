@@ -221,7 +221,7 @@ def get_celebA_data(args):
         args.test_ann_path = "/media/yi/harddrive/codes/MultitaskingFace/siamese_network/train_data/identities.txt"
         args.train_ann_path = "/media/yi/harddrive/codes/MultitaskingFace/siamese_network/identities_train.txt"
 
-    elif args.working_machine == "narvi":
+    elif args.working_machine == "Narvi":
         
         args.test_ann_path = "/home/zhouy/MultitaskingFace/siamese_network/CelebA_full_data_train_test_split/identities_test.txt"
         args.train_ann_path = "/home/zhouy/MultitaskingFace/siamese_network/CelebA_full_data_train_test_split/identities_train.txt"
