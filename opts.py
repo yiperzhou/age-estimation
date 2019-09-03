@@ -18,7 +18,7 @@ parser.add_argument('--lr_rate', type=float, default=0.001, help='learning rate 
 
 # neural network hyperparamter
 parser.add_argument('--lr_schedule', type=float, default=8, help='learning rate schedule')
-parser.add_argument('--batch_size', type=int, default=16, metavar='N',help='input batch size for training (default: 32)')
+parser.add_argument('--batch_size', type=int, default=2, metavar='N',help='input batch size for training (default: 32)')
 parser.add_argument('--epoch', type=int, help="epoch number, default 1", default=60)
 
 parser.add_argument('--load_IMDB_WIKI_pretrained_model', type=bool, default=False, help="[False, True]")
@@ -43,7 +43,7 @@ parser.add_argument('--all_losses', type=list, default =["classification_loss", 
                         help="")                        
 
 # working machine environment
-parser.add_argument('--working_machine', type=str, default="narvi", help="[thinkstation, narvi]")
+parser.add_argument('--working_machine', type=str, default="thinkstation", help="[thinkstation, narvi]")
 # parser.add_argument('--store_folder', type=str, default=["", ""], help="["store_folder_in_thinkstation","store_folder_in_narvi"]")
 
 parser.add_argument('--debug', type=bool, default=True, help="[True, False]")

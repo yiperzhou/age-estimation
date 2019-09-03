@@ -93,6 +93,8 @@ class Multi_loss_InceptionV3(nn.Module):
     def forward(self, x):
         x = self.Inception_v3_feature(x)
 
+        print(x.size())
+
         x = x.view(x.size(0), -1)
 
         age_pred_100_classes, age_pred_20_classes, age_pred_10_classes, age_pred_5_classes = None, None, None, None

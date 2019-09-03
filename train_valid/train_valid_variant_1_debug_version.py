@@ -115,7 +115,7 @@ def age_cls_criterion_Encapsulation(age_criterion, age_out_cls, age_label, class
 def Train_Valid(model, loader, criterion, optimizer, epoch, logFile, args, pharse, debug):
 
     if debug == True:
-        LOG("enter [DEBUG] Tran_Valid", logFile)
+        LOG("enter [DEBUG] train_valid", logFile)
 
     LOG("[" + pharse + "]: Starting, Epoch: " + str(epoch), logFile)
 
@@ -156,6 +156,7 @@ def Train_Valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
         age_img = age_img.cuda()
         age_label = age_label.cuda()
 
+        #
         age_pred_100_classes, age_pred_20_classes, age_pred_10_classes, age_pred_5_classes = model(age_img)
 
         if args.age_classification_combination == [1, 0, 0, 0]:
