@@ -11,7 +11,7 @@ class Multi_loss_InceptionV3(nn.Module):
         super(Multi_loss_InceptionV3, self).__init__()
         self.Inception_v3_feature = self.get_Inception_V3()
         
-        self.features_length = 2048
+        self.features_length = 2508800
         self.args = args
 
         self.age_divide_100_classes, self.age_divide_20_classes, self.age_divide_10_classes, self.age_divide_5_classes = self.get_age_cls_class()
@@ -46,7 +46,7 @@ class Multi_loss_InceptionV3(nn.Module):
 
     def get_Inception_V3(self):
 
-        Inception_v3_feature = nn.Sequential(*list(models.inception_v3(pretrained=True).children())[:-1])
+        Inception_v3_feature = nn.Sequential(*list(models.inception_v3(pretrained=True, aux_logits=False).children())[:-1])
 
 
         return Inception_v3_feature
@@ -110,6 +110,7 @@ class Multi_loss_InceptionV3(nn.Module):
 
         if self.age_divide_5_classes == True:
             age_pred_5_classes = self.age_clf_5_classes(x)
+
 
         return age_pred_100_classes, age_pred_20_classes, age_pred_10_classes, age_pred_5_classes
 
