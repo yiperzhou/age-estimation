@@ -48,7 +48,7 @@ parser.add_argument('--all_losses', type=list, default =["classification_loss", 
                     help="")
 
 # working machine environment
-parser.add_argument('--working_machine', type=str, default="thinkstation", help="[thinkstation, narvi]")
+parser.add_argument('--working_machine', type=str, default="Narvi", help="[thinkstation, Narvi]")
 # parser.add_argument('--store_folder', type=str, default=["", ""], help="["store_folder_in_thinkstation","store_folder_in_narvi"]")
 
 parser.add_argument('--debug', type=bool, default=True, help="[True, False]")

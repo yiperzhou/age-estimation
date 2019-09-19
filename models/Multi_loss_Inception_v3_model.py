@@ -46,7 +46,7 @@ class Multi_loss_InceptionV3(nn.Module):
 
     def get_Inception_V3(self):
 
-        Inception_v3_feature = nn.Sequential(*list(models.inception_v3(pretrained=True, aux_logits=False).children())[:-1])
+        Inception_v3_feature = nn.Sequential(*list(models.inception_v3(pretrained=False, aux_logits=False).children())[:-1])
 
 
         return Inception_v3_feature

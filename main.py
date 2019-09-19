@@ -110,6 +110,7 @@ def main(**kwargs):
 
     use_gpu = torch.cuda.is_available()
     if use_gpu:
+        torch.cuda.empty_cache()
         model = model.cuda()
         age_cls_criterion = age_cls_criterion.cuda()
 
