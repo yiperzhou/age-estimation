@@ -10,11 +10,11 @@ import torch.nn.functional as F
 from torchvision import models
 
     
-class Multi_loss_DenseNet_121_model(torch.nn.Module):
+class Multi_Classification_DenseNet_121_model(torch.nn.Module):
     def __init__(self, args, age_classes=100):
-        super(Multi_loss_DenseNet_121_model, self).__init__()
+        super(Multi_Classification_DenseNet_121_model, self).__init__()
 
-        self.MTL_DenseNet_features = models.densenet121(pretrained=True).features
+        self.Multi_Classification_DenseNet_features = models.densenet121(pretrained=True).features
         
         self.features_length = 50176
 
@@ -54,47 +54,7 @@ class Multi_loss_DenseNet_121_model(torch.nn.Module):
             nn.ReLU(inplace=True),
             nn.Dropout(p=0.5, inplace=False),
             nn.Linear(256, 5)                        
-        )        
-
-        # # gender branch
-        # self.gender_clf = nn.Sequential(
-        #     nn.Linear(self.features_length, 512),
-        #     nn.ReLU(inplace=True),
-        #     nn.Dropout(p=0.5, inplace=False),
-        #     nn.Linear(512, gen_classes)
-        # )
-
-        # # smile branch
-        # self.smile_clf = nn.Sequential(
-        #     nn.Linear(self.features_length, 512),
-        #     nn.ReLU(inplace=True),
-        #     nn.Dropout(p=0.5, inplace=False),
-        #     nn.Linear(512, smile_classes)
-        # )
-
-        # # emotion branch
-        # self.emotion_clf = nn.Sequential(
-        #     nn.Linear(self.features_length, 512),
-        #     nn.ReLU(inplace=True),
-        #     nn.Dropout(p=0.5, inplace=False),
-        #     nn.Linear(512, emo_classes)
-        # )
-
-        # # age branch
-        # self.age_clf = nn.Sequential(
-        #     nn.Linear(self.features_length, 512),
-        #     nn.ReLU(inplace=True),
-        #     nn.Dropout(p=0.5, inplace=False),
-        #     nn.Linear(512, age_classes)
-        # )
-
-      
-        # self.age_rgs_clf = nn.Sequential(
-        #     nn.Linear(self.features_length, 256),
-        #     nn.ReLU(inplace=True),
-        #     nn.Dropout(p=0.5, inplace=False),
-        #     nn.Linear(256, self.age_divide)
-        # )     
+        )          
 
     
     def get_age_cls_class(self):
@@ -137,7 +97,7 @@ class Multi_loss_DenseNet_121_model(torch.nn.Module):
 
     
     def forward(self, x):
-        x = self.MTL_DenseNet_features(x)
+        x = self.Multi_Classification_DenseNet_features(x)
         x = x.view(x.size(0), -1)
 
         age_pred_100_classes, age_pred_20_classes, age_pred_10_classes, age_pred_5_classes = None, None, None, None

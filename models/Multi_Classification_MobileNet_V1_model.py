@@ -20,10 +20,6 @@ class MobileNet(nn.Module):
     def __init__(self):
         super(MobileNet, self).__init__()
 
-        # self.intermediate_CLF = []
-        # self.add_intermediate_layers = add_intermediate_layers
-        # self.num_categories = num_categories
-        # self.num_outputs = num_outputs
 
         def conv_bn(inp, oup, stride):
             return nn.Sequential(
@@ -72,13 +68,13 @@ class MobileNet(nn.Module):
         return x
 
 
-class Multi_loss_MobileNet_V1_Model(torch.nn.Module):
+class Multi_Classification_MobileNet_V1_model(torch.nn.Module):
     def __init__(self, args, age_classes=100):
-        super(Multi_loss_MobileNet_V1_Model, self).__init__()
+        super(Multi_Classification_MobileNet_V1_model, self).__init__()
     
         mobilenet_v1_model = Elastic_MobileNet()
         
-        self.MTL_MobileNet_V1_model_feature = mobilenet_v1_model.model
+        self.Multi_Classification_MobileNet_V1_model_feature = mobilenet_v1_model.model
 
         self.features_length = 1024
 
@@ -174,7 +170,7 @@ class Multi_loss_MobileNet_V1_Model(torch.nn.Module):
 
 
     def forward(self, x):
-        x = self.MTL_MobileNet_V1_model_feature(x)
+        x = self.Multi_Classification_MobileNet_V1_model_feature(x)
 
         # print(x.size())  # torch.Size([8, 1280, 7, 7])
         x = x.view(x.size(0), -1)
@@ -198,5 +194,5 @@ class Multi_loss_MobileNet_V1_Model(torch.nn.Module):
 
 
 # if __name__ == "__main__":
-#     model = MTL_MobileNet_V1_model()
+#     model = Multi_Classification_MobileNet_V1_model()
 #     print("done")

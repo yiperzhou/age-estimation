@@ -4,10 +4,10 @@ from torchvision import models
 import torch.nn.functional as F
 
 
-class Multi_loss_AlexNet_Model(nn.Module):
+class Multi_Classification_AlexNet_model(nn.Module):
     def __init__(self, args, logFile, age_classes = 100):
-        super(Multi_loss_AlexNet_Model, self).__init__()
-        self.MTL_AlexNet_features = models.alexnet(pretrained=True).features
+        super(Multi_Classification_AlexNet_model, self).__init__()
+        self.Multi_Classification_AlexNet_features = models.alexnet(pretrained=True).features
         
         self.features_length = 9216
         self.args = args
@@ -65,7 +65,7 @@ class Multi_loss_AlexNet_Model(nn.Module):
 
     
     def forward(self, x):
-        x = self.MTL_AlexNet_features(x)
+        x = self.Multi_Classification_AlexNet_features(x)
         x = x.view(x.size(0), -1)
 
         age_pred  = self.age_clf(x)

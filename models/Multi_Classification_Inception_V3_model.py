@@ -6,9 +6,9 @@ import torchvision.models as models
 
 # from helper import LOG
 
-class Multi_loss_InceptionV3(nn.Module):
+class Multi_Classification_Inception_V3_model(nn.Module):
     def __init__(self, args):
-        super(Multi_loss_InceptionV3, self).__init__()
+        super(Multi_Classification_Inception_V3_model, self).__init__()
         self.Inception_v3_feature = self.get_Inception_V3()
         
         self.features_length = 2508800

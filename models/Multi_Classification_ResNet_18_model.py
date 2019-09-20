@@ -12,9 +12,9 @@ from copy import deepcopy
 import numpy as np
 
 
-class Multi_loss_ResNet_18_model(torch.nn.Module):
+class Multi_Classification_ResNet_18_model(torch.nn.Module):
   def __init__(self, args):
-    super(Multi_loss_ResNet_18_model, self).__init__()
+    super(Multi_Classification_ResNet_18_model, self).__init__()
     self.resNet = models.resnet18(pretrained=True)
 
     self.use_gpu = torch.cuda.is_available()
