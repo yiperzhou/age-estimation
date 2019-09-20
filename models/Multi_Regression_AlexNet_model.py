@@ -4,9 +4,9 @@ from torchvision import models
 import torch.nn.functional as F
 
 
-class Multi_loss_AlexNet_Model(nn.Module):
+class Multi_Regression_AlexNet_Model(nn.Module):
     def __init__(self, args, logFile, age_classes = 100):
-        super(Multi_loss_AlexNet_Model, self).__init__()
+        super(Multi_Regression_AlexNet_Model, self).__init__()
         self.MTL_AlexNet_features = models.alexnet(pretrained=True).features
         
         self.features_length = 9216

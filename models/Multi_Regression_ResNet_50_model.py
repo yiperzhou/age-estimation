@@ -12,9 +12,9 @@ from copy import deepcopy
 import numpy as np
 
 
-class Multi_loss_ResNet_50_model(torch.nn.Module):
+class Multi_Regression_ResNet_50_model(torch.nn.Module):
   def __init__(self, args, age_classes = 100):
-    super(Multi_loss_ResNet_50_model, self).__init__()
+    super(Multi_Regression_ResNet_50_model, self).__init__()
 
     resnet50_model = models.resnet50(pretrained=True)
 

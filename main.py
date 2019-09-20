@@ -32,8 +32,8 @@ from utils.helper_2 import log_variables_to_board, LOG
 from utils.helper import save_checkpoint, load_model_weights
 from utils.config import process_config
 
-from train_valid.train_valid_variant_1_debug_version import train_valid
-from train_valid.age_losses_methods import Gaussian_age_loss, Euclidean_age_loss, Age_rgs_loss
+from train_valid.train_valid import train_valid
+from train_valid.age_losses_methods import Age_rgs_loss
 
 
 from opts import args
@@ -125,7 +125,7 @@ def main(**kwargs):
     lowest_loss = 100000
 
     columns = ['Timstamp', 'Epoch', 'lr',
-               'train_total_loss', 'train_age_cls_loss', 'train_age_l1_mae_loss',
+               'train_total_loss', 'train_age_l1_mae_loss',
                'train_age_acc',
                'val_total_loss', 'val_age_cls_loss', 'val_age_l1_mae_loss',
                'val_age_acc']

@@ -10,9 +10,9 @@ import torch.nn.functional as F
 from torchvision import models
 
     
-class Multi_loss_DenseNet_121_model(torch.nn.Module):
+class Multi_Regression_DenseNet_121_model(torch.nn.Module):
     def __init__(self, args, age_classes=100):
-        super(Multi_loss_DenseNet_121_model, self).__init__()
+        super(Multi_Regression_DenseNet_121_model, self).__init__()
 
         self.MTL_DenseNet_features = models.densenet121(pretrained=True).features
         

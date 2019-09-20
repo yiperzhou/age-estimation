@@ -1,94 +1,21 @@
-from collections import OrderedDict
-import torch.utils.model_zoo as model_zoo
-import torch.nn as nn
 import torch
-import os
-
-from models.Elastic_MobileNet_V1 import Elastic_MobileNet
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.utils.model_zoo as model_zoo
+import torchvision.models as models
 
 # from helper import LOG
 
-# not official model weights
-model_urls = {
-    # 'mobilenetV1': '/media/yi/e7036176-287c-4b18-9609-9811b8e33769/Elastic/elastic/pytorch_code/models/mobilenet_sgd_68.848.pth.tar'
-    'mobilenetV1': '/home/yi/Narvi_yi_home/projects/MultitaskLearningFace/resources/mobilenet_sgd_68.848.pth.tar'
-}
-
-
-
-class MobileNet(nn.Module):
-    def __init__(self):
-        super(MobileNet, self).__init__()
-
-        # self.intermediate_CLF = []
-        # self.add_intermediate_layers = add_intermediate_layers
-        # self.num_categories = num_categories
-        # self.num_outputs = num_outputs
-
-        def conv_bn(inp, oup, stride):
-            return nn.Sequential(
-                nn.Conv2d(inp, oup, 3, stride, 1, bias=False),
-                nn.BatchNorm2d(oup),
-                nn.ReLU(inplace=True)
-            )
-
-        def conv_dw(inp, oup, stride):
-            return nn.Sequential(
-                nn.Conv2d(inp, inp, 3, stride, 1, groups=inp, bias=False),
-                nn.BatchNorm2d(inp),
-                nn.ReLU(inplace=True),
-
-                nn.Conv2d(inp, oup, 1, 1, 0, bias=False),
-                nn.BatchNorm2d(oup),
-                nn.ReLU(inplace=True),
-            )
-
-        self.model = nn.Sequential(
-            conv_bn(3,  32, 2),
-            conv_dw(32,  64, 1),
-            conv_dw(64, 128, 2),
-            conv_dw(128, 128, 1),
-            conv_dw(128, 256, 2),
-            conv_dw(256, 256, 1),
-            conv_dw(256, 512, 2),
-            conv_dw(512, 512, 1),
-            conv_dw(512, 512, 1),
-            conv_dw(512, 512, 1),
-            conv_dw(512, 512, 1),
-            conv_dw(512, 512, 1),
-            conv_dw(512, 1024, 2),
-            conv_dw(1024, 1024, 1),
-            nn.AvgPool2d(7),
-        )
-
-        self.fc = nn.Linear(1024, 1000)
-
-    def forward(self, x):
-
-        x = self.model(x)
-
-        x = x.view(-1, 1024)
-        x = self.fc(x)
-        return x
-
-
-class Multi_loss_MobileNet_V1_Model(torch.nn.Module):
-    def __init__(self, args, age_classes=100):
-        super(Multi_loss_MobileNet_V1_Model, self).__init__()
-    
-        mobilenet_v1_model = Elastic_MobileNet()
+class Multi_Regression_InceptionV3(nn.Module):
+    def __init__(self, args):
+        super(Multi_Regression_InceptionV3, self).__init__()
+        self.Inception_v3_feature = self.get_Inception_V3()
         
-        self.MTL_MobileNet_V1_model_feature = mobilenet_v1_model.model
-
-        self.features_length = 1024
-
-        self.use_gpu = torch.cuda.is_available()
-
+        self.features_length = 2508800
         self.args = args
 
         self.age_divide_100_classes, self.age_divide_20_classes, self.age_divide_10_classes, self.age_divide_5_classes = self.get_age_cls_class()
-        
-        
+
         self.age_clf_100_classes = nn.Sequential(
             nn.Linear(self.features_length, 256),
             nn.ReLU(inplace=True),
@@ -116,24 +43,14 @@ class Multi_loss_MobileNet_V1_Model(torch.nn.Module):
             nn.Dropout(p=0.5, inplace=False),
             nn.Linear(256, 5)                        
         )
- 
 
-    def load_MobileNet_V1_ImageNet_pretrained_weight(self, mobilenet_v1_model):
-        tar = torch.load(model_urls['mobilenetV1'])
-        state_dict = tar['state_dict']
+    def get_Inception_V3(self):
 
-        new_state_dict = OrderedDict()
-        for k, v in state_dict.items():
-            name = k[7:]  # remove `module.`
-            new_state_dict[name] = v
+        Inception_v3_feature = nn.Sequential(*list(models.inception_v3(pretrained=False, aux_logits=False).children())[:-1])
 
-        mobilenet_v1_model = mobilenet_v1_model.load_state_dict(new_state_dict)
 
-        # model.load_state_dict(model_zoo.load_url(model_urls['mobilenetV1']))
-        # LOG("loaded ImageNet pretrained weights", logfile)
-        print("[MobileNet_v1] loaded ImageNet pretrained weights")
+        return Inception_v3_feature
 
-        return mobilenet_v1_model
 
     def get_age_cls_class(self):
 
@@ -172,16 +89,16 @@ class Multi_loss_MobileNet_V1_Model(torch.nn.Module):
 
         return age_divide_100_classes, age_divide_20_classes, age_divide_10_classes, age_divide_5_classes
 
-
+    
     def forward(self, x):
-        x = self.MTL_MobileNet_V1_model_feature(x)
+        x = self.Inception_v3_feature(x)
 
-        # print(x.size())  # torch.Size([8, 1280, 7, 7])
+        print(x.size())
+
         x = x.view(x.size(0), -1)
-        # print(x.size())   # torch.Size([8, 62720])
 
         age_pred_100_classes, age_pred_20_classes, age_pred_10_classes, age_pred_5_classes = None, None, None, None
-        
+
         if self.age_divide_100_classes == True:
             age_pred_100_classes = self.age_clf_100_classes(x)
 
@@ -194,9 +111,12 @@ class Multi_loss_MobileNet_V1_Model(torch.nn.Module):
         if self.age_divide_5_classes == True:
             age_pred_5_classes = self.age_clf_5_classes(x)
 
+
         return age_pred_100_classes, age_pred_20_classes, age_pred_10_classes, age_pred_5_classes
 
 
+
+
 # if __name__ == "__main__":
-#     model = MTL_MobileNet_V1_model()
-#     print("done")
+#     print("test model")
+#     model = Multi_loss_InceptionV3
