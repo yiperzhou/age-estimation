@@ -12,7 +12,3 @@ from .face_alignment import (
 from .imdb_wiki_data_loader import (
     load_IMDB_WIKI_dataset
 )
-
-from .FER2013_Emotion_data_loader import (
-    get_FER2013_Emotion_data
-)

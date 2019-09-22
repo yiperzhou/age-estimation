@@ -84,67 +84,6 @@ def age_regression_classification_loss(age_out, age_label):
     return loss
 
 
-
-LAMDA = 1
-SIGMOID = 3
-
-
-
-class Euclidean_age_loss(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.LAMDA = LAMDA
-        self.SIGMOID = SIGMOID
-
-        
-        
-    def forward(self, y_pred, y_true):
-
-        _, y_pred = torch.max(y_pred, 1)
-
-        y_true = y_true.type(torch.cuda.FloatTensor)
-        y_pred = y_pred.type(torch.cuda.FloatTensor)
-
-        temp_1 = y_pred - y_true
-
-        loss1 = (1.0/2.0) * torch.pow(temp_1, 2)
-
-        loss1 = torch.mean(loss1)
-
-        return loss1
-
-
-class Gaussian_age_loss(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.LAMDA = LAMDA
-        self.SIGMOID = SIGMOID
-
-        
-        
-    def forward(self, y_pred, y_true):
-
-        _, y_pred = torch.max(y_pred, 1)
-        
-        y_true = y_true.type(torch.cuda.FloatTensor) 
-        y_pred = y_pred.type(torch.cuda.FloatTensor) 
-
-        # print("Gaussian_age_loss, y_true: ", y_true) # tensor([ 7., 40.], device='cuda:0')
-        # print("Gaussian_age_loss, y_pred: ", y_pred) # tensor([28., 24.], device='cuda:0')         
-
-        temp_1 = y_pred - y_true
-
-        temp_2 = torch.pow(temp_1, 2)
-
-        loss2 = LAMDA *(1 - torch.exp(-(temp_2/(2* SIGMOID))))
-
-        loss2 = torch.mean(loss2)
-
-        return loss2
-
-
-
-
 class Age_rgs_loss(nn.Module):
     '''
     age regression loss, reference, the github repository, Age-Gender-Pred, repository
@@ -163,18 +102,3 @@ class Age_rgs_loss(nn.Module):
         age_loss_rgs = age_rgs_criterion(y_pred, y_true_rgs)
 
         return age_loss_rgs
-
-
-
-
-
-# def relative_mse_loss(y_true,y_pred):
-
-#     return torch.pow((y_true - y_pred), 2)/torch.sqrt(y_true)
-
-
-# def age_margin_mse_loss(y_true,y_pred):
-
-#     return torch.max(torch.pow((y_pred -y_true), 2)-2.25,0)
-
-#     # torch.pow((y_pred -y_true), 2)

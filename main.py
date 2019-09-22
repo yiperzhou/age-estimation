@@ -32,7 +32,7 @@ from utils.helper_2 import LOG_variables_to_board, LOG
 from utils.helper import save_checkpoint, load_model_weights
 from utils.config import process_config
 
-from train_valid.train_valid_variant_1_debug_version import Train_Valid
+from train_valid.train_valid import Train_Valid
 
 
 from opts import args
