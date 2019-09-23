@@ -2,10 +2,6 @@ from .Multi_Classification_DenseNet_121_model import (
     Multi_Classification_DenseNet_121_model
 )
 
-from .Multi_Classification_ResNet_18_model import (
-    Multi_Classification_ResNet_18_model
-)
-
 from .Multi_Classification_AlexNet_model import (
     Multi_Classification_AlexNet_model
 )
@@ -20,8 +16,4 @@ from .Multi_Classification_ResNet_50_model import (
 
 from .Multi_Classification_VGG16_bn_model import (
     Multi_Classification_VGG16_bn_model
-)
-
-from .Multi_Classification_Inception_V3_model import (
-    Multi_Classification_Inception_V3_model
 )
