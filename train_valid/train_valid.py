@@ -29,7 +29,6 @@ from data_load import *
 from utils import *
 
 from utils.helper_4 import convert_to_onehot_tensor
-# from train_valid.age_losses_methods import Age_rgs_loss
 
 def age_mae_criterion_encapsulation(age_criterion, age_out_cls, age_label):
     # print("age_out_cls: ", age_out_cls)
@@ -109,10 +108,7 @@ def age_cls_criterion_encapsulation(age_criterion, age_out_cls, age_label, class
     return age_cls_loss
 
 
-def train_valid(model, loader, criterion, optimizer, epoch, logFile, args, pharse, debug):
-
-    if debug == True:
-        LOG("enter [DEBUG] train_valid", logFile)
+def train_valid(model, loader, criterion, optimizer, epoch, logFile, args, pharse):
 
     LOG("[" + pharse + "]: Starting, Epoch: " + str(epoch), logFile)
 
@@ -141,7 +137,7 @@ def train_valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
 
     epoch_start_time = time.time()
 
-    age_cls_criterion, age_l1_mae_criterion = criterion[0], criterion[1]
+    age_l1_mae_criterion = criterion[0]
 
     age_loader = loader[0]
 
@@ -154,26 +150,10 @@ def train_valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
         age_label = age_label.cuda()
 
         #
-        age_pred_100_classes, age_pred_20_classes, age_pred_10_classes, age_pred_5_classes = model(age_img)
+        age_pred = model(age_img)
 
-        if args.age_classification_combination == [1, 0, 0, 0]:
-            age_loss_cls_100_classes = age_cls_criterion_encapsulation(age_cls_criterion, age_pred_100_classes, age_label, "100_classes")
+            age_loss_cls_100_classes = age_cls_criterion_encapsulation(age_l1_mae_criterion, age_pred, age_label, args.l1_regression_loss)
 
-        elif args.age_classification_combination == [1, 1, 0, 0]:
-            # print("age classification combination list [1, 1, 0, 0]")
-            age_loss_cls_100_classes = (age_cls_criterion, age_pred_100_classes, age_label, "100_classes")
-            age_loss_cls_20_classes = age_cls_criterion_encapsulation(age_cls_criterion, age_pred_20_classes, age_label, "20_classes")
-            
-        elif args.age_classification_combination == [1, 1, 1, 0]:
-            age_loss_cls_100_classes = age_cls_criterion_encapsulation(age_cls_criterion, age_pred_100_classes, age_label, "100_classes")
-            age_loss_cls_20_classes = age_cls_criterion_encapsulation(age_cls_criterion, age_pred_20_classes, age_label, "20_classes")
-            age_loss_cls_10_classes = age_cls_criterion_encapsulation(age_cls_criterion, age_pred_10_classes, age_label, "10_classes")
-
-        elif args.age_classification_combination == [1, 1, 1, 1]:
-            age_loss_cls_100_classes = age_cls_criterion_encapsulation(age_cls_criterion, age_pred_100_classes, age_label, "100_classes")
-            age_loss_cls_20_classes = age_cls_criterion_encapsulation(age_cls_criterion, age_pred_20_classes, age_label, "20_classes")
-            age_loss_cls_10_classes = age_cls_criterion_encapsulation(age_cls_criterion, age_pred_10_classes, age_label, "10_classes")
-            age_loss_cls_5_classes = age_cls_criterion_encapsulation(age_cls_criterion, age_pred_5_classes, age_label, "5_classes")
 
         else:
             print("age_divide_100_classes, age_divide_20_classes, age_divide_10_classes, age_divide_5_classes")

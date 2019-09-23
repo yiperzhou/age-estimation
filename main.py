@@ -39,13 +39,11 @@ from train_valid.age_losses_methods import Age_rgs_loss
 from opts import args
 
 
-def parse_loss_weight(args):
+def parse_sub_folder(args):
 
-    folder_sub_name = "_" + args.all_losses[0]+ "_" + str(args.loss_weights[0]) + "_" + args.all_losses[1]\
-                      +"_" + str(args.loss_weights[1]) + "_" + args.all_losses[2] + "_" + str(args.loss_weights[2]) \
-                      + args.all_losses[3] + "_" +  str(args.loss_weights[3])
+    sub_folder_name = "_" + args.model + "_" + args.l1_regression_loss
 
-    return folder_sub_name
+    return sub_folder_name
 
 
 def main(**kwargs):
@@ -54,25 +52,14 @@ def main(**kwargs):
         args.__setattr__(arg, v)
 
     # parse loss weight to sub folder name
-    args.folder_sub_name = parse_loss_weight(args)
+    args.sub_folder_name = parse_sub_folder(args)
 
     timestamp = datetime.datetime.now()
     ts_str = timestamp.strftime('%Y-%m-%d-%H-%M-%S')
 
-    if args.debug:
-        print("[Debug mode]")
-        path = os.path.join("./results", "Debug-"+ args.model, "_" + args.dataset, args.folder_sub_name, ts_str)
-    else:
-        path = "./results" + os.sep + args.model + "_" + args.dataset + os.sep + args.folder_sub_name + os.sep + ts_str
 
-    if args.load_IMDB_WIKI_pretrained_model:
-        print("load IMDB WIKI pretrained model")
-        path = "./results" + os.sep + "loaded_pretrained-" + args.model + os.sep + "_" + args.dataset + os.sep \
-               + args.folder_sub_name + os.sep + ts_str
-    else:
-        path = "./results" + os.sep + args.model + os.sep + "_" + args.dataset + os.sep + args.folder_sub_name\
-               + os.sep + ts_str
-
+    path = "./results" + os.sep + args.model + "_" + args.dataset + os.sep + args.sub_folder_name + os.sep + ts_str
+    
     tensorboard_folder = os.path.join(path, "Graph")
     
     os.makedirs(path)
@@ -87,38 +74,25 @@ def main(**kwargs):
 
     age_train_loader, age_test_loader = get_CVPR_age_data(args)
 
-    pretrained_model_weight_path = get_pretrained_model_weights_path(args)
-
     model = get_model(args, logFile)
 
-    # load pretrained model
-    if args.load_IMDB_WIKI_pretrained_model:
-        model = load_model_weights(model, pretrained_model_weight_path)
-        LOG("load pretrained weight, DONE", logFile)
 
     optimizer = optim.SGD(filter(lambda p: p.requires_grad, model.parameters()), momentum=0.9,
                           lr=args.lr_rate, weight_decay=args.weight_decay)
 
-    age_cls_criterion = nn.CrossEntropyLoss()
     age_mae_criterion = nn.L1Loss()
 
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', threshold=1e-5, patience=10)
     
-    # log model to logfile, so that I can check the logfile later to know the model detail,
-    # for example, the number of class for the age estimation
     LOG(model, logFile)
 
     use_gpu = torch.cuda.is_available()
     if use_gpu:
         torch.cuda.empty_cache()
         model = model.cuda()
-        age_cls_criterion = age_cls_criterion.cuda()
 
     epochs_train_total_loss, epochs_valid_total_loss = [], []
-    epochs_train_age_cls_loss, epochs_valid_age_cls_loss = [], []
     epochs_train_age_rgs_mae_loss, epochs_valid_age_rgs_mae_loss = [], []
-
-    epochs_train_age_accs, epochs_valid_age_accs = [], []
 
     epochs_train_lr = []
 
@@ -126,34 +100,30 @@ def main(**kwargs):
 
     columns = ['Timstamp', 'Epoch', 'lr',
                'train_total_loss', 'train_age_l1_mae_loss',
-               'train_age_acc',
-               'val_total_loss', 'val_age_cls_loss', 'val_age_l1_mae_loss',
-               'val_age_acc']
+               'val_total_loss', 'val_age_l1_mae_loss']
 
     csv_checkpoint = pd.DataFrame(data=[], columns=columns)
 
     for epoch in range(0, args.epoch):
 
         train_accs, train_losses, lr, model = train_valid(model, [age_train_loader], 
-                                                                [age_cls_criterion, age_mae_criterion],
-                                                                optimizer, epoch, logFile, args, "train", args.debug)
+                                                                [age_mae_criterion],
+                                                                optimizer, epoch, logFile, args, "train")
 
-        log_variables_to_board([epochs_train_total_loss, epochs_train_age_cls_loss, epochs_train_age_rgs_mae_loss],
+        log_variables_to_board([epochs_train_total_loss, epochs_train_age_rgs_mae_loss],
                                 train_losses, 
-                                ['train_total_loss', 'train_age_cls_loss', 'train_age_mae_loss'],
-                                [epochs_train_age_accs],
+                                ['train_total_loss', 'train_age_mae_loss'],
                                 train_accs,
                                 ['train_age_acc'],
                                 "Train", tensorboard_folder, epoch, logFile, writer)
 
         val_accs, val_losses, lr, model = train_valid(model,[age_test_loader],
-                                                            [age_cls_criterion, age_mae_criterion],
-                                                            optimizer, epoch, logFile, args, "valid", args.debug)
+                                                            [age_mae_criterion],
+                                                            optimizer, epoch, logFile, args, "valid")
 
-        log_variables_to_board([epochs_valid_total_loss, epochs_valid_age_cls_loss, epochs_valid_age_rgs_mae_loss],
+        log_variables_to_board([epochs_valid_total_loss, epochs_valid_age_rgs_mae_loss],
                                 val_losses,
-                                ['val_total_loss', 'val_age_cls_loss', 'val_age_l1_mae_loss'],
-                                [epochs_valid_age_accs],
+                                ['val_total_loss', 'val_age_l1_mae_loss'],
                                 val_accs,
                                 ['val_age_acc'],
                                 "Valid", tensorboard_folder, epoch, logFile, writer)
