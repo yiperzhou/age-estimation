@@ -1,18 +1,6 @@
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from torchvision import transforms
-import torchvision
-
-import datetime
 import os
-
 import sys
-import os
-import os.path
-import numpy as np
-
-import torch
 
 def save_checkpoint(state, savedir):
     

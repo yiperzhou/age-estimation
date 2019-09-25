@@ -30,7 +30,6 @@ from data_load.CVPR_16_ChaLearn_data_loader import get_CVPR_age_data
 from utils.utils_1 import get_pretrained_model_weights_path, get_model
 from utils.helper_2 import log_variables_to_board, LOG
 from utils.helper import save_checkpoint, load_model_weights
-from utils.config import process_config
 
 from train_valid.train_valid import train_valid
 

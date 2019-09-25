@@ -1,10 +1,5 @@
 import os
-import re
-import cv2
 import time
-import copy
-import math
-import glob
 import datetime
 import pandas as pd
 
@@ -12,14 +7,9 @@ import datetime
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 import torch.optim as optim
-import torchvision
-from torch.utils.data import Dataset
-from torch.autograd import Variable
-from tensorboardX import SummaryWriter
 
-from data_load import *
+# from data_load import *
 from utils import *
 
 from utils.helper_4 import convert_to_onehot_tensor
@@ -86,7 +76,6 @@ def train_valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
     age_l1_rgs_epoch_loss = AverageMeter()                   
     
     age_epoch_loss = AverageMeter()
-    age_epoch_acc = AverageMeter()
 
     age_epoch_mae = AverageMeter()
     total_loss = AverageMeter()
@@ -144,9 +133,6 @@ def train_valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
         # age l1 regrssion loss
         age_loss_rgs_l1 = age_mae_criterion_encapsulation(age_l1_mae_criterion, age_pred_100_classes, age_label)
 
-        age_prec1 = accuracy(age_pred_100_classes.data, age_label)
-        age_epoch_acc.update(age_prec1[0].item(), age_label.size(0))
-
         age_epoch_mae.update(age_loss_rgs_l1.item(), 1)
         
         if args.age_classification_combination == [1, 0, 0, 0]:
@@ -181,10 +167,8 @@ def train_valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
             print("pharse should be in [train, valid]")
             NotImplementedError
 
-    accs = [age_epoch_acc.avg]
     losses = [total_loss.avg, age_cls_epoch_loss.avg, age_l1_rgs_epoch_loss.avg]
 
-    LOG("[" + pharse +"] [ACC(%)], [age        ]: " + str(accs), logFile)
     LOG("[" + pharse +"] [Loss  ], [total, cls, l1 ]: " + str(losses), logFile)
     LOG("[" + pharse +"] , MAE                  : " + str(age_epoch_mae.avg), logFile)
     try:
@@ -193,4 +177,4 @@ def train_valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
         lr = 100
     LOG("lr: " + str(lr), logFile)
     
-    return accs, losses, lr, model
+    return losses, lr, model
