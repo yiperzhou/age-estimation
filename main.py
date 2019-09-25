@@ -32,8 +32,7 @@ from utils.helper_2 import log_variables_to_board, LOG
 from utils.helper import save_checkpoint, load_model_weights
 from utils.config import process_config
 
-from train_valid.train_valid_variant_1_debug_version import train_valid
-from train_valid.age_losses_methods import Gaussian_age_loss, Euclidean_age_loss, Age_rgs_loss
+from train_valid.train_valid import train_valid
 
 
 from opts import args
@@ -41,9 +40,7 @@ from opts import args
 
 def parse_loss_weight(args):
 
-    folder_sub_name = "_" + args.all_losses[0]+ "_" + str(args.loss_weights[0]) + "_" + args.all_losses[1]\
-                      +"_" + str(args.loss_weights[1]) + "_" + args.all_losses[2] + "_" + str(args.loss_weights[2]) \
-                      + args.all_losses[3] + "_" +  str(args.loss_weights[3])
+    folder_sub_name = "_" + args.model + "_" + args.l1_regression_loss
 
     return folder_sub_name
 
@@ -65,14 +62,6 @@ def main(**kwargs):
     else:
         path = "./results" + os.sep + args.model + "_" + args.dataset + os.sep + args.folder_sub_name + os.sep + ts_str
 
-    if args.load_IMDB_WIKI_pretrained_model:
-        print("load IMDB WIKI pretrained model")
-        path = "./results" + os.sep + "loaded_pretrained-" + args.model + os.sep + "_" + args.dataset + os.sep \
-               + args.folder_sub_name + os.sep + ts_str
-    else:
-        path = "./results" + os.sep + args.model + os.sep + "_" + args.dataset + os.sep + args.folder_sub_name\
-               + os.sep + ts_str
-
     tensorboard_folder = os.path.join(path, "Graph")
     
     os.makedirs(path)
@@ -87,20 +76,12 @@ def main(**kwargs):
 
     age_train_loader, age_test_loader = get_CVPR_age_data(args)
 
-    pretrained_model_weight_path = get_pretrained_model_weights_path(args)
-
     model = get_model(args, logFile)
-
-    # load pretrained model
-    if args.load_IMDB_WIKI_pretrained_model:
-        model = load_model_weights(model, pretrained_model_weight_path)
-        LOG("load pretrained weight, DONE", logFile)
 
     optimizer = optim.SGD(filter(lambda p: p.requires_grad, model.parameters()), momentum=0.9,
                           lr=args.lr_rate, weight_decay=args.weight_decay)
 
     age_cls_criterion = nn.CrossEntropyLoss()
-    age_mae_criterion = nn.L1Loss()
 
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', threshold=1e-5, patience=10)
     
@@ -135,7 +116,7 @@ def main(**kwargs):
     for epoch in range(0, args.epoch):
 
         train_accs, train_losses, lr, model = train_valid(model, [age_train_loader], 
-                                                                [age_cls_criterion, age_mae_criterion],
+                                                                [age_cls_criterion],
                                                                 optimizer, epoch, logFile, args, "train", args.debug)
 
         log_variables_to_board([epochs_train_total_loss, epochs_train_age_cls_loss, epochs_train_age_rgs_mae_loss],
@@ -147,7 +128,7 @@ def main(**kwargs):
                                 "Train", tensorboard_folder, epoch, logFile, writer)
 
         val_accs, val_losses, lr, model = train_valid(model,[age_test_loader],
-                                                            [age_cls_criterion, age_mae_criterion],
+                                                            [age_cls_criterion],
                                                             optimizer, epoch, logFile, args, "valid", args.debug)
 
         log_variables_to_board([epochs_valid_total_loss, epochs_valid_age_cls_loss, epochs_valid_age_rgs_mae_loss],

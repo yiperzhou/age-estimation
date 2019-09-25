@@ -6,67 +6,32 @@ import copy
 import math
 import glob
 import datetime
-import numpy as np
 import pandas as pd
 
-from multiprocessing import cpu_count
-from collections import OrderedDict
 import datetime
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-import torch.utils.data as data
 import torchvision
-from torchvision import transforms
 from torch.utils.data import Dataset
 from torch.autograd import Variable
 from tensorboardX import SummaryWriter
 
-from models import *
 from data_load import *
 from utils import *
 
 from utils.helper_4 import convert_to_onehot_tensor
-# from train_valid.age_losses_methods import Age_rgs_loss
 
 def age_mae_criterion_encapsulation(age_criterion, age_out_cls, age_label):
-    # print("age_out_cls: ", age_out_cls)
-
-    # print("age_out_cls: ", age_out_cls)
-    # print("age_label: ", age_label)
 
     _, pred_ages = torch.max(age_out_cls, 1)
-    # pred_age = pred_age.view(-1).cpu().numpy()
-    # pred_ages = []
-    # for p in pred_age:
-    #     pred_ages.append([p])
 
-    # # print("pred_ages: ", pred_ages)
-
-    # pred_ages = torch.FloatTensor(pred_ages)
-    # pred_ages = pred_ages.cuda()
-    
-    # age_label = age_label.unsqueeze(0)
-    # age_label = age_label.type(torch.cuda.LongTensor)
-
-    # age_label = age_label.reshape([age_label.size()[1], 1])
-    # age_label = age_label.squeeze(1)
-    # # print("age_out_cls: ", age_out_cls.size())
-    # # print("age_label: ", age_label)
-    # # print(age_label)
-
-    # # print("[age_label] after: ", age_label)
     pred_ages = pred_ages.type(torch.cuda.FloatTensor)
     age_label = age_label.type(torch.cuda.FloatTensor)
-    # print("pred_ages: ", pred_ages)
-    # print("age_label: ", age_label)
 
     age_loss_mae = age_criterion(pred_ages, age_label)
-    # age_loss_mae = Variable(age_loss_mae, requires_grad = True) 
-    
-    # print("age_loss_mae: ", age_loss_mae)
 
     return age_loss_mae
 
@@ -77,9 +42,6 @@ def age_mapping_function(origin_value, age_divide):
 
     y_true_rgs = torch.div(origin_value, age_divide)
 
-    # print("y_true_rgs: ", y_true_rgs)
-
-    # y_true_rgs = torch.ceil(y_true_rgs)
     
     return  y_true_rgs
 
@@ -186,9 +148,6 @@ def train_valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
         age_epoch_acc.update(age_prec1[0].item(), age_label.size(0))
 
         age_epoch_mae.update(age_loss_rgs_l1.item(), 1)
-
-        # age_loss_cls = age_loss_cls_100_classes + age_loss_cls_20_classes \
-        #                + age_loss_cls_10_classes + age_loss_cls_5_classes
         
         if args.age_classification_combination == [1, 0, 0, 0]:
             age_loss_cls = age_loss_cls_100_classes
