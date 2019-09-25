@@ -11,73 +11,98 @@ class Multi_Classification_AlexNet_model(nn.Module):
         
         self.features_length = 9216
         self.args = args
-        self.age_divide = self.get_age_rgs_number_class()
+        self.age_divide_100_classes, self.age_divide_20_classes, self.age_divide_10_classes, self.age_divide_5_classes = self.get_age_cls_class()
 
-        self.age_clf = nn.Sequential(
+        self.age_clf_100_classes = nn.Sequential(
             nn.Linear(self.features_length, 256),
             nn.ReLU(inplace=True),
             nn.Dropout(p=0.5, inplace=False),
-            nn.Linear(256, age_classes)
+            nn.Linear(256, 100)            
         )
-        self.age_rgs_clf = nn.Sequential(
+
+        self.age_clf_20_classes = nn.Sequential(
             nn.Linear(self.features_length, 256),
             nn.ReLU(inplace=True),
             nn.Dropout(p=0.5, inplace=False),
-            nn.Linear(256, self.age_divide)
+            nn.Linear(256, 20)            
+        )
+
+        self.age_clf_10_classes = nn.Sequential(
+            nn.Linear(self.features_length, 256),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=0.5, inplace=False),
+            nn.Linear(256, 10)            
         )        
 
-    def get_age_rgs_number_class(self):
-
-        if self.args.l1_regression_loss == "0_20_age_rgs":
-            age_divide = 5
-            # print("20_age_cls_loss")
-
-        if self.args.l1_regression_loss == "0_10_age_rgs":
-            age_divide = 10
-            # print("10_age_cls_loss")
-        elif self.args.l1_regression_loss == "0_5_age_rgs":
-            age_divide = 20
-            # print("5_age_cls_loss")
-        else:
-            print("0_20_age_rgs, 0_10_age_rgs, 0_5_age_rgs")
-            ValueError
-
-        return age_divide
+        self.age_clf_5_classes = nn.Sequential(
+            nn.Linear(self.features_length, 256),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=0.5, inplace=False),
+            nn.Linear(256, 5)                        
+        )  
 
     def get_age_cls_class(self):
 
-        if self.args.classification_loss == "100_classes":
-            age_divide = 1
-        if self.args.classification_loss == "20_classes":
-            age_divide = 5
-            # print("20_age_cls_loss")
-        elif self.args.classification_loss == "10_classes":
-            age_divide = 10
-            # print("10_age_cls_loss")
-        elif self.args.classification_loss == "5_classes":
-            age_divide = 20
-            # print("5_age_cls_loss")
+        age_divide_100_classes = False
+        age_divide_20_classes = False
+        age_divide_10_classes = False
+        age_divide_5_classes = False               
+
+        if self.args.age_classification_combination == [1, 0, 0, 0]:
+            age_divide_100_classes = True
+            age_divide_20_classes = False
+            age_divide_10_classes = False
+            age_divide_5_classes = False       
+                
+        elif self.args.age_classification_combination == [1, 1, 0, 0]:
+            age_divide_100_classes = True
+            age_divide_20_classes = True
+            age_divide_10_classes = False
+            age_divide_5_classes = False        
+            
+        elif self.args.age_classification_combination == [1, 1, 1, 0]:
+            age_divide_100_classes = True
+            age_divide_20_classes = True
+            age_divide_10_classes = True
+            age_divide_5_classes = False                    
+
+        elif self.args.age_classification_combination == [1, 1, 1, 1]:
+            age_divide_100_classes = True
+            age_divide_20_classes = True
+            age_divide_10_classes = True
+            age_divide_5_classes = True
+                            
         else:
-            print("100_age_cls_loss, 20_age_cls_loss, 10_age_cls_loss, 5_age_cls_loss")
+            print("age_divide_100_classes, age_divide_20_classes, age_divide_10_classes, age_divide_5_classes")
             ValueError
 
-        return age_divide
+        return age_divide_100_classes, age_divide_20_classes, age_divide_10_classes, age_divide_5_classes
+
 
     
     def forward(self, x):
         x = self.Multi_Classification_AlexNet_features(x)
         x = x.view(x.size(0), -1)
 
-        age_pred  = self.age_clf(x)
+        age_pred_100_classes, age_pred_20_classes, age_pred_10_classes, age_pred_5_classes = None, None, None, None
+            
+        if self.age_divide_100_classes == True:
+            age_pred_100_classes = self.age_clf_100_classes(x)
 
-        age_pred_rgs = self.age_rgs_clf(x)
+        if self.age_divide_20_classes == True:
+            age_pred_20_classes = self.age_clf_20_classes(x)
 
-        return age_pred, age_pred_rgs 
+        if self.age_divide_10_classes == True:
+            age_pred_10_classes = self.age_clf_10_classes(x)
 
+        if self.age_divide_5_classes == True:
+            age_pred_5_classes = self.age_clf_5_classes(x)
+
+        return age_pred_100_classes, age_pred_20_classes, age_pred_10_classes, age_pred_5_classes
 
 
 if __name__ == "__main__":
-    # alexModel = MTL_AlexNet_model()
+    # alexModel = Multi_Classification_AlexNet_model()
 
     # # print_model_dimension_summary(alexModel)
     # print("AlexModel: ")

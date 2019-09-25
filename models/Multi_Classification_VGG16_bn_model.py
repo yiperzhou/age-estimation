@@ -116,7 +116,7 @@ class Multi_Classification_VGG16_bn_model(torch.nn.Module):
 
 
 
-if __name__ == "__main__":
-    model = Multi_Classification_VGG16_bn_model()
-    print("Multi_Classification_VGG16_bn_model")
-    print(model)
+# if __name__ == "__main__":
+#     model = Multi_Classification_VGG16_bn_model()
+#     print("Multi_Classification_VGG16_bn_model")
+#     print(model)

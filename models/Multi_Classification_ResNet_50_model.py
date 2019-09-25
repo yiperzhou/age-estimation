@@ -7,7 +7,6 @@ from torchvision import transforms
 
 from torch.autograd import Variable
 
-# from config import config, parser
 from copy import deepcopy
 import numpy as np
 

@@ -9,11 +9,10 @@ from .helper import (
 )
 from .helper_3 import (
     AverageMeter,
-    accuracy,
     calculate_age_loss
 )
 
 from .utils_1 import (
     get_model,
-    get_pretrained_model_weights_path
+    # get_pretrained_model_weights_path
 )

@@ -61,10 +61,7 @@ def age_cls_criterion_encapsulation(age_criterion, age_out_cls, age_label, class
     return age_cls_loss
 
 
-def train_valid(model, loader, criterion, optimizer, epoch, logFile, args, pharse, debug):
-
-    if debug == True:
-        LOG("enter [DEBUG] train_valid", logFile)
+def train_valid(model, loader, criterion, optimizer, epoch, logFile, args, pharse):
 
     LOG("[" + pharse + "]: Starting, Epoch: " + str(epoch), logFile)
 
@@ -92,7 +89,7 @@ def train_valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
 
     epoch_start_time = time.time()
 
-    age_cls_criterion, age_l1_mae_criterion = criterion[0], criterion[1]
+    age_cls_criterion = criterion[0]
 
     age_loader = loader[0]
 
@@ -130,8 +127,9 @@ def train_valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
             print("age_divide_100_classes, age_divide_20_classes, age_divide_10_classes, age_divide_5_classes")
             ValueError
 
-        # age l1 regrssion loss
-        age_loss_rgs_l1 = age_mae_criterion_encapsulation(age_l1_mae_criterion, age_pred_100_classes, age_label)
+        # age l1 regrssion to calculate the age MAE value
+        age_l1_calculation = nn.L1Loss()
+        age_loss_rgs_l1 = age_mae_criterion_encapsulation(age_l1_calculation, age_pred_100_classes, age_label)
 
         age_epoch_mae.update(age_loss_rgs_l1.item(), 1)
         

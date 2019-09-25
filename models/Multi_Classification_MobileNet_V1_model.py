@@ -6,11 +6,8 @@ import os
 
 from models.Elastic_MobileNet_V1 import Elastic_MobileNet
 
-# from helper import LOG
-
 # not official model weights
 model_urls = {
-    # 'mobilenetV1': '/media/yi/e7036176-287c-4b18-9609-9811b8e33769/Elastic/elastic/pytorch_code/models/mobilenet_sgd_68.848.pth.tar'
     'mobilenetV1': '/home/yi/Narvi_yi_home/projects/MultitaskLearningFace/resources/mobilenet_sgd_68.848.pth.tar'
 }
 
@@ -191,8 +188,3 @@ class Multi_Classification_MobileNet_V1_model(torch.nn.Module):
             age_pred_5_classes = self.age_clf_5_classes(x)
 
         return age_pred_100_classes, age_pred_20_classes, age_pred_10_classes, age_pred_5_classes
-
-
-# if __name__ == "__main__":
-#     model = Multi_Classification_MobileNet_V1_model()
-#     print("done")

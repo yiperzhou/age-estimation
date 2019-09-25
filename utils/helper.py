@@ -18,25 +18,13 @@ def save_checkpoint(state, savedir):
 def load_model_weights(initial_model, checkpoint_path):
     checkpoint = torch.load(checkpoint_path)
     state_dict = checkpoint["state_dict"]
-    
-    # # for ResNet-18-Age-Gender-IMDB-WIKI pretrained model, the keyword is "state_dict"
-    # if initial_model == "MTL_ResNet_18":
-    # initial_model.load_state_dict(checkpoint["state_dict"])
-
-    # # for Age_Gender-Pred cleaned IMDB-WIKI  pretrained model, the keyword is "state_dict"
-    # elif initial_model == "res18_cls70":
-    #     initial_model.load_state_dict(checkpoint["state_dic"])
 
 
     initial_model.load_state_dict(state_dict, strict=True)
     # for k, v in initial_model.parameters():
     #     print("k, v", k)
 
-
-
     return initial_model
-
-
 
 
 def indexes_to_one_hot(indexes, n_dims=None):

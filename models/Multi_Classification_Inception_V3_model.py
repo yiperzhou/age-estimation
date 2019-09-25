@@ -113,10 +113,3 @@ class Multi_Classification_Inception_V3_model(nn.Module):
 
 
         return age_pred_100_classes, age_pred_20_classes, age_pred_10_classes, age_pred_5_classes
-
-
-
-
-# if __name__ == "__main__":
-#     print("test model")
-#     model = Multi_loss_InceptionV3

@@ -15,16 +15,8 @@ class Multi_Classification_DenseNet_121_model(torch.nn.Module):
         super(Multi_Classification_DenseNet_121_model, self).__init__()
 
         self.Multi_Classification_DenseNet_features = models.densenet121(pretrained=True).features
-        
         self.features_length = 50176
-
         self.args = args
-        # self.age_divide = self.get_age_rgs_number_class()  
-
-        self.use_gpu = torch.cuda.is_available()
-
-        # self.args = args
-
         self.age_divide_100_classes, self.age_divide_20_classes, self.age_divide_10_classes, self.age_divide_5_classes = self.get_age_cls_class()
         
         
