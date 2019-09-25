@@ -11,7 +11,7 @@ def LOG(message, logFile):
     print(msg)
 
 
-def log_variables_to_board(epoch_losses, losses, losses_name, epoch_accs, accs, accs_name, phrase, folder, epoch, logFile, writer):
+def log_variables_to_board(epoch_losses, losses, losses_name, phrase, folder, epoch, logFile, writer):
     '''
     
     '''
@@ -24,11 +24,11 @@ def log_variables_to_board(epoch_losses, losses, losses_name, epoch_accs, accs, 
 
     # LOG("\n", logFile)
 
-    for e_acc, ac, ac_n in zip(epoch_accs, accs, accs_name):
-        e_acc.append(ac)
-        writer.add_scalar(folder + os.sep + "data" + os.sep + ac_n, ac, epoch)
-        # LOG("          " + ac_n + ": "+ str(ac), logFile)
-    # LOG("---------------", logFile)
+    # for e_acc, ac, ac_n in zip(epoch_accs, accs, accs_name):
+    #     e_acc.append(ac)
+    #     writer.add_scalar(folder + os.sep + "data" + os.sep + ac_n, ac, epoch)
+    #     # LOG("          " + ac_n + ": "+ str(ac), logFile)
+    # # LOG("---------------", logFile)
     
 
 

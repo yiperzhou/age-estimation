@@ -1,5 +1,4 @@
 import os
-import cv2
 import re
 import glob
 import math
@@ -9,23 +8,16 @@ import pandas as pd
 from PIL import Image
 import sys
 
-# from skimage import io
 from torchvision import transforms
 from torch.utils.data import Dataset
 import torchvision
-# import accimage
 import h5py
 from torchvision.datasets import DatasetFolder
-# from config import parser
-
-# from config import config, parser
-# FER2013 Data, resize image from 48*48 to 224*224
 from torch.utils.data import RandomSampler
 from data_load.CVPR_16_ChaLearn_Dataset import CVPR_AGE_load_dataset_ImageFolder
 
 
 from utils.helper_4 import plot_images
-
 
 
 def CVPR_AGE_load_dataset(data_path, transforms):

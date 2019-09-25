@@ -1,5 +1,4 @@
 import os
-import cv2
 import re
 import glob
 import math
@@ -16,9 +15,6 @@ import torchvision
 import accimage
 import h5py
 from torchvision.datasets import DatasetFolder
-
-
-
 
 
 IMG_EXTENSIONS = ('.jpg', '.jpeg', '.png', '.ppm', '.bmp', '.pgm', '.tif', '.tiff', '.webp')

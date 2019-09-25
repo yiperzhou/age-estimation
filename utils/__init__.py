@@ -14,6 +14,5 @@ from .helper_3 import (
 )
 
 from .utils_1 import (
-    get_model,
-    get_pretrained_model_weights_path
+    get_model
 )

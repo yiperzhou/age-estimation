@@ -1,16 +1,10 @@
 import os
 import re
-import cv2
 import time
-import copy
-import math
-import glob
 import datetime
 import numpy as np
 import pandas as pd
 
-from multiprocessing import cpu_count
-from collections import OrderedDict
 import datetime
 
 import torch
@@ -27,11 +21,9 @@ from tensorboardX import SummaryWriter
 from data_load.CVPR_16_ChaLearn_data_loader import get_CVPR_age_data
 
 
-from utils.utils_1 import get_pretrained_model_weights_path, get_model
+from utils.utils_1 import get_model
 from utils.helper_2 import log_variables_to_board, LOG
 from utils.helper import save_checkpoint, load_model_weights
-from utils.config import process_config
-
 from train_valid.train_valid import train_valid
 from train_valid.age_losses_methods import Age_rgs_loss
 
@@ -80,7 +72,7 @@ def main(**kwargs):
     optimizer = optim.SGD(filter(lambda p: p.requires_grad, model.parameters()), momentum=0.9,
                           lr=args.lr_rate, weight_decay=args.weight_decay)
 
-    age_mae_criterion = nn.L1Loss()
+    age_l1_criterion = nn.L1Loss()
 
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', threshold=1e-5, patience=10)
     
@@ -91,41 +83,36 @@ def main(**kwargs):
         torch.cuda.empty_cache()
         model = model.cuda()
 
-    epochs_train_total_loss, epochs_valid_total_loss = [], []
-    epochs_train_age_rgs_mae_loss, epochs_valid_age_rgs_mae_loss = [], []
+    epochs_train_age_rgs_l1_loss, epochs_valid_age_rgs_l1_loss = [], []
 
     epochs_train_lr = []
 
     lowest_loss = 100000
 
     columns = ['Timstamp', 'Epoch', 'lr',
-               'train_total_loss', 'train_age_l1_mae_loss',
-               'val_total_loss', 'val_age_l1_mae_loss']
+               'train_age_l1_loss',
+               'val_age_l1_loss']
 
     csv_checkpoint = pd.DataFrame(data=[], columns=columns)
 
     for epoch in range(0, args.epoch):
 
-        train_accs, train_losses, lr, model = train_valid(model, [age_train_loader], 
-                                                                [age_mae_criterion],
+        train_losses, lr, model = train_valid(model, [age_train_loader], 
+                                                                [age_l1_criterion],
                                                                 optimizer, epoch, logFile, args, "train")
 
-        log_variables_to_board([epochs_train_total_loss, epochs_train_age_rgs_mae_loss],
+        log_variables_to_board([epochs_train_age_rgs_l1_loss],
                                 train_losses, 
-                                ['train_total_loss', 'train_age_mae_loss'],
-                                train_accs,
-                                ['train_age_acc'],
+                                ['train_age_l1_loss'],
                                 "Train", tensorboard_folder, epoch, logFile, writer)
 
-        val_accs, val_losses, lr, model = train_valid(model,[age_test_loader],
-                                                            [age_mae_criterion],
+        val_losses, lr, model = train_valid(model,[age_test_loader],
+                                                            [age_l1_criterion],
                                                             optimizer, epoch, logFile, args, "valid")
 
-        log_variables_to_board([epochs_valid_total_loss, epochs_valid_age_rgs_mae_loss],
+        log_variables_to_board([epochs_valid_age_rgs_l1_loss],
                                 val_losses,
-                                ['val_total_loss', 'val_age_l1_mae_loss'],
-                                val_accs,
-                                ['val_age_acc'],
+                                ['val_age_l1_loss'],
                                 "Valid", tensorboard_folder, epoch, logFile, writer)
 
         LOG("\n", logFile)
