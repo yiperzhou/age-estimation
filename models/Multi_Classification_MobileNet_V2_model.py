@@ -1,7 +1,6 @@
 import torch
 from torch import nn
 
-
 class ConvBNReLU(nn.Sequential):
     def __init__(self, in_planes, out_planes, kernel_size=3, stride=1, groups=1):
         padding = (kernel_size - 1) // 2
@@ -10,7 +9,6 @@ class ConvBNReLU(nn.Sequential):
             nn.BatchNorm2d(out_planes),
             nn.ReLU6(inplace=True)
         )
-
 
 class InvertedResidual(nn.Module):
     def __init__(self, inp, oup, stride, expand_ratio):
@@ -57,7 +55,6 @@ class MobileNetV2(nn.Module):
             [6, 160, 3, 2],
             [6, 320, 1, 1],
         ]
-
         # building first layer
         input_channel = int(input_channel * width_mult)
         self.last_channel = int(last_channel * max(1.0, width_mult))
@@ -71,7 +68,6 @@ class MobileNetV2(nn.Module):
                 input_channel = output_channel
         # building last several layers
         features.append(ConvBNReLU(input_channel, self.last_channel, kernel_size=1))
-        # make it nn.Sequential
         self.features = nn.Sequential(*features)
 
         # building classifier
@@ -79,7 +75,6 @@ class MobileNetV2(nn.Module):
             nn.Dropout(0.2),
             nn.Linear(self.last_channel, num_classes),
         )
-
         # weight initialization
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -98,19 +93,14 @@ class MobileNetV2(nn.Module):
         x = x.mean([2, 3])
         x = self.classifier(x)
         return x
-
-
 def mobilenet_v2(pretrained=False, **kwargs):
     return MobileNetV2(**kwargs)
 
-
-class Multi_Classification_MobileNet_V2_model(torch.nn.Module):
+class multi_classification_MobileNet_V2_model(torch.nn.Module):
   def __init__(self, age_classes = 100):
-    super(Multi_Classification_MobileNet_V2_model, self).__init__()
-
+    super(multi_classification_MobileNet_V2_model, self).__init__()
     backbone_model = mobilenet_v2(pretrained=True)
-
-    self.Multi_Classification_MobileNet_V2_model_feature = nn.Sequential(
+    self.multi_Classification_MobileNet_V2_model_feature = nn.Sequential(
         backbone_model.features,
         torch.nn.AvgPool2d(kernel_size=(7, 7))
     )
@@ -126,16 +116,10 @@ class Multi_Classification_MobileNet_V2_model(torch.nn.Module):
     )
 
   def forward(self, x):
-    x = self.Multi_Classification_MobileNet_V2_model_feature(x)
-    
+    x = self.multi_Classification_MobileNet_V2_model_feature(x)
     # print(x.size())  # torch.Size([8, 1280, 7, 7])
     x = x.view(x.size(0), -1)
     # print(x.size())   # torch.Size([8, 62720])
-
-
-    gen_pred  = self.gender_clf(x)
-    smile_pred  = self.smile_clf(x)
-    emo_pred  = self.emotion_clf(x)
     age_pred  = self.age_clf(x)
 
-    return gen_pred, smile_pred, emo_pred, age_pred 
+    return age_pred
