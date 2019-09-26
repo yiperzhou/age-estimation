@@ -7,14 +7,10 @@ def LOG(message, logFile):
 
     with open(logFile, "a") as fp:
         fp.write(msg + "\n")
-
     print(msg)
 
 
 def log_variables_to_board(epoch_losses, losses, losses_name, phrase, folder, epoch, logFile, writer):
-    '''
-    
-    '''
     # global writer
     # LOG(phrase + " epoch    " + str(epoch+1) + ":", logFile)
     for e_loss, l, l_n in zip(epoch_losses, losses, losses_name):

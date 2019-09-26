@@ -1,6 +1,5 @@
-import matplotlib.pyplot as plt
-
 import torch
+import matplotlib.pyplot as plt
 
 Cha_Learn_2016_label_names = [
     'age_1', 'age_2', 'age_3', 'age_4', 'age_5', 'age_6', 'age_7', 'age_8', 'age_9', 'age_10', 
@@ -16,9 +15,7 @@ Cha_Learn_2016_label_names = [
 ]
 
 def plot_images(images, cls_true, name):
-
     assert len(images) == len(cls_true) == 36
-
     # Create figure with sub-plots.
     fig, axes = plt.subplots(6, 6)
 
@@ -36,7 +33,6 @@ def plot_images(images, cls_true, name):
         ax.set_xlabel(xlabel)
         ax.set_xticks([])
         ax.set_yticks([])
-
     plt.show()
 
 
@@ -45,10 +41,8 @@ def convert_tensor_to_image(img_tensor, labels):
     convert tensor to image and show it
     '''
     X = img_tensor.cpu().numpy()
-
     X = np.transpose(X, [0, 2, 3, 1])
     plot_images(X, labels, "convert_tensor_to_image")
-
     return 0
 
 def convert_to_onehot_tensor(y, nb_digits):
