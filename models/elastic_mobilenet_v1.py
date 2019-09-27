@@ -1,12 +1,7 @@
-import time
-
 import torch
 import torch.nn as nn
 import torch.nn.parallel
-import torch.backends.cudnn as cudnn
 import torch.optim
-import torch.utils.model_zoo as model_zoo
-
 
 # not official model weights
 model_urls = {

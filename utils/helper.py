@@ -1,5 +1,7 @@
-import torch
 import os
+
+import torch
+
 
 def save_checkpoint(state, savedir):
     

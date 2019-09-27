@@ -1,9 +1,9 @@
-import sys
 import os
-from PIL import Image
+import sys
 
-import torchvision
 import accimage
+import torchvision
+from PIL import Image
 
 IMG_EXTENSIONS = ('.jpg', '.jpeg', '.png', '.ppm', '.bmp', '.pgm', '.tif', '.tiff', '.webp')
 

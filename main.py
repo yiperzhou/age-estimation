@@ -1,17 +1,18 @@
-import os
 import datetime
-import pandas as pd
+import os
 
+import pandas as pd
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from tensorboardX import SummaryWriter
 
 from data_load.CVPR_16_ChaLearn_data_loader import get_CVPR_age_data
-from utils.utils_1 import get_model
-from utils.helper_2 import log_variables_to_board, LOG
-from utils.helper import save_checkpoint
 from train_valid.train_valid import train_valid
+from utils.helper import save_checkpoint
+from utils.helper_2 import log_variables_to_board, LOG
+from utils.utils_1 import get_model
+
 
 def parse_loss_weight(args):
 

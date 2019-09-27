@@ -1,8 +1,10 @@
 import time
+
 import torch
 import torch.nn as nn
+
 from utils import *
-from utils.helper_4 import convert_to_onehot_tensor
+
 
 def age_mae_criterion_encapsulation(age_criterion, age_out_cls, age_label):
     _, pred_ages = torch.max(age_out_cls, 1)

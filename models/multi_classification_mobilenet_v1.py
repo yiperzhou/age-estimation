@@ -1,6 +1,8 @@
+from collections import OrderedDict
+
 import torch
 import torch.nn as nn
-from collections import OrderedDict
+
 from models.Elastic_MobileNet_V1 import Elastic_MobileNet
 
 # not official model weights
