@@ -3,9 +3,9 @@ import torch.nn as nn
 from torchvision import models
 
 
-class multi_classification_ResNet_50_model(torch.nn.Module):
+class MultiClassificationResNet50Model(torch.nn.Module):
     def __init__(self, args):
-        super(multi_classification_ResNet_50_model, self).__init__()
+        super(MultiClassificationResNet50Model, self).__init__()
         resnet50_model = models.resnet50(pretrained=True)
         self.multi_classification_ResNet_50_features = nn.Sequential(
             resnet50_model.conv1,

@@ -7,10 +7,6 @@ from skimage import io
 from torch.utils.data import Dataset
 from torchvision import transforms
 
-#from config import parser
-
-# FG_Net_data, IMDB-WIKI dataset data_loader
-
 # IMDB_WIKI dataset has 101 age classes. However, the last two classes are treated as one class. Therefore, age_cls_unit = 100, instead of 101
 age_cls_unit = 100
 

@@ -96,9 +96,9 @@ class MobileNetV2(nn.Module):
 def mobilenet_v2(pretrained=False, **kwargs):
     return MobileNetV2(**kwargs)
 
-class multi_classification_MobileNet_V2_model(torch.nn.Module):
+class MultiClassificationMobileNetv2Model(torch.nn.Module):
   def __init__(self, age_classes = 100):
-    super(multi_classification_MobileNet_V2_model, self).__init__()
+    super(MultiClassificationMobileNetv2Model, self).__init__()
     backbone_model = mobilenet_v2(pretrained=True)
     self.multi_Classification_MobileNet_V2_model_feature = nn.Sequential(
         backbone_model.features,

@@ -1,21 +1,12 @@
 import os
-
 import numpy as np
 import torch
 from torch.utils.data import Dataset
-# from config import config, parser
-# FER2013 Data, resize image from 48*48 to 224*224
 from torch.utils.data import RandomSampler
-# from skimage import io
 from torchvision import transforms
 
 from data_load.CVPR_16_ChaLearn_Dataset import CVPR_AGE_load_dataset_ImageFolder
 from utils.helper_4 import plot_images
-
-
-# import accimage
-# from config import parser
-
 
 def CVPR_AGE_load_dataset(data_path, transforms):
     # # data_path = '/home/yi/Narvi_MLG/AGE_ESTIMATION/CVPR_AGE_5_points/TRAIN/'
@@ -94,27 +85,11 @@ def get_CVPR_age_data(args, show_sample=False):
         age_test_dataset = CVPR_AGE_load_dataset("/home/yi/Narvi_MLG/AGE_ESTIMATION/CVPR_AGE_5_points/VALID/", transform)
         # age train set images: 3707; test image: 1356
 
-        # gender_train_dataset = torchvision.datasets.ImageFolder("/home/yi/Narvi_MLG/AGE_ESTIMATION/CVPR_GENDER_5_points/TRAIN/", transform)
-        # gender_test_dataset = torchvision.datasets.ImageFolder("/home/yi/Narvi_MLG/AGE_ESTIMATION/CVPR_GENDER_5_points/VALID/", transform)
-        # # gender train set images: 4548; test image: 2250
-
-        # Smile_train_dataset = torchvision.datasets.ImageFolder("/home/yi/Narvi_MLG/AGE_ESTIMATION/CVPR_SMILE_5_points/TRAIN/", transform)
-        # Smile_test_dataset = torchvision.datasets.ImageFolder("/home/yi/Narvi_MLG/AGE_ESTIMATION/CVPR_SMILE_5_points/VALID/", transform)
-
     elif args.working_machine == "Narvi":
         # Narvi
         age_train_dataset = CVPR_AGE_load_dataset("/sgn-data/MLG/AGE_ESTIMATION/CVPR_AGE_5_points/TRAIN/", transform)
         age_test_dataset = CVPR_AGE_load_dataset("/sgn-data/MLG/AGE_ESTIMATION/CVPR_AGE_5_points/VALID/", transform)
         # age train set images: 3707; test image: 1356
-
-        # gender_train_dataset = torchvision.datasets.ImageFolder("/sgn-data/MLG/AGE_ESTIMATION/CVPR_GENDER_5_points/TRAIN/", transform)
-        # gender_test_dataset = torchvision.datasets.ImageFolder("/sgn-data/MLG/AGE_ESTIMATION/CVPR_GENDER_5_points/VALID/", transform)
-        # # gender train set images: 4548; test image: 2250
-
-
-        # Smile_train_dataset = torchvision.datasets.ImageFolder("/sgn-data/MLG/AGE_ESTIMATION/CVPR_SMILE_5_points/TRAIN/", transform)
-        # Smile_test_dataset = torchvision.datasets.ImageFolder("/sgn-data/MLG/AGE_ESTIMATION/CVPR_SMILE_5_points/VALID/", transform)
-        # # smile train set images: 4548, test image: 2250
 
     else:
         print("working machine should be  [thinkstation, Narvi]")
@@ -164,41 +139,6 @@ def get_CVPR_age_data(args, show_sample=False):
                 break
             else:
                 continue
-
-
-    # # gender_train_loader = torch.utils.data.DataLoader(gender_train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.loading_jobs)
-    # # gender_test_loader = torch.utils.data.DataLoader(gender_test_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.loading_jobs)
-
-    # gender_train_loader = torch.utils.data.DataLoader(gender_train_dataset, batch_size=args.batch_size,
-    #                                                 shuffle=False, num_workers=args.loading_jobs,
-    #                                                 sampler=dataset_augmentation_sampler(gender_train_dataset, 28710))
-
-    # gender_test_loader = torch.utils.data.DataLoader(gender_test_dataset, batch_size=args.batch_size,
-    #                                                 shuffle=False, num_workers=args.loading_jobs,
-    #                                                 sampler=dataset_augmentation_sampler(gender_test_dataset, 3590))
-
-
-    # # smile_train_loader = torch.utils.data.DataLoader(Smile_train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.loading_jobs)
-    # # smile_test_loader = torch.utils.data.DataLoader(Smile_test_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.loading_jobs)
-
-    # smile_train_loader = torch.utils.data.DataLoader(Smile_train_dataset, batch_size=args.batch_size,
-    #                                                 shuffle=False, num_workers=args.loading_jobs,
-    #                                                 sampler=dataset_augmentation_sampler(Smile_train_dataset, 28710))
-
-    # smile_test_loader = torch.utils.data.DataLoader(Smile_test_dataset, batch_size=args.batch_size,
-    #                                             shuffle=False, num_workers=args.loading_jobs,
-    #                                             sampler=dataset_augmentation_sampler(Smile_test_dataset, 3590))
-    
-
-    # train_loader = torch.utils.data.DataLoader(
-    #             ConcatDataset(
-    #                 gender_train_dataset,
-    #                 age_train_dataset,
-    #                 Smile_train_dataset
-    #             ),
-    #             batch_size=args.batch_size, shuffle=True,
-    #             num_workers=args.workers, pin_memory=True)
-
 
     # model_dataloader
     return [age_train_loader, age_test_loader]

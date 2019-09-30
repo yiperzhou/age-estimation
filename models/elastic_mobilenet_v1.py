@@ -191,7 +191,7 @@ class IntermediateClassifier(nn.Module):
 
 
 
-def Elastic_MobileNet():
+def ElasticMobileNet():
     """
     based on MobileNet Version1 and ImageNet pretrained weight, https://github.com/marvis/pytorch-mobilenet
     但是这里并没有实现 alpha 乘子和width 乘子
