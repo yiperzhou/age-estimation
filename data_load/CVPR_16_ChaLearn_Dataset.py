@@ -1,25 +1,10 @@
 import os
-import cv2
-import re
-import glob
-import math
-import torch
-import numpy as np
-import pandas as pd
-from PIL import Image
 import sys
 
-# from skimage import io
-from torchvision import transforms
-from torch.utils.data import Dataset
-import torchvision
 import accimage
-import h5py
-from torchvision.datasets import DatasetFolder
-
-
-
-
+# from skimage import io
+import torchvision
+from PIL import Image
 
 IMG_EXTENSIONS = ('.jpg', '.jpeg', '.png', '.ppm', '.bmp', '.pgm', '.tif', '.tiff', '.webp')
 

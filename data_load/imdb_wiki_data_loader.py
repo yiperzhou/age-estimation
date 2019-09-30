@@ -1,15 +1,11 @@
-import os
-import cv2
-import re
 import glob
-import math
-import torch
-import numpy as np
+import re
 
-from skimage import io
-from torchvision import transforms
-from torch.utils.data import Dataset
+import numpy as np
 import torch
+from skimage import io
+from torch.utils.data import Dataset
+from torchvision import transforms
 
 #from config import parser
 

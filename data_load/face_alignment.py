@@ -1,7 +1,7 @@
-from torch.utils.data import Dataset
-
 import os
 import sys
+
+from torch.utils.data import Dataset
 
 
 # def is_image_file(filename):
