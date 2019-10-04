@@ -32,7 +32,7 @@ def all_in_one_model_loss():
     return loss
 
 
-def apply_label_smoothing(y_true, epsilon=0.1):
+def apply_label_smoothing(y_true, epsilon=0.1, n_dims=100):
     # https://github.com/keras-team/keras/pull/4723
     # https://github.com/wangguanan/Pytorch-Person-REID-Baseline-Bag-of-Tricks/blob/master/tools/loss.py#L6
     # https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Szegedy_Rethinking_the_Inception_CVPR_2016_paper.pdf
@@ -40,7 +40,7 @@ def apply_label_smoothing(y_true, epsilon=0.1):
     # convert the y_true from torch cuda variable to cpu variable.
     y_true = y_true.type(torch.IntTensor)
 
-    y_true = indexes_to_one_hot(y_true, n_dims=100)
+    y_true = indexes_to_one_hot(y_true, n_dims)
 
     # convert back from cpu variable to gpu variable
     y_true = y_true.type(torch.cuda.FloatTensor)

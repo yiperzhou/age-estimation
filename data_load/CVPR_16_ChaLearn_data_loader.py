@@ -10,7 +10,7 @@ from data_load.CVPR_16_ChaLearn_Dataset import CVPR_AGE_load_dataset_ImageFolder
 from utils.helper_4 import plot_images
 
 def CVPR_AGE_load_dataset(data_path, transforms):
-    # # data_path = '/home/yi/narvi_MLG/AGE_ESTIMATION/CVPR_AGE_5_points/TRAIN/'
+    # # data_path = '/home/yi/Narvi_MLG/AGE_ESTIMATION/CVPR_AGE_5_points/TRAIN/'
     # train_dataset = torchvision.datasets.ImageFolder(
     #     root=data_path,
     #     transform=transforms
@@ -54,7 +54,13 @@ def dataset_augmentation_sampler(origin_dataset, target_num_samples):
 
 
 
-def get_CVPR_Age_data(args, show_sample=False):
+def get_CVPR_age_data(args, show_sample=False):
+    '''
+
+    :param args:
+    :param show_sample:
+    :return:
+    '''
 
     augment = True
 
@@ -76,18 +82,18 @@ def get_CVPR_Age_data(args, show_sample=False):
     if args.working_machine == "thinkstation":
         # tut thinkstation
 
-        age_train_dataset = CVPR_AGE_load_dataset("/home/yi/narvi_MLG/AGE_ESTIMATION/CVPR_AGE_5_points/TRAIN/", transform)
-        age_test_dataset = CVPR_AGE_load_dataset("/home/yi/narvi_MLG/AGE_ESTIMATION/CVPR_AGE_5_points/VALID/", transform)
+        age_train_dataset = CVPR_AGE_load_dataset("/home/yi/Narvi_MLG/AGE_ESTIMATION/CVPR_AGE_5_points/TRAIN/", transform)
+        age_test_dataset = CVPR_AGE_load_dataset("/home/yi/Narvi_MLG/AGE_ESTIMATION/CVPR_AGE_5_points/VALID/", transform)
         # age train set images: 3707; test image: 1356
 
-    elif args.working_machine == "narvi":
-        # narvi
+    elif args.working_machine == "Narvi":
+        # Narvi
         age_train_dataset = CVPR_AGE_load_dataset("/sgn-data/MLG/AGE_ESTIMATION/CVPR_AGE_5_points/TRAIN/", transform)
         age_test_dataset = CVPR_AGE_load_dataset("/sgn-data/MLG/AGE_ESTIMATION/CVPR_AGE_5_points/VALID/", transform)
         # age train set images: 3707; test image: 1356
 
     else:
-        print("working machine should be  [thinkstation, narvi]")
+        print("working machine should be  [thinkstation, Narvi]")
         NotImplementedError
         
 
@@ -138,32 +144,38 @@ def get_CVPR_Age_data(args, show_sample=False):
     # model_dataloader
     return [age_train_loader, age_test_loader]
 
-def load_chalearn_dataset(data_dir,resize=(224,224)):
-
-    data_transforms = {
-        'TRAIN': transforms.Compose([
-            transforms.RandomSizedCrop(max(resize)),
-            transforms.RandomHorizontalFlip(),
-            transforms.ToTensor(),
-            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-        ]),
-        'VALID': transforms.Compose([
-            transforms.RandomCrop(224),
-            transforms.RandomHorizontalFlip(),
-            transforms.ToTensor(),
-            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-        ]),
-        'TEST': transforms.Compose([
-            transforms.RandomCrop(224),
-            transforms.RandomHorizontalFlip(),
-            transforms.ToTensor(),
-            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-        ])            
-
-    }
-    dsets = {x: AGE_ImageFolder(os.path.join(data_dir, x), data_transforms[x]) for x in ['TRAIN', 'VALID', 'TEST']}
-
-    return dsets
+# def load_chalearn_dataset(data_dir,resize=(224,224)):
+#     '''
+#
+#     :param data_dir:
+#     :param resize:
+#     :return:
+#     '''
+#
+#     data_transforms = {
+#         'TRAIN': transforms.Compose([
+#             transforms.RandomSizedCrop(max(resize)),
+#             transforms.RandomHorizontalFlip(),
+#             transforms.ToTensor(),
+#             transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+#         ]),
+#         'VALID': transforms.Compose([
+#             transforms.RandomCrop(224),
+#             transforms.RandomHorizontalFlip(),
+#             transforms.ToTensor(),
+#             transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+#         ]),
+#         'TEST': transforms.Compose([
+#             transforms.RandomCrop(224),
+#             transforms.RandomHorizontalFlip(),
+#             transforms.ToTensor(),
+#             transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+#         ])
+#
+#     }
+#     dsets = {x: AGE_ImageFolder(os.path.join(data_dir, x), data_transforms[x]) for x in ['TRAIN', 'VALID', 'TEST']}
+#
+#     return dsets
 
 
 def getstd(csv_path):

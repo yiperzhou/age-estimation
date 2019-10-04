@@ -242,11 +242,11 @@ def load_IMDB_WIKI_dataset(args):
       # imdb_crop_path = "/media/yi/harddrive/data/IMDB_only_face/imdb_crop"
       # wiki_crop_path = "/media/yi/harddrive/data/WIKI_only_face/wiki_crop"
 
-    elif args.working_machine == "narvi":
+    elif args.working_machine == "Narvi":
       processed_imdb_wiki_dataset = "/home/zhouy/projects/Age-Gender-Pred/pics/"
       
     else:
-        print("working machine should be  [thinkstation, narvi]")
+        print("working machine should be  [thinkstation, Narvi]")
         NotImplementedError
 
 

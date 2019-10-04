@@ -31,9 +31,13 @@ def age_cls_criterion_encapsulation(age_criterion, age_out_cls, age_label, class
         print("classification type value is wrong")
         raise ValueError
     mapped_age_label = age_mapping_function(age_label, age_divide)
-    mapped_age_label = mapped_age_label.type(torch.cuda.FloatTensor)
-    mapped_age_label = mapped_age_label.type(torch.cuda.LongTensor)
-    age_cls_loss = age_criterion(age_out_cls, mapped_age_label)
+    # mapped_age_label = mapped_age_label.type(torch.cuda.FloatTensor)
+    # print("[Before] mapped_age_label_label_smoothing: ", mapped_age_label)
+    # apply label smoothing technique.
+    mapped_age_label_label_smoothing = apply_label_smoothing(mapped_age_label, epsilon=0)
+    # mapped_age_label = mapped_age_label.type(torch.cuda.FloatTensor)
+    # print("[After] mapped_age_label_label_smoothing: ", mapped_age_label_label_smoothing)
+    age_cls_loss = age_criterion(age_out_cls, mapped_age_label_label_smoothing)
     return age_cls_loss
 
 def train_valid(model, loader, criterion, optimizer, epoch, logFile, args, pharse):
@@ -62,6 +66,8 @@ def train_valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
         # age
         age_img = age_img.cuda()
         age_label = age_label.cuda()
+
+
         age_pred_100_classes, age_pred_20_classes, age_pred_10_classes, age_pred_5_classes = model(age_img)
 
         if args.age_classification_combination == [1, 0, 0, 0]:

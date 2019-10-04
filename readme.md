@@ -1,9 +1,13 @@
 # label_smoothing branch for the age estimation
 
+## loss function
 
-#### experimental result
+```python
+nn.BCEWithLogitsLoss()
+```
 
-       model            |      age MAE      | label smoothing |
------------------------ | ----------------- | --------------- |
-AlexNet                 |                   |                 |                   
-MobileNet-V1            |                   |                 |                   
+
+这个问题在于: BCEWithLogitsLoss
+
+[the PyTorch documentation link]()
+            

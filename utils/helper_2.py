@@ -1,4 +1,5 @@
 import datetime
+import os
 
 def LOG(message, logFile):
     ts = datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S")

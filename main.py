@@ -13,10 +13,11 @@ from utils.helper import save_checkpoint
 from utils.helper_2 import log_variables_to_board, LOG
 from utils.utils_1 import get_model
 
+from opts import args
 
 def parse_loss_weight(args):
 
-    folder_sub_name = "_" + args.model + "_" + args.classification_loss
+    folder_sub_name = "_" + args.model + "_" + "label_smoothing"+ "_" + args.classification_loss
     return folder_sub_name
 
 
@@ -49,8 +50,7 @@ def main(**kwargs):
     optimizer = optim.SGD(filter(lambda p: p.requires_grad, model.parameters()),
                           momentum=0.9, lr=args.lr_rate, weight_decay=args.weight_decay)
 
-    age_cls_criterion = nn.SoftMarginLoss()
-
+    age_cls_criterion = nn.BCEWithLogitsLoss()
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', threshold=1e-5, patience=10)
 
     LOG(model, logFile)
