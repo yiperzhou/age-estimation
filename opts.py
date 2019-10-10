@@ -11,7 +11,7 @@ parser.add_argument('--num_workers', type=int, default=4)
 parser.add_argument('--weight_decay', type=float, default=1e-6)
 
 parser.add_argument('--dataset', type=str, default="CVPR_16_ChaLearn", help="CVPR_16_ChaLearn")
-parser.add_argument('--model', type=str, default="Multi_Classification_AlexNet",
+parser.add_argument('--model', type=str, default="MultiClassificationAlexNet",
                     help="[Multi_Classification_AlexNet, Multi_Classification_MobileNet_V1,Multi_Classification_VGG16_bn_model, Multi_Classification_DenseNet_121_model, Multi_Classification_InceptionV3]")
 parser.add_argument('--lr_rate', type=float, default=0.001, help='learning rate (default: 0.001)')
 
@@ -21,13 +21,13 @@ parser.add_argument('--batch_size', type=int, default=2, metavar='N', help='inpu
 
 parser.add_argument('--epoch', type=int, help="epoch number, default 1", default=60)
 
-parser.add_argument('--classification_loss', type=str, default ="100_classes", 
+parser.add_argument('--classification_loss', type=str, default ="10_classes",
                     help="age classification loss type, two options, (100_classes, 20_classes, 10_classes, 5_classes)")
 # working machine environment
-parser.add_argument('--working_machine', type=str, default="thinkstation", help="[thinkstation, Narvi]")
+parser.add_argument('--working_machine', type=str, default="Narvi", help="[thinkstation, Narvi]")
 
 # [1, 1, 1, 1] => [100_classes, 20_classes, 10_classes, 5_classes]
-parser.add_argument('--age_classification_combination', type=list, default=[1, 0, 0, 0],
+parser.add_argument('--age_classification_combination', type=list, default=[0, 0, 0, 1],
                     help="100-classes age classification, 20-classes age classification, "
                     "10-classes age classification, 5-classes age classification")
 

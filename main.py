@@ -7,12 +7,13 @@ import torch.nn as nn
 import torch.optim as optim
 from tensorboardX import SummaryWriter
 
-from data_load.CVPR_16_ChaLearn_data_loader import get_CVPR_age_data
+from data_load.cvpr_16_chalearn_data_loader import get_CVPR_age_data
 from train_valid.train_valid import train_valid
 from utils.helper import save_checkpoint
 from utils.helper_2 import log_variables_to_board, LOG
 from utils.utils_1 import get_model
 
+from opts import args
 
 def parse_loss_weight(args):
 
@@ -36,6 +37,7 @@ def main(**kwargs):
 
     tensorboard_folder = os.path.join(path, "Graph")
     os.makedirs(path)
+    print("path: ", path)
 
     global logFile
     logFile = path + os.sep + "log.txt"

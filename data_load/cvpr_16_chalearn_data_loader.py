@@ -5,7 +5,7 @@ from torch.utils.data import Dataset
 from torch.utils.data import RandomSampler
 from torchvision import transforms
 
-from data_load.CVPR_16_ChaLearn_Dataset import CVPR_AGE_load_dataset_ImageFolder
+from data_load.cvpr_16_chalearn_dataset import CVPR_AGE_load_dataset_ImageFolder
 from utils.helper_4 import plot_images
 
 def CVPR_AGE_load_dataset(data_path, transforms):

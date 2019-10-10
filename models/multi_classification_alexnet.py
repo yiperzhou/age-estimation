@@ -1,9 +1,9 @@
 import torch.nn as nn
 from torchvision import models
 
-class MultiClassificationAlexNetModel(nn.Module):
+class MultiClassificationAlexNet(nn.Module):
     def __init__(self, args):
-        super(MultiClassificationAlexNetModel, self).__init__()
+        super(MultiClassificationAlexNet, self).__init__()
         self.multi_classification_AlexNet_features = models.alexnet(pretrained=True).features
         self.features_length = 9216
         self.args = args
