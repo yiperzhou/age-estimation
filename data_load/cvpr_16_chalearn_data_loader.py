@@ -51,7 +51,7 @@ def dataset_augmentation_sampler(origin_dataset, target_num_samples):
 
 
 
-def get_CVPR_age_data(args, show_sample=False):
+def get_cvpr_age_data(args, show_sample=False):
 
     # augment = True
     augment = False

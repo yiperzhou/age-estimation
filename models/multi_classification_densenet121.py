@@ -2,9 +2,9 @@ import torch
 import torch.nn as nn
 from torchvision import models
 
-class MultiClassificationDenseNet121Model(torch.nn.Module):
+class MultiClassificationDenseNet121(torch.nn.Module):
     def __init__(self, args):
-        super(MultiClassificationDenseNet121Model, self).__init__()
+        super(MultiClassificationDenseNet121, self).__init__()
         self.multi_classification_DenseNet_features = models.densenet121(pretrained=True).features
         self.features_length = 50176
         self.args = args

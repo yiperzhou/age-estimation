@@ -2,9 +2,9 @@ import torch
 import torch.nn as nn
 from torchvision import models
 
-class MultiClassificationVGG16bnModel(torch.nn.Module):
+class MultiClassificationVGG16bn(torch.nn.Module):
     def __init__(self, args):
-        super(MultiClassificationVGG16bnModel, self).__init__()
+        super(MultiClassificationVGG16bn, self).__init__()
         self.multi_classification_vgg16_bn_features = models.vgg16_bn(pretrained=True).features
         self.features_length = 25088
         self.use_gpu = torch.cuda.is_available()

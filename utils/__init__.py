@@ -8,7 +8,7 @@ from .helper_2 import (
     save_csv_logging
 )
 from .helper_3 import (
-    AverageMeter,
+    average_meter,
     calculate_age_loss
 )
 from .utils_1 import (

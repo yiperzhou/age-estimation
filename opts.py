@@ -12,7 +12,7 @@ parser.add_argument('--weight_decay', type=float, default=1e-6)
 
 parser.add_argument('--dataset', type=str, default="CVPR_16_ChaLearn", help="CVPR_16_ChaLearn")
 parser.add_argument('--model', type=str, default="MultiClassificationAlexNet",
-                    help="[Multi_Classification_AlexNet, Multi_Classification_MobileNet_V1,Multi_Classification_VGG16_bn_model, Multi_Classification_DenseNet_121_model, Multi_Classification_InceptionV3]")
+                    help="[MultiClassificationAlexNet, MultiClassificationMobileNetv1,MultiClassificationVGG16bn, MultiClassificationDenseNet121, MultiClassificationInceptionv3]")
 parser.add_argument('--lr_rate', type=float, default=0.001, help='learning rate (default: 0.001)')
 
 # neural network hyperparamter

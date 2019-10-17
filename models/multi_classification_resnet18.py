@@ -3,9 +3,9 @@ import torch.nn as nn
 from torchvision import models
 
 
-class MultiClassificationResNet18Model(torch.nn.Module):
+class MultiClassificationResNet18(torch.nn.Module):
     def __init__(self, args):
-        super(MultiClassificationResNet18Model, self).__init__()
+        super(MultiClassificationResNet18, self).__init__()
         self.resNet = models.resnet18(pretrained=True)
         self.use_gpu = torch.cuda.is_available()
         self.args = args

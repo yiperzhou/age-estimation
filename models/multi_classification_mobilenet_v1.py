@@ -53,9 +53,9 @@ class MobileNet(nn.Module):
         x = self.fc(x)
         return x
 
-class MultiClassificationMobileNetv1Model(torch.nn.Module):
+class MultiClassificationMobileNetv1(torch.nn.Module):
     def __init__(self, args):
-        super(MultiClassificationMobileNetv1Model, self).__init__()
+        super(MultiClassificationMobileNetv1, self).__init__()
         mobilenet_v1_model = Elastic_MobileNet()
         self.multi_classification_MobileNet_V1_model = mobilenet_v1_model.model
         self.features_length = 1024

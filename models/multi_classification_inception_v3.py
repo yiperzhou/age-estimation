@@ -1,9 +1,9 @@
 import torch.nn as nn
 import torchvision.models as models
 
-class MultiClassificationInceptionv3Model(nn.Module):
+class MultiClassificationInceptionv3(nn.Module):
     def __init__(self, args):
-        super(MultiClassificationInceptionv3Model, self).__init__()
+        super(MultiClassificationInceptionv3, self).__init__()
         self.Inception_v3_feature = self.get_Inception_V3()
         self.features_length = 2508800
         self.args = args
