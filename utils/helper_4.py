@@ -1,8 +1,7 @@
 import matplotlib.pyplot as plt
-
 import torch
 
-Cha_Learn_2016_label_names = [
+CHALEARN2016_LABEL_NAMES = [
     'age_1', 'age_2', 'age_3', 'age_4', 'age_5', 'age_6', 'age_7', 'age_8', 'age_9', 'age_10', 
     'age_11', 'age_12', 'age_13', 'age_14', 'age_15', 'age_16', 'age_17', 'age_18', 'age_19', 'age_20', 
     'age_21', 'age_22', 'age_23', 'age_24', 'age_25', 'age_26', 'age_27', 'age_28', 'age_29', 'age_30', 
@@ -16,9 +15,7 @@ Cha_Learn_2016_label_names = [
 ]
 
 def plot_images(images, cls_true, name):
-
     assert len(images) == len(cls_true) == 36
-
     # Create figure with sub-plots.
     fig, axes = plt.subplots(6, 6)
 
@@ -28,15 +25,14 @@ def plot_images(images, cls_true, name):
 
         # get its equivalent class name
         if name == 'cifar10':
-            cls_true_name = Cha_Learn_2016_label_names[cls_true[i]]
+            cls_true_name = CHALEARN2016_LABEL_NAMES[cls_true[i]]
         else:
-            cls_true_name = Cha_Learn_2016_label_names[cls_true[i]]
+            cls_true_name = CHALEARN2016_LABEL_NAMES[cls_true[i]]
 
         xlabel = "{0} ({1})".format(cls_true_name, cls_true[i])  
         ax.set_xlabel(xlabel)
         ax.set_xticks([])
         ax.set_yticks([])
-
     plt.show()
 
 
@@ -45,10 +41,8 @@ def convert_tensor_to_image(img_tensor, labels):
     convert tensor to image and show it
     '''
     X = img_tensor.cpu().numpy()
-
     X = np.transpose(X, [0, 2, 3, 1])
     plot_images(X, labels, "convert_tensor_to_image")
-
     return 0
 
 def convert_to_onehot_tensor(y, nb_digits):
