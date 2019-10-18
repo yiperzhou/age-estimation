@@ -12,7 +12,7 @@ def calculate_epsilon_loss(y_true,y_pred):
     return epsilon
 
 
-class Age_rgs_loss(nn.Module):
+class age_rgs_loss(nn.Module):
     '''
     age regression loss, reference, the github repository, Age-Gender-Pred, repository
     '''
