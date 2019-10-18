@@ -1,25 +1,18 @@
-import os
-import re
 import glob
-import math
-import torch
+import re
+
 import numpy as np
-
-from skimage import io
-from torchvision import transforms
-from torch.utils.data import Dataset
 import torch
-
-#from config import parser
-
-# FG_Net_data, IMDB-WIKI dataset data_loader
+from skimage import io
+from torch.utils.data import Dataset
+from torchvision import transforms
 
 # IMDB_WIKI dataset has 101 age classes. However, the last two classes are treated as one class. Therefore, age_cls_unit = 100, instead of 101
 age_cls_unit = 100
 
 age_cls_unit_fg_net = 70
 
-def load_FG_Net_data():
+def load_FGNet_data():
     # fg_net_data_path = ""
 
     # distribution of test dataset: FG-NET, len(fg_distr) = 70, sum(fg_distr) = 376, check the excel table for data visualization
@@ -56,7 +49,7 @@ imdb_distr = np.array(imdb_distr, dtype='float')
 
 
 # # distribution of test dataset: FG-NET, len(fg_distr) = 70, sum(fg_distr) = 376
-# fg_distr = load_FG_Net_data()
+# fg_distr = load_FGNet_data()
 
 # # step 1: correct different distribution between datasets
 # loss_weight = fg_distr / imdb_distr

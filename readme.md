@@ -20,6 +20,8 @@ age-estimation
 
 ## to do
 
+- [ ] to add one l1 regression combination, 0 - 100 year old.
+
 
 
 ### results

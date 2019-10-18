@@ -1,41 +1,24 @@
+import datetime
 import os
-import re
-import time
-import datetime
-import numpy as np
+
 import pandas as pd
-
-import datetime
-
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 import torch.optim as optim
-import torch.utils.data as data
-import torchvision
-from torchvision import transforms
-from torch.utils.data import Dataset
-from torch.autograd import Variable
 from tensorboardX import SummaryWriter
 
-from data_load.CVPR_16_ChaLearn_data_loader import get_CVPR_age_data
-
-
-from utils.utils_1 import get_model
-from utils.helper_2 import log_variables_to_board, LOG
-from utils.helper import save_checkpoint, load_model_weights
+from data_load.cvpr_16_chalearn_dataloader import get_cvpr_age_data
 from train_valid.train_valid import train_valid
-from train_valid.age_losses_methods import Age_rgs_loss
-
+from utils.helper import save_checkpoint
+from utils.helper_2 import log_variables_to_board, LOG
+from utils.utils_1 import get_model
 
 from opts import args
 
+def parse_loss_weight(args):
 
-def parse_sub_folder(args):
-
-    sub_folder_name = "_" + args.model + "_" + args.l1_regression_loss
-
-    return sub_folder_name
+    folder_sub_name = "_" + args.model + "_" + args.classification_loss
+    return folder_sub_name
 
 
 def main(**kwargs):
@@ -44,33 +27,29 @@ def main(**kwargs):
         args.__setattr__(arg, v)
 
     # parse loss weight to sub folder name
-    args.sub_folder_name = parse_sub_folder(args)
+    args.folder_sub_name = parse_loss_weight(args)
 
     timestamp = datetime.datetime.now()
     ts_str = timestamp.strftime('%Y-%m-%d-%H-%M-%S')
 
+    path = "./results" + os.sep + args.model + "_" + args.dataset + \
+           os.sep + args.folder_sub_name + os.sep + ts_str
 
-    path = "./results" + os.sep + args.model + "_" + args.dataset + os.sep + args.sub_folder_name + os.sep + ts_str
-    
     tensorboard_folder = os.path.join(path, "Graph")
-    
     os.makedirs(path)
+    print("path: ", path)
 
     global logFile
     logFile = path + os.sep + "log.txt"
-
     LOG(args, logFile)
 
     global writer
     writer = SummaryWriter(tensorboard_folder)
-
-    age_train_loader, age_test_loader = get_CVPR_age_data(args)
-
+    age_train_loader, age_test_loader = get_cvpr_age_data(args)
     model = get_model(args, logFile)
 
-
-    optimizer = optim.SGD(filter(lambda p: p.requires_grad, model.parameters()), momentum=0.9,
-                          lr=args.lr_rate, weight_decay=args.weight_decay)
+    optimizer = optim.SGD(filter(lambda p: p.requires_grad, model.parameters()),
+                          momentum=0.9, lr=args.lr_rate, weight_decay=args.weight_decay)
 
     age_l1_criterion = nn.L1Loss()
 
@@ -119,7 +98,6 @@ def main(**kwargs):
 
         epochs_train_lr.append(lr)
         writer.add_scalar(tensorboard_folder + os.sep + 'lr', lr, epoch)
-
         message = '\n\nEpoch: {}/{}: '.format(epoch + 1, args.epoch)
         LOG(message, logFile)
         LOG(args, logFile)
@@ -135,8 +113,6 @@ def main(**kwargs):
                 'lowest_loss': lowest_loss,
                 'optimizer': optimizer.state_dict(),
             }, path)
-
-
 
     writer.close()
     LOG("done", logFile)

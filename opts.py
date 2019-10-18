@@ -10,10 +10,9 @@ parser.add_argument('--num_workers', type=int, default=4)
 
 parser.add_argument('--weight_decay', type=float, default=1e-6)
 
-
-parser.add_argument('--dataset', type=str, default="CVPR_16_ChaLearn", help="CVPR_16_ChaLearn, IMDB_WIKI")
-parser.add_argument('--model', type=str, default="Multi_Regression_AlexNet",
-                    help="[Multi_Regression_AlexNet_model, Multi_Regression_MobileNet_V1 ]")
+parser.add_argument('--dataset', type=str, default="CVPR_16_ChaLearn", help="CVPR_16_ChaLearn")
+parser.add_argument('--model', type=str, default="MultiClassificationAlexNet",
+                    help="[MultiClassificationAlexNet, MultiClassificationMobileNetv1,MultiClassificationVGG16bn, MultiClassificationDenseNet121, MultiClassificationInceptionv3]")
 parser.add_argument('--lr_rate', type=float, default=0.001, help='learning rate (default: 0.001)')
 
 # neural network hyperparamter
@@ -25,7 +24,7 @@ parser.add_argument('--epoch', type=int, help="epoch number, default 1", default
 parser.add_argument('--load_IMDB_WIKI_pretrained_model', type=bool, default=False, help="[False, True]")
 
 
-parser.add_argument('--l1_regression_loss', type=str, default ="0-100_age_rgs", 
+parser.add_argument('--l1_regression_loss', type=str, default ="0-100_age_rgs",
                     help="4 age regression loss options, "
                          "[0-5_age_rgs, 0-10_age_rgs, 0-20_age_rgs, 0-100_age_rgs] regression")
 

@@ -1,4 +1,4 @@
-fgnet_raw_path = /media/yi/harddrive/codes/Age-Gender-Pred/pics/FGNET
+fgnet_raw_path = "/media/yi/harddrive/codes/Age-Gender-Pred/pics/FGNET"
 
 def creat_fgnet_val(clean = False):
   if clean:
