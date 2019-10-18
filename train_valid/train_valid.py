@@ -62,9 +62,9 @@ def train_valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
 
     best_age_mae = 99.
 
-    age_l1_rgs_epoch_loss = AverageMeter()                   
+    age_l1_rgs_epoch_loss = average_meter()
 
-    age_epoch_l1 = AverageMeter()
+    age_epoch_l1 = average_meter()
 
     age_epoch_mae_own_list = []
 
