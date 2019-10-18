@@ -6,7 +6,7 @@ from torchvision import models
 class MultiClassificationResNet18(torch.nn.Module):
     def __init__(self, args):
         super(MultiClassificationResNet18, self).__init__()
-        self.resNet = models.resnet18(pretrained=True)
+        self.resnet = models.resnet18(pretrained=True)
         self.use_gpu = torch.cuda.is_available()
         self.args = args
         self.features_length = 512
@@ -42,14 +42,14 @@ class MultiClassificationResNet18(torch.nn.Module):
         :param x: image input
         :return: middle ouput from layer2, and final ouput from layer4
         """
-        x = self.resNet.conv1(x)  # out = [N, 64, 112, 112]
-        x = self.resNet.bn1(x)
-        x = self.resNet.relu(x)
-        x = self.resNet.maxpool(x)  # out = [N, 64, 56, 56]
-        x = self.resNet.layer1(x)  # out = [N, 64, 56, 56]
-        x = self.resNet.layer2(x)  # out = [N, 128, 28, 28]
-        x = self.resNet.layer3(x)  # out = [N, 256, 14, 14]
-        x = self.resNet.layer4(x)  # out = [N, 512, 7, 7]
+        x = self.resnet.conv1(x)  # out = [N, 64, 112, 112]
+        x = self.resnet.bn1(x)
+        x = self.resnet.relu(x)
+        x = self.resnet.maxpool(x)  # out = [N, 64, 56, 56]
+        x = self.resnet.layer1(x)  # out = [N, 64, 56, 56]
+        x = self.resnet.layer2(x)  # out = [N, 128, 28, 28]
+        x = self.resnet.layer3(x)  # out = [N, 256, 14, 14]
+        x = self.resnet.layer4(x)  # out = [N, 512, 7, 7]
         return x
 
     def get_age_cls_class(self):

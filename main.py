@@ -7,7 +7,7 @@ import torch.nn as nn
 import torch.optim as optim
 from tensorboardX import SummaryWriter
 
-from data_load.cvpr_16_chalearn_data_loader import get_cvpr_age_data
+from data_load.cvpr_16_chalearn_dataloader import get_cvpr_age_data
 from train_valid.train_valid import train_valid
 from utils.helper import save_checkpoint
 from utils.helper_2 import log_variables_to_board, LOG

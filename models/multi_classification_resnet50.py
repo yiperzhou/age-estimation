@@ -7,7 +7,7 @@ class MultiClassificationResNet50(torch.nn.Module):
     def __init__(self, args):
         super(MultiClassificationResNet50, self).__init__()
         resnet50_model = models.resnet50(pretrained=True)
-        self.multi_classification_ResNet_50_features = nn.Sequential(
+        self.resnet_50_features = nn.Sequential(
             resnet50_model.conv1,
             resnet50_model.bn1,
             resnet50_model.relu,
@@ -79,7 +79,7 @@ class MultiClassificationResNet50(torch.nn.Module):
         return age_divide_100_classes, age_divide_20_classes, age_divide_10_classes, age_divide_5_classes
 
     def forward(self, x):
-        x = self.multi_classification_ResNet_50_features(x)
+        x = self.resnet_50_features(x)
         x = x.view(x.size(0), -1)
         age_pred_100_classes, age_pred_20_classes, age_pred_10_classes, age_pred_5_classes = None, None, None, None
         if self.age_divide_100_classes == True:

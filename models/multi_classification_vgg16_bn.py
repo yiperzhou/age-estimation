@@ -5,7 +5,7 @@ from torchvision import models
 class MultiClassificationVGG16bn(torch.nn.Module):
     def __init__(self, args):
         super(MultiClassificationVGG16bn, self).__init__()
-        self.multi_classification_vgg16_bn_features = models.vgg16_bn(pretrained=True).features
+        self.vgg16_bn_features = models.vgg16_bn(pretrained=True).features
         self.features_length = 25088
         self.use_gpu = torch.cuda.is_available()
         self.args = args
@@ -65,7 +65,7 @@ class MultiClassificationVGG16bn(torch.nn.Module):
         return age_divide_100_classes, age_divide_20_classes, age_divide_10_classes, age_divide_5_classes
 
     def forward(self, x):
-        x = self.multi_classification_vgg16_bn_features(x)
+        x = self.vgg16_bn_features(x)
         x = x.view(x.size(0), -1)
         age_pred_100_classes, age_pred_20_classes, age_pred_10_classes, age_pred_5_classes = None, None, None, None
         if self.age_divide_100_classes == True:

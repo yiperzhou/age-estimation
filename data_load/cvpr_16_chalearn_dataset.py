@@ -64,9 +64,9 @@ def make_dataset(dir, class_to_idx, extensions):
     return images
 
 
-class CVPR_AGE_load_dataset_ImageFolder(torchvision.datasets.DatasetFolder):
+class cvpr_age_load_dataset_imagefolder(torchvision.datasets.DatasetFolder):
     def __init__(self, folder_to_classes, age_classes, root, transform=None, target_transform=None):
-        super(CVPR_AGE_load_dataset_ImageFolder, self).__init__(root, default_loader, IMG_EXTENSIONS)
+        super(cvpr_age_load_dataset_imagefolder, self).__init__(root, default_loader, IMG_EXTENSIONS)
         self.transform = transform
         # self.class_to_idx = folder_to_classes
         # self.classes = age_classes

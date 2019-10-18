@@ -20,7 +20,6 @@
 
 ```sh
 age-estimation
-        |----------- master  
         |----------- label_smoothing  
         |----------- classification_combination 
         |----------- regression_combination  
