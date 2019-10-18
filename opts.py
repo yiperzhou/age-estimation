@@ -1,6 +1,6 @@
 import argparse
 
-parser = argparse.ArgumentParser(description='Multi-Regression age estimation')
+parser = argparse.ArgumentParser(description='Regression and Classification combination on age estimation')
 
 # general parameters
 parser.add_argument('--log_dir', type=str, help='log directory')
