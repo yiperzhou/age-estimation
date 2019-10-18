@@ -44,11 +44,11 @@ def train_valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
     LOG("[" + pharse + "]: Starting, Epoch: " + str(epoch), logFile)
     best_age_mae = 99.
     loss = 0
-    age_cls_epoch_loss = AverageMeter()
-    age_l1_rgs_epoch_loss = AverageMeter()
-    age_epoch_loss = AverageMeter()
-    age_epoch_mae = AverageMeter()
-    total_loss = AverageMeter()
+    age_cls_epoch_loss = average_meter()
+    age_l1_rgs_epoch_loss = average_meter()
+    age_epoch_loss = average_meter()
+    age_epoch_mae = average_meter()
+    total_loss = average_meter()
     age_epoch_mae_own_list = []
     if pharse == "train":
         model.train()

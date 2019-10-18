@@ -7,7 +7,7 @@ import torch.nn as nn
 import torch.optim as optim
 from tensorboardX import SummaryWriter
 
-from data_load.CVPR_16_ChaLearn_data_loader import get_CVPR_age_data
+from data_load.cvpr_16_chalearn_dataloader import get_cvpr_age_data
 from train_valid.train_valid import train_valid
 from utils.helper import save_checkpoint
 from utils.helper_2 import log_variables_to_board, LOG
@@ -44,7 +44,7 @@ def main(**kwargs):
 
     global writer
     writer = SummaryWriter(tensorboard_folder)
-    age_train_loader, age_test_loader = get_CVPR_age_data(args)
+    age_train_loader, age_test_loader = get_cvpr_age_data(args)
     model = get_model(args, logFile)
 
     optimizer = optim.SGD(filter(lambda p: p.requires_grad, model.parameters()),
@@ -117,6 +117,7 @@ def main(**kwargs):
 
     writer.close()
     LOG("done", logFile)
+    LOG(args, logFile)
     LOG(path, logFile)
 
 
