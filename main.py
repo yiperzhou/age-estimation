@@ -15,9 +15,9 @@ from utils.utils_1 import get_model
 
 from opts import args
 
-def parse_loss_weight(args):
+def parse_args(args):
 
-    folder_sub_name = "_" + args.model + "_" + args.classification_loss
+    folder_sub_name = "_" + args.model + "_" + "l1_regression_loss"
     return folder_sub_name
 
 
@@ -27,7 +27,7 @@ def main(**kwargs):
         args.__setattr__(arg, v)
 
     # parse loss weight to sub folder name
-    args.folder_sub_name = parse_loss_weight(args)
+    args.folder_sub_name = parse_args(args)
 
     timestamp = datetime.datetime.now()
     ts_str = timestamp.strftime('%Y-%m-%d-%H-%M-%S')

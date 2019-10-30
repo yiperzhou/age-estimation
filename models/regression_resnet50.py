@@ -6,7 +6,7 @@ class RegressionAndClassificationResNet50(torch.nn.Module):
     def __init__(self, args):
         super(RegressionAndClassificationResNet50, self).__init__()
         resnet50_model = models.resnet50(pretrained=True)
-        self.ResNet_50_features = nn.Sequential(
+        self.resnet50_features = nn.Sequential(
             resnet50_model.conv1,
             resnet50_model.bn1,
             resnet50_model.relu,
@@ -21,7 +21,6 @@ class RegressionAndClassificationResNet50(torch.nn.Module):
         self.use_gpu = torch.cuda.is_available()
         self.args = args
 
-        self.age_divide_100_classes, self.age_divide_20_classes, self.age_divide_10_classes, self.age_divide_5_classes = self.get_age_cls_class()
         self.age_clf_100_classes = nn.Sequential(
             nn.Linear(self.features_length, 256),
             nn.ReLU(inplace=True),
@@ -53,50 +52,21 @@ class RegressionAndClassificationResNet50(torch.nn.Module):
             nn.Linear(256, 100)
         )
 
-    def get_age_cls_class(self):
-        age_divide_100_classes = False
-        age_divide_20_classes = False
-        age_divide_10_classes = False
-        age_divide_5_classes = False
-        if self.args.age_classification_combination == [1, 0, 0, 0]:
-            age_divide_100_classes = True
-            age_divide_20_classes = False
-            age_divide_10_classes = False
-            age_divide_5_classes = False
-        elif self.args.age_classification_combination == [1, 1, 0, 0]:
-            age_divide_100_classes = True
-            age_divide_20_classes = True
-            age_divide_10_classes = False
-            age_divide_5_classes = False
-        elif self.args.age_classification_combination == [1, 1, 1, 0]:
-            age_divide_100_classes = True
-            age_divide_20_classes = True
-            age_divide_10_classes = True
-            age_divide_5_classes = False
-        elif self.args.age_classification_combination == [1, 1, 1, 1]:
-            age_divide_100_classes = True
-            age_divide_20_classes = True
-            age_divide_10_classes = True
-            age_divide_5_classes = True
-        else:
-            print("age_divide_100_classes, age_divide_20_classes, age_divide_10_classes, age_divide_5_classes")
-            ValueError
-        return age_divide_100_classes, age_divide_20_classes, age_divide_10_classes, age_divide_5_classes
-
     def forward(self, x):
-        x = self.ResNet_50_features(x)
+        x = self.resnet50_features(x)
         x = x.view(x.size(0), -1)
         age_pred_100_classes, age_pred_20_classes, age_pred_10_classes, age_pred_5_classes = None, None, None, None
-        if self.age_divide_100_classes == True:
+        if self.args.age_divide_100_classes == True:
             age_pred_100_classes = self.age_clf_100_classes(x)
-        if self.age_divide_20_classes == True:
+        if self.args.age_divide_20_classes == True:
             age_pred_20_classes = self.age_clf_20_classes(x)
-        if self.age_divide_10_classes == True:
+        if self.args.age_divide_10_classes == True:
             age_pred_10_classes = self.age_clf_10_classes(x)
-        if self.age_divide_5_classes == True:
+        if self.args.age_divide_5_classes == True:
             age_pred_5_classes = self.age_clf_5_classes(x)
-        if self.age_regression = True:
+        if self.args.l1_regression_loss == True:
             age_regression = self.age_regression(x)
-        return age_pred_100_classes, age_pred_20_classes, age_pred_10_classes, age_pred_5_classes
+
+        return age_regression
 
   

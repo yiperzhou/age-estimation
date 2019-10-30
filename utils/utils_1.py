@@ -3,8 +3,6 @@
 from models.regression_resnet50 import RegressionAndClassificationResNet50
 from models.regression_vgg16_bn import RegressionAndClassificationVGG16bn
 
-
-
 regression_and_classification_vgg16bn_model = "RegressionAndClassificationVGG16bn"
 regression_and_classification_resnet50_model = "RegressionAndClassificationResNet50"
 
