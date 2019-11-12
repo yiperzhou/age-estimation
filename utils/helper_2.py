@@ -30,7 +30,11 @@ def save_csv_logging(csv_checkpoint, epoch, lr, losses, val_losses, total_loss, 
     try:
         csv_checkpoint.loc[len(csv_checkpoint)] = [str(datetime.datetime.now()), epoch, lr, 
                                                     losses[0], losses[1], losses[2],
+<<<<<<< HEAD
                                                     val_losses[0], val_losses[1], val_losses[2],
+=======
+                                                    val_losses[0], val_losses[1], val_losses[2], 
+>>>>>>> remotes/origin/classification_combination
                                                     total_loss, total_val_loss]
         csv_checkpoint.to_csv(csv_path, index=False)
 

@@ -9,10 +9,8 @@ from .helper_2 import (
 )
 from .helper_3 import (
     average_meter,
-    calculate_age_loss,
-    accuracy
+    calculate_age_loss
 )
-
 from .utils_1 import (
     get_model
 )

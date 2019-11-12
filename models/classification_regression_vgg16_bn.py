@@ -1,8 +1,6 @@
 import torch
 import torch.nn as nn
-
 from torchvision import models
-
 
 class RegressionAndClassificationVGG16bn(torch.nn.Module):
     def __init__(self, args):
@@ -36,6 +34,12 @@ class RegressionAndClassificationVGG16bn(torch.nn.Module):
             nn.Dropout(p=0.5, inplace=False),
             nn.Linear(256, 5)
         )
+        self.age_regression = nn.Sequential(
+            nn.Linear(self.features_length, 256),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=0.5, inplace=False),
+            nn.Linear(256, 1)   # output layer, output one neurons, to do regression.
+        )
 
     def get_age_cls_class(self):
         age_divide_100_classes = False
@@ -64,13 +68,15 @@ class RegressionAndClassificationVGG16bn(torch.nn.Module):
             age_divide_5_classes = True
         else:
             print("age_divide_100_classes, age_divide_20_classes, age_divide_10_classes, age_divide_5_classes")
-            ValueError
+            raise ValueError
+
         return age_divide_100_classes, age_divide_20_classes, age_divide_10_classes, age_divide_5_classes
 
     def forward(self, x):
         x = self.vgg16_bn_features(x)
         x = x.view(x.size(0), -1)
         age_pred_100_classes, age_pred_20_classes, age_pred_10_classes, age_pred_5_classes = None, None, None, None
+
         if self.age_divide_100_classes == True:
             age_pred_100_classes = self.age_clf_100_classes(x)
         if self.age_divide_20_classes == True:
@@ -79,4 +85,8 @@ class RegressionAndClassificationVGG16bn(torch.nn.Module):
             age_pred_10_classes = self.age_clf_10_classes(x)
         if self.age_divide_5_classes == True:
             age_pred_5_classes = self.age_clf_5_classes(x)
-        return age_pred_100_classes, age_pred_20_classes, age_pred_10_classes, age_pred_5_classes
+
+        if self.args.mse_regression_loss == True:
+            age_regression = self.age_regression(x)
+
+        return [age_pred_100_classes, age_pred_20_classes, age_pred_10_classes, age_pred_5_classes], age_regression

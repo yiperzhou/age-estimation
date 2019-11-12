@@ -67,6 +67,9 @@ class RegressionAndClassificationResNet50(torch.nn.Module):
         if self.args.mse_regression_loss == True:
             age_regression = self.age_regression(x)
 
+        if self.args.mse_regression_loss == True:
+            age_regression = self.age_regression(x)
+
         return [age_pred_100_classes, age_pred_20_classes, age_pred_10_classes, age_pred_5_classes], age_regression
 
   

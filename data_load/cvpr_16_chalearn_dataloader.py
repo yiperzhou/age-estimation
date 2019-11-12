@@ -8,7 +8,11 @@ from torchvision import transforms
 from data_load.cvpr_16_chalearn_dataset import cvpr_age_load_dataset_imagefolder
 from utils.helper_4 import plot_images
 
+<<<<<<< HEAD:data_load/cvpr_16_chalearn_dataloader.py
 def cvpr_age_load_dataset(data_path, transforms):
+=======
+def CVPR_AGE_load_dataset(data_path, transforms):
+>>>>>>> remotes/origin/classification_combination:data_load/CVPR_16_ChaLearn_data_loader.py
     # # data_path = '/home/yi/Narvi_MLG/AGE_ESTIMATION/CVPR_AGE_5_points/TRAIN/'
     # train_dataset = torchvision.datasets.ImageFolder(
     #     root=data_path,
