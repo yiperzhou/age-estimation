@@ -49,7 +49,7 @@ class RegressionAndClassificationResNet50(torch.nn.Module):
             nn.Linear(self.features_length, 256),
             nn.ReLU(inplace=True),
             nn.Dropout(p=0.5, inplace=False),
-            nn.Linear(256, 100)
+            nn.Linear(256, 1)        # output layer
         )
 
     def forward(self, x):
@@ -64,9 +64,9 @@ class RegressionAndClassificationResNet50(torch.nn.Module):
             age_pred_10_classes = self.age_clf_10_classes(x)
         if self.args.age_divide_5_classes == True:
             age_pred_5_classes = self.age_clf_5_classes(x)
-        if self.args.l1_regression_loss == True:
+        if self.args.mse_regression_loss == True:
             age_regression = self.age_regression(x)
 
-        return age_regression
+        return [age_pred_100_classes, age_pred_20_classes, age_pred_10_classes, age_pred_5_classes], age_regression
 
   

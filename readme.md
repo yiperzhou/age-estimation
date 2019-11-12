@@ -1,26 +1,14 @@
-# Age Estimation - `Regression_combination` branch
+# Age Estimation - `regression_classification_combination` branch
 
 <!-- TOC -->
 
-- [Age Estimation - `Regression_combination` branch](#age-estimation---regressioncombination-branch)
+- [Age Estimation - `regression_classification_combination` branch](#age-estimation---regression_classification_combination-branch)
   - [Git Network graph](#git-network-graph)
   - [to do](#to-do)
     - [results](#results)
   - [references](#references)
 
 <!-- /TOC -->
-
-
-## Git Network graph
-
-```sh
-age-estimation
-        |----------- regression_combination
-```
-
-## to do
-
-- [ ] to add one l1 regression combination, 0 - 100 year old.
 
 
 
@@ -30,7 +18,7 @@ age-estimation
 
 
 ```sh
-# run experiments on the `regression_combination`
+# run experiments on the `regression_classification_combination`
 $ python main.py  
 ```
 

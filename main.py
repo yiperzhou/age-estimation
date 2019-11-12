@@ -17,7 +17,7 @@ from opts import args
 
 def parse_args(args):
 
-    folder_sub_name = "_" + args.model + "_" + "l1_regression_loss"
+    folder_sub_name = "_" + args.model + "_" + "mse_regression_loss"
     return folder_sub_name
 
 
@@ -51,7 +51,7 @@ def main(**kwargs):
     optimizer = optim.SGD(filter(lambda p: p.requires_grad, model.parameters()),
                           momentum=0.9, lr=args.lr_rate, weight_decay=args.weight_decay)
 
-    age_l1_criterion = nn.L1Loss()
+    age_regression_criterion = torch.nn.MSELoss()  # this is for regression mean squared loss
 
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', threshold=1e-5, patience=10)
     
@@ -62,15 +62,15 @@ def main(**kwargs):
         torch.cuda.empty_cache()
         model = model.cuda()
 
-    epochs_train_age_rgs_l1_loss, epochs_valid_age_rgs_l1_loss = [], []
+    epochs_train_age_rgs_mae_loss, epochs_valid_age_rgs_mae_loss = [], []
 
     epochs_train_lr = []
 
     lowest_loss = 100000
 
     columns = ['Timstamp', 'Epoch', 'lr',
-               'train_age_l1_loss',
-               'val_age_l1_loss']
+               'train_age_mae_loss',
+               'val_age_mae_loss']
 
     csv_checkpoint = pd.DataFrame(data=[], columns=columns)
 
@@ -82,7 +82,7 @@ def main(**kwargs):
 
         log_variables_to_board([epochs_train_age_rgs_l1_loss],
                                 train_losses, 
-                                ['train_age_l1_loss'],
+                                ['train_age_mae_loss'],
                                 "Train", tensorboard_folder, epoch, logFile, writer)
 
         val_losses, lr, model = train_valid(model,[age_test_loader],
@@ -91,7 +91,7 @@ def main(**kwargs):
 
         log_variables_to_board([epochs_valid_age_rgs_l1_loss],
                                 val_losses,
-                                ['val_age_l1_loss'],
+                                ['val_age_mae_loss'],
                                 "Valid", tensorboard_folder, epoch, logFile, writer)
 
         LOG("\n", logFile)

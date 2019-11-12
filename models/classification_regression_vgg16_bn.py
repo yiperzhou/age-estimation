@@ -36,6 +36,7 @@ class RegressionAndClassificationVGG16bn(torch.nn.Module):
             nn.Dropout(p=0.5, inplace=False),
             nn.Linear(256, 5)
         )
+
     def get_age_cls_class(self):
         age_divide_100_classes = False
         age_divide_20_classes = False
