@@ -25,8 +25,6 @@ def load_model_weights(initial_model, checkpoint_path):
     return initial_model
 
 
-<<<<<<< HEAD
-=======
 def indexes_to_one_hot(indexes, n_dims=None):
     """Converts a vector of indexes to a batch of one-hot vectors. """
     indexes = indexes.type(torch.int64).view(-1, 1)
@@ -35,8 +33,6 @@ def indexes_to_one_hot(indexes, n_dims=None):
     # one_hots = one_hots.view(*indexes.shape, -1)
     # print(one_hots)
     return one_hots
-
->>>>>>> remotes/origin/classification_combination
 
 
 

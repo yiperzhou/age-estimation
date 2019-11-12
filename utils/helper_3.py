@@ -20,7 +20,6 @@ class average_meter(object):
         self.avg = self.sum / self.count
 
 
-<<<<<<< HEAD
 def accuracy(output, target, topk=(1,)):
     """Computes the precision@k for the specified values of k"""
     maxk = max(topk)
@@ -50,9 +49,6 @@ def accuracy(output, target, topk=(1,)):
     return res
 
 
-
-=======
->>>>>>> remotes/origin/classification_combination
 def calculate_age_loss(age_criterion, age_out, age_label):
     # age_label format is: [0,7,6,2] with batch_size = 4
     _, pred_age = torch.max(age_out, 1)
