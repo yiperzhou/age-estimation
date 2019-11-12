@@ -17,7 +17,7 @@ from opts import args
 
 def parse_args(args):
 
-    folder_sub_name = "_" + args.model + "_" + "mse_regression_loss"
+    folder_sub_name = "_" + args.model + "_" + "mse_regression_classification_loss" +
     return folder_sub_name
 
 

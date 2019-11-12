@@ -23,10 +23,10 @@ parser.add_argument('--epoch', type=int, help="epoch number, default 1", default
 
 parser.add_argument('--load_IMDB_WIKI_pretrained_model', type=bool, default=False, help="[False, True]")
 
-parser.add_argument('--age_divide_100_classes', type=bool, default=False, help="[False, True]")
-parser.add_argument('--age_divide_20_classes', type=bool, default=False, help="[False, True]")
-parser.add_argument('--age_divide_10_classes', type=bool, default=False, help="[False, True]")
-parser.add_argument('--age_divide_5_classes', type=bool, default=False, help="[False, True]")
+parser.add_argument('--age_divide_100_classes', type=bool, default=True, help="[False, True]")
+parser.add_argument('--age_divide_20_classes', type=bool, default=True, help="[False, True]")
+parser.add_argument('--age_divide_10_classes', type=bool, default=True, help="[False, True]")
+parser.add_argument('--age_divide_5_classes', type=bool, default=True, help="[False, True]")
 
 parser.add_argument('--mse_regression_loss', type=bool, default ="True",
                     help="0-100_age_rgs, age regression loss options, regression")
