@@ -52,6 +52,36 @@ class RegressionAndClassificationResNet50(torch.nn.Module):
             nn.Linear(256, 1)        # output layer
         )
 
+    def get_age_cls_class(self):
+        age_divide_100_classes = False
+        age_divide_20_classes = False
+        age_divide_10_classes = False
+        age_divide_5_classes = False
+        if self.args.age_classification_combination == [1, 0, 0, 0]:
+            age_divide_100_classes = True
+            age_divide_20_classes = False
+            age_divide_10_classes = False
+            age_divide_5_classes = False
+        elif self.args.age_classification_combination == [1, 1, 0, 0]:
+            age_divide_100_classes = True
+            age_divide_20_classes = True
+            age_divide_10_classes = False
+            age_divide_5_classes = False
+        elif self.args.age_classification_combination == [1, 1, 1, 0]:
+            age_divide_100_classes = True
+            age_divide_20_classes = True
+            age_divide_10_classes = True
+            age_divide_5_classes = False
+        elif self.args.age_classification_combination == [1, 1, 1, 1]:
+            age_divide_100_classes = True
+            age_divide_20_classes = True
+            age_divide_10_classes = True
+            age_divide_5_classes = True
+        else:
+            print("age_divide_100_classes, age_divide_20_classes, age_divide_10_classes, age_divide_5_classes")
+            ValueError
+        return age_divide_100_classes, age_divide_20_classes, age_divide_10_classes, age_divide_5_classes
+
     def forward(self, x):
         x = self.resnet50_features(x)
         x = x.view(x.size(0), -1)
@@ -64,9 +94,6 @@ class RegressionAndClassificationResNet50(torch.nn.Module):
             age_pred_10_classes = self.age_clf_10_classes(x)
         if self.args.age_divide_5_classes == True:
             age_pred_5_classes = self.age_clf_5_classes(x)
-        if self.args.mse_regression_loss == True:
-            age_regression = self.age_regression(x)
-
         if self.args.mse_regression_loss == True:
             age_regression = self.age_regression(x)
 

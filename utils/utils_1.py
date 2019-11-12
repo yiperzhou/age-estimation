@@ -1,5 +1,3 @@
-# sys.path.append("/models/")
-
 from models.classification_regression_resnet50 import RegressionAndClassificationResNet50
 from models.classification_regression_vgg16_bn import RegressionAndClassificationVGG16bn
 

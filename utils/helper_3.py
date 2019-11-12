@@ -25,8 +25,6 @@ def accuracy(output, target, topk=(1,)):
     maxk = max(topk)
     batch_size = target.size(0)
 
-
-
     try:
         target = target.type(torch.cuda.LongTensor)
 
