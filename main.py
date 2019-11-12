@@ -15,15 +15,9 @@ from utils.utils_1 import get_model
 
 from opts import args
 
-<<<<<<< HEAD
 def parse_args(args):
 
     folder_sub_name = "_" + args.model + "_" + "mse_regression_classification_loss" +
-=======
-def parse_loss_weight(args):
-
-    folder_sub_name = "_" + args.model + "_" + args.classification_loss
->>>>>>> remotes/origin/classification_combination
     return folder_sub_name
 
 
@@ -57,16 +51,10 @@ def main(**kwargs):
     optimizer = optim.SGD(filter(lambda p: p.requires_grad, model.parameters()),
                           momentum=0.9, lr=args.lr_rate, weight_decay=args.weight_decay)
 
-<<<<<<< HEAD
     age_regression_criterion = torch.nn.MSELoss()  # this is for regression mean squared loss
 
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', threshold=1e-5, patience=10)
-    
-=======
     age_cls_criterion = nn.CrossEntropyLoss()
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', threshold=1e-5, patience=10)
-
->>>>>>> remotes/origin/classification_combination
     LOG(model, logFile)
 
     use_gpu = torch.cuda.is_available()
@@ -81,52 +69,35 @@ def main(**kwargs):
     lowest_loss = 100000
 
     columns = ['Timstamp', 'Epoch', 'lr',
-<<<<<<< HEAD
                'train_age_mae_loss',
-               'val_age_mae_loss']
-=======
+               'val_age_mae_loss'
                'train_total_loss', 'train_age_cls_loss', 'train_age_l1_mae_loss',
                'val_total_loss', 'val_age_cls_loss', 'val_age_l1_mae_loss']
->>>>>>> remotes/origin/classification_combination
 
     csv_checkpoint = pd.DataFrame(data=[], columns=columns)
 
     for epoch in range(0, args.epoch):
 
-        train_losses, lr, model = train_valid(model, [age_train_loader], 
-<<<<<<< HEAD
-                                                                [age_l1_criterion],
-                                                                optimizer, epoch, logFile, args, "train")
-=======
-                                             [age_cls_criterion],
-                                             optimizer, epoch, logFile, args, "train")
->>>>>>> remotes/origin/classification_combination
-
+        train_losses, lr, model = train_valid(model, [age_train_loader, age_l1_criterion],
+                                                                optimizer, epoch, logFile, args, "train", age_cls_criterion, optimizer, epoch, logFile, args, "train")
         log_variables_to_board([epochs_train_age_rgs_l1_loss],
-                                train_losses, 
-<<<<<<< HEAD
-                                ['train_age_mae_loss'],
+                                train_losses,
+                                'train_age_mae_loss',
                                 "Train", tensorboard_folder, epoch, logFile, writer)
 
         val_losses, lr, model = train_valid(model,[age_test_loader],
                                                             [age_l1_criterion],
                                                             optimizer, epoch, logFile, args, "valid")
-=======
                                 ['train_total_loss', 'train_age_cls_loss', 'train_age_mae_loss'],
                                 "Train", tensorboard_folder, epoch, logFile, writer)
 
         val_losses, lr, model = train_valid(model,[age_test_loader],
                                             [age_cls_criterion],
                                             optimizer, epoch, logFile, args, "valid")
->>>>>>> remotes/origin/classification_combination
-
         log_variables_to_board([epochs_valid_age_rgs_l1_loss],
                                 val_losses,
-<<<<<<< HEAD
                                 ['val_age_mae_loss'],
-=======
                                 ['val_total_loss', 'val_age_cls_loss', 'val_age_l1_mae_loss'],
->>>>>>> remotes/origin/classification_combination
                                 "Valid", tensorboard_folder, epoch, logFile, writer)
 
         LOG("\n", logFile)
