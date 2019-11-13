@@ -69,6 +69,8 @@ def main(**kwargs):
 
     for epoch in range(0, args.epoch):
 
+        print("...enter train phrase...")
+
         train_losses, lr, model = train_valid(model, [age_train_loader], [age_cls_criterion, age_regression_criterion], optimizer, epoch, logFile, args, "train")
 
         # log_variables_to_board([epochs_train_age_rgs_l1_loss],
@@ -76,8 +78,8 @@ def main(**kwargs):
         #                         'train_age_mae_loss',
         #                         "Train", tensorboard_folder, epoch, logFile, writer)
 
-        val_losses, lr, model = train_valid(model,[age_test_loader], [age_cls_criterion, age_regression_criterion],
-                                                            optimizer, epoch, logFile, args, "valid")
+        print("...enter valid phrase...")
+        val_losses, lr, model = train_valid(model,[age_test_loader], [age_cls_criterion, age_regression_criterion], optimizer, epoch, logFile, args, "valid")
 
         # log_variables_to_board([epochs_valid_age_rgs_l1_loss],
         #                         val_losses,

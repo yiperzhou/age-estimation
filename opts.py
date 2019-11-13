@@ -35,7 +35,7 @@ parser.add_argument('--mse_regression_loss', type=bool, default ="True",
                     help="0-100_age_rgs, age regression loss options, regression")
 
 # working machine environment
-parser.add_argument('--working_machine', type=str, default="thinkstation", help="[thinkstation, Narvi]")
+parser.add_argument('--working_machine', type=str, default="Narvi", help="[thinkstation, Narvi]")
 
 # [1, 1, 1, 1] => [100_classes, 20_classes, 10_classes, 5_classes]
 parser.add_argument('--age_classification_combination', type=list, default=[1, 1, 1, 1],

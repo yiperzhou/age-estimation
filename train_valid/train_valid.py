@@ -44,7 +44,7 @@ def train_valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
     age_mae_rgs_epoch_loss = average_meter()
     age_epoch_loss = average_meter()
     age_epoch_mae = average_meter()
-    total_loss = average_meter()
+    total_loss_scalar = average_meter()
     if pharse == "train":
         model.train()
     elif pharse == "valid":
@@ -99,22 +99,29 @@ def train_valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
             age_loss_cls = age_loss_cls_100_classes + age_loss_cls_20_classes + age_loss_cls_10_classes + age_loss_cls_5_classes
         else:
             raise ValueError
+
         age_cls_epoch_loss.update(age_loss_cls.item(), 1)
         age_mae_rgs_epoch_loss.update(age_loss_rgs_mse.item(), 1)
 
         total_loss = age_loss_cls + age_loss_rgs_mse
-        total_loss.update(total_loss.item(), 1)
+        total_loss_scalar.update(total_loss.item(), 1)
 
         if pharse == "train":
             total_loss.backward()
             optimizer.step()
         elif pharse == "valid":
-            # print("valid pharse")
+            # use emsemble technique to calculate age error, use the mean value of the 100-classes classification and regression
+            age_diff_mean = torch.mean(torch.stack([age_loss_cls_100_classes, age_loss_rgs_mse]))
+
+            print("age diff mean: ", age_diff_mean)
+            age_epoch_mae.update(age_diff_mean.item(), 1)
+
             continue
         else:
             print("pharse should be in [train, valid]")
             NotImplementedError
-    losses = [total_loss.avg, age_cls_epoch_loss.avg, age_mae_rgs_epoch_loss.avg]
+
+    losses = [total_loss_scalar.avg, age_cls_epoch_loss.avg, age_mae_rgs_epoch_loss.avg]
     LOG("[" + pharse +"] [Loss  ], [total, cls, mse ]: " + str(losses), logFile)
     LOG("[" + pharse +"] , MAE                  : " + str(age_epoch_mae.avg), logFile)
     try:
