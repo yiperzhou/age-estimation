@@ -82,9 +82,12 @@ def train_valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
             print("age_divide_100_classes, age_divide_20_classes, age_divide_10_classes, age_divide_5_classes")
             ValueError
 
-        print("age pred rgs: ", age_pred_rgs)
-        print("age label   : ", age_label)
+        # print("age_pred_rgs.size(): ", age_pred_rgs.size())
+        # print("age_label.size()   : ", age_label.size())
         # age mse regrssion loss
+
+        # print("age_pred_rgs: ", age_pred_rgs)
+
         age_loss_rgs_mse = age_mse_criterion(age_pred_rgs, age_label)
 
         # age_epoch_mae.update(age_loss_rgs_l1.item(), 1)
@@ -103,6 +106,9 @@ def train_valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
 
         age_cls_epoch_loss.update(age_loss_cls.item(), 1)
         age_mae_rgs_epoch_loss.update(age_loss_rgs_mse.item(), 1)
+
+        # print("age_loss_cls    : ", age_loss_cls.item())
+        # print("age loss rgs mse: ", age_loss_rgs_mse.item())
 
         total_loss = age_loss_cls + age_loss_rgs_mse
         total_loss_scalar.update(total_loss.item(), 1)

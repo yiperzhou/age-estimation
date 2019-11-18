@@ -9,7 +9,8 @@ class RegressionAndClassificationVGG16bn(torch.nn.Module):
         self.features_length = 25088
         self.use_gpu = torch.cuda.is_available()
         self.args = args
-        self.age_divide_100_classes, self.age_divide_20_classes, self.age_divide_10_classes, self.age_divide_5_classes = self.get_age_cls_class()
+        self.age_divide_100_classes, self.age_divide_20_classes, \
+        self.age_divide_10_classes, self.age_divide_5_classes = self.get_age_cls_class()
         self.age_clf_100_classes = nn.Sequential(
             nn.Linear(self.features_length, 256),
             nn.ReLU(inplace=True),

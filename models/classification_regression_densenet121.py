@@ -75,6 +75,7 @@ class RegressionAndClassificationDenseNet121(torch.nn.Module):
         x = self.densenet121_features(x)
         x = x.view(x.size(0), -1)
         age_pred_100_classes, age_pred_20_classes, age_pred_10_classes, age_pred_5_classes = None, None, None, None
+
         if self.age_divide_100_classes == True:
             age_pred_100_classes = self.age_clf_100_classes(x)
         if self.age_divide_20_classes == True:
