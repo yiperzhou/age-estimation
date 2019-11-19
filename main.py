@@ -1,7 +1,7 @@
 import datetime
 import os
 
-import pandas as pd
+# import pandas as pd
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -74,7 +74,7 @@ def main(**kwargs):
                'train_total_loss', 'train_age_cls_loss', 'train_age_l1_mae_loss',
                'val_total_loss', 'val_age_cls_loss', 'val_age_l1_mae_loss']
 
-    csv_checkpoint = pd.DataFrame(data=[], columns=columns)
+    # csv_checkpoint = pd.DataFrame(data=[], columns=columns)
 
     for epoch in range(0, args.epoch):
 

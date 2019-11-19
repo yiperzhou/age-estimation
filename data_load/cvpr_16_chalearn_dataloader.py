@@ -81,14 +81,14 @@ def get_cvpr_age_data(args, show_sample=False):
     if args.working_machine == "thinkstation":
         # tut thinkstation
 
-        age_train_dataset = CVPR_AGE_load_dataset("/home/yi/Narvi_MLG/AGE_ESTIMATION/CVPR_AGE_5_points/TRAIN/", transform)
-        age_test_dataset = CVPR_AGE_load_dataset("/home/yi/Narvi_MLG/AGE_ESTIMATION/CVPR_AGE_5_points/VALID/", transform)
+        age_train_dataset = CVPR_AGE_load_dataset("/home/yi/Narvi_MLG/yizhou/AGE_ESTIMATION/CVPR_AGE_5_points/TRAIN/", transform)
+        age_test_dataset = CVPR_AGE_load_dataset("/home/yi/Narvi_MLG/yizhou/AGE_ESTIMATION/CVPR_AGE_5_points/VALID/", transform)
         # age train set images: 3707; test image: 1356
 
     elif args.working_machine == "Narvi":
         # Narvi
-        age_train_dataset = CVPR_AGE_load_dataset("/sgn-data/MLG/AGE_ESTIMATION/CVPR_AGE_5_points/TRAIN/", transform)
-        age_test_dataset = CVPR_AGE_load_dataset("/sgn-data/MLG/AGE_ESTIMATION/CVPR_AGE_5_points/VALID/", transform)
+        age_train_dataset = CVPR_AGE_load_dataset("/sgn-data/MLG/yizhou/AGE_ESTIMATION/CVPR_AGE_5_points/TRAIN/", transform)
+        age_test_dataset = CVPR_AGE_load_dataset("/sgn-data/MLG/yizhou/AGE_ESTIMATION/CVPR_AGE_5_points/VALID/", transform)
         # age train set images: 3707; test image: 1356
 
     else:
