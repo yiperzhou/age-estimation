@@ -2,7 +2,7 @@
 
 <!-- TOC -->
 
-- [Age Estimation](#age-estimation)
+- [age_estimation](#ageestimation)
   - [Git Network graph](#git-network-graph)
   - [datasets](#datasets)
   - [face detection and alignment](#face-detection-and-alignment)
@@ -20,9 +20,10 @@
 
 ```sh
 age-estimation
-        |----------- label_smoothing  
         |----------- classification_combination 
         |----------- regression_combination  
+        |----------- regression_classification_combination
+        |----------- label_smoothing  
 ```
 
 - [manuscript in Overleaf](https://www.overleaf.com/project/5d2310338e2b2d7e89e37358)
@@ -50,18 +51,14 @@ age-estimation
  [2D and 3D Face alignment library build using pytorch](https://github.com/1adrianb/face-alignment)
  
 ## experiments
+   
+1. **classification_combination** branch experimental result, same, **classification_combination** page
+2. **regression_combination** branch experimental result, same, **regression_combination** page
+3. **regression_classification_combination** branch  
+4. **label_smoothing** branch experimental result  
 
-1. **label_smoothing** branch experimental result
-  
-   [TUNI Onedrive, excel table, label_smoothing page](https://tuni-my.sharepoint.com/:x:/r/personal/yi_zhou_tuni_fi/_layouts/15/Doc.aspx?sourcedoc=%7B0FAA15DB-6F0E-4794-8F72-F58B4E6E970A%7D&file=experimental%20result%20of%20the%20combination%20on%20different%20classification%20losses.xlsx&action=default&mobileredirect=true)
-   
-2. **classification_combination** branch experimental result
-  
-   same, **classification_combination** page
-   
-3. **regression_combination** branch experimental result
-  
-  same, **regression_combination** page
+[TUNI Onedrive, excel table, label_smoothing page](https://tuni-my.sharepoint.com/:x:/r/personal/yi_zhou_tuni_fi/_layouts/15/Doc.aspx?sourcedoc=%7B0FAA15DB-6F0E-4794-8F72-F58B4E6E970A%7D&file=experimental%20result%20of%20the%20combination%20on%20different%20classification%20losses.xlsx&action=default&mobileredirect=true)
+
 
 ### environment
 
@@ -79,17 +76,15 @@ $ python main.py
 ### the STOA on age estimation
 
 - from the [BridgeNet](https://arxiv.org/abs/1904.03358) paper
-- ![Example](related_materials/state-of-the-art-result-age-estimation-on-chalearn-2016.png)
 
 ## references
 
 1. the current state of the art approach, 
    1. [Li, W., Lu, J., Feng, J., Xu, C., Zhou, J., & Tian, Q. (2019). BridgeNet: A Continuity-Aware Probabilistic Network for Age Estimation. ArXiv, abs/1904.03358](https://arxiv.org/abs/1904.03358), [CVPR 2019](http://cvpr2019.thecvf.com/)
 2. the demo paper for instrucing the writing process
-   1. [SAF- BAGE: Salient Approach for Facial Soft-Biometric Classification - Age, Gender, and Facial Expression](https://arxiv.org/abs/1803.05719)
-   2. [WACV 2019](https://wacv19.wacv.net).
+   1. [SAF- BAGE: Salient Approach for Facial Soft-Biometric Classification - Age, Gender, and Facial Expression](https://arxiv.org/abs/1803.05719)  
+   2. [WACV 2019](https://wacv19.wacv.net).  
 3. the similar idea from the head pose estimation, 
-   1. [Fine-Grained Head Pose Estimation Without Keypoints](https://arxiv.org/abs/1710.00925)
-   2. [GitHub repository](https://github.com/natanielruiz/deep-head-pose)
-   3. [Computer Vision and Pattern Recognition Workshops (CVPRW) 2018](http://cvpr2018.thecvf.com/program/workshops)
-4. [Python 风格指南 - 内容目录](https://zh-google-styleguide.readthedocs.io/en/latest/google-python-styleguide/contents/)
+   1. [Fine-Grained Head Pose Estimation Without Keypoints](https://arxiv.org/abs/1710.00925)  
+   2. [GitHub repository](https://github.com/natanielruiz/deep-head-pose)  
+   3. [Computer Vision and Pattern Recognition Workshops (CVPRW) 2018](http://cvpr2018.thecvf.com/program/workshops)  
