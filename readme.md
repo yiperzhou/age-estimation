@@ -2,7 +2,8 @@
 
 <!-- TOC -->
 
-- [Age Estimation - `regression_classification_combination` branch](#age-estimation---regression_classification_combination-branch)
+- [Age Estimation - `regression_classification_combination` branch](#age-estimation---regressionclassificationcombination-branch)
+    - [results](#results)
   - [Git Network graph](#git-network-graph)
   - [datasets](#datasets)
   - [face detection and alignment](#face-detection-and-alignment)
@@ -10,7 +11,6 @@
     - [face alignment](#face-alignment)
   - [experiments](#experiments)
     - [environment](#environment)
-    - [the STOA on age estimation](#the-stoa-on-age-estimation)
   - [references](#references)
 
 <!-- /TOC -->
@@ -93,4 +93,3 @@ $ python main.py
    1. [Fine-Grained Head Pose Estimation Without Keypoints](https://arxiv.org/abs/1710.00925)
    2. [GitHub repository](https://github.com/natanielruiz/deep-head-pose)
    3. [Computer Vision and Pattern Recognition Workshops (CVPRW) 2018](http://cvpr2018.thecvf.com/program/workshops)
-4. [Python 风格指南 - 内容目录](https://zh-google-styleguide.readthedocs.io/en/latest/google-python-styleguide/contents/)
