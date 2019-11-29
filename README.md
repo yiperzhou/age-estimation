@@ -21,7 +21,6 @@
 ```sh
 age-estimation
         |----------- classification_combination 
-        |----------- regression_combination  
         |----------- regression_classification_combination
         |----------- label_smoothing  
 ```
@@ -53,9 +52,8 @@ age-estimation
 ## experiments
    
 1. **classification_combination** branch experimental result, same, **classification_combination** page
-2. **regression_combination** branch experimental result, same, **regression_combination** page
-3. **regression_classification_combination** branch  
-4. **label_smoothing** branch experimental result  
+2. **regression_classification_combination** branch  
+3. **label_smoothing** branch experimental result  
 
 [TUNI Onedrive, excel table, label_smoothing page](https://tuni-my.sharepoint.com/:x:/r/personal/yi_zhou_tuni_fi/_layouts/15/Doc.aspx?sourcedoc=%7B0FAA15DB-6F0E-4794-8F72-F58B4E6E970A%7D&file=experimental%20result%20of%20the%20combination%20on%20different%20classification%20losses.xlsx&action=default&mobileredirect=true)
 
@@ -75,7 +73,7 @@ $ python main.py
 
 ### the STOA on age estimation
 
-- from the [BridgeNet](https://arxiv.org/abs/1904.03358) paper
+- from the [BridgeNet](https://arxiv.org/abs/1904.03358)
 
 ## references
 
