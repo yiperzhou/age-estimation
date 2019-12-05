@@ -8,6 +8,7 @@
   - [face detection and alignment](#face-detection-and-alignment)
     - [face detection](#face-detection)
     - [face alignment](#face-alignment)
+  - [model](#model)
   - [experiments](#experiments)
     - [environment](#environment)
     - [the STOA on age estimation](#the-stoa-on-age-estimation)
@@ -31,8 +32,8 @@ age-estimation
 ## datasets
 
 1. [cleaned ChaLEARN CVPR 2016](http://chalearnlap.cvc.uab.es/dataset/19/description/) 
-2. [IMDB-WIKI – 500k+ face images with age and gender labels](https://data.vision.ee.ethz.ch/cvl/rrothe/imdb-wiki/)
-3. [AgeDB: the first manually collected, in-the-wild age database](https://ibug.doc.ic.ac.uk/resources/agedb/)
+<!-- 2. [IMDB-WIKI – 500k+ face images with age and gender labels](https://data.vision.ee.ethz.ch/cvl/rrothe/imdb-wiki/) -->
+- [ ] [AgeDB: the first manually collected, in-the-wild age database](https://ibug.doc.ic.ac.uk/resources/agedb/)
 
 
 ## face detection and alignment
@@ -49,8 +50,13 @@ age-estimation
 - other related resource
  [2D and 3D Face alignment library build using pytorch](https://github.com/1adrianb/face-alignment)
  
+
+## model
+ 
+ 
 ## experiments
-   
+
+
 1. **classification_combination** branch experimental result, same, **classification_combination** page
 2. **regression_classification_combination** branch  
 3. **label_smoothing** branch experimental result  
