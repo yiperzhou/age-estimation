@@ -11,7 +11,7 @@ def LOG(message, log_file):
     print(msg)
 
 
-def log_variables_to_board(epoch_losses, losses, losses_name, phrase, folder, epoch, logFile, writer):
+def log_variables_to_board(epoch_losses, losses, losses_name, phrase, folder, epoch, log_file, writer):
     # global writer
     # LOG(phrase + " epoch    " + str(epoch+1) + ":", log_file)
     for e_loss, l, l_n in zip(epoch_losses, losses, losses_name):
@@ -20,18 +20,15 @@ def log_variables_to_board(epoch_losses, losses, losses_name, phrase, folder, ep
         # LOG("          " + l_n + ": "+ str(l), log_file)
 
     # LOG("\n", log_file)
-    
+
 
 def save_csv_logging(csv_checkpoint, epoch, lr, losses, val_losses, total_loss, total_val_loss, csv_path, log_file):
-    '''
-
-    '''
     try:
-        csv_checkpoint.loc[len(csv_checkpoint)] = [str(datetime.datetime.now()), epoch, lr, 
-                                                    losses[0], losses[1], losses[2],
-                                                    val_losses[0], val_losses[1], val_losses[2],
-                                                    val_losses[0], val_losses[1], val_losses[2],
-                                                    total_loss, total_val_loss]
+        csv_checkpoint.loc[len(csv_checkpoint)] = [str(datetime.datetime.now()), epoch, lr,
+                                                   losses[0], losses[1], losses[2],
+                                                   val_losses[0], val_losses[1], val_losses[2],
+                                                   val_losses[0], val_losses[1], val_losses[2],
+                                                   total_loss, total_val_loss]
         csv_checkpoint.to_csv(csv_path, index=False)
 
     except:
