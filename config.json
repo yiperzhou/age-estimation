@@ -1,0 +1,62 @@
+{
+    "name": "Mnist_LeNet",
+    "loading_jobs": 4,
+    "num_workers": 4,
+    "weight_decay": 1e-6,
+    "dataset": "CVPR_16_ChaLearn",
+    "model": "RegressionAndClassificationDenseNet121",
+
+    "arch": {
+        "type": "MnistModel",
+        "args": {}
+    },
+    "data_loader": {
+        "type": "MnistDataLoader",
+        "args":{
+            "data_dir": "data/",
+            "batch_size": 128,
+            "shuffle": true,
+            "validation_split": 0.1,
+            "num_workers": 2
+        }
+    },
+    "optimizer": {
+        "type": "Adam",
+        "args":{
+            "lr": 0.001,
+            "weight_decay": 0,
+            "amsgrad": true
+        }
+    },
+    "loss": {
+        "age_divide_100_classes": "True",
+        "age_divide_20_classes": "True",
+        "age_divide_10_classes": "True",
+        "age_divide_5_classes": "True",
+        "mse_regression_loss": "True"
+    },
+    "working_machine": "thinkstation",
+    "age_classification_combination": "[1, 1, 1, 1]",
+    "metrics": [
+        "accuracy", "top_k_acc"
+    ],
+    "lr_scheduler": {
+        "type": "StepLR",
+        "args": {
+            "step_size": 50,
+            "gamma": 0.1
+        }
+    },
+    "trainer": {
+        "epochs": 100,
+
+        "save_dir": "saved/",
+        "save_period": 1,
+        "verbosity": 2,
+        
+        "monitor": "min val_loss",
+        "early_stop": 10,
+
+        "tensorboard": true
+    }
+}
