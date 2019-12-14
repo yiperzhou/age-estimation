@@ -26,8 +26,6 @@ age-estimation
         |----------- label_smoothing  
 ```
 
-- [manuscript in Overleaf](https://www.overleaf.com/project/5d2310338e2b2d7e89e37358)
-
 
 ## datasets
 
@@ -57,19 +55,16 @@ age-estimation
 ## experiments
 
 
-1. **classification_combination** branch experimental result, same, **classification_combination** page
+1. **classification_combination** branch experimental result, same, **classification_combination** page  
 2. **regression_classification_combination** branch  
 3. **label_smoothing** branch experimental result  
 
-[TUNI Onedrive, excel table, label_smoothing page](https://tuni-my.sharepoint.com/:x:/r/personal/yi_zhou_tuni_fi/_layouts/15/Doc.aspx?sourcedoc=%7B0FAA15DB-6F0E-4794-8F72-F58B4E6E970A%7D&file=experimental%20result%20of%20the%20combination%20on%20different%20classification%20losses.xlsx&action=default&mobileredirect=true)
+
 
 
 ### environment
 
-- ThinkStation
   - virtual environment: `pytorch`
-- Narvi
-  - virtual environment: `dl`
 
 ```sh
 # run experiments for the age estimation
