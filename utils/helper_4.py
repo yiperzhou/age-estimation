@@ -14,6 +14,7 @@ CHALEARN2016_LABEL_NAMES = [
     'age_91', 'age_92', 'age_93', 'age_94', 'age_95', 'age_96', 'age_97', 'age_98', 'age_99', 'age_100'
 ]
 
+
 def plot_images(images, cls_true, name):
     assert len(images) == len(cls_true) == 36
     # Create figure with sub-plots.
@@ -44,6 +45,7 @@ def convert_tensor_to_image(img_tensor, labels):
     X = np.transpose(X, [0, 2, 3, 1])
     plot_images(X, labels, "convert_tensor_to_image")
     return 0
+
 
 def convert_to_onehot_tensor(y, nb_digits):
     # y = [1,2,3,4]

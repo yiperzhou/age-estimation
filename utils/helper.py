@@ -17,8 +17,6 @@ def save_checkpoint(state, savedir):
 
 def load_model_weights(initial_model, checkpoint_path):
     checkpoint = torch.load(checkpoint_path)
-    state_dict = checkpoint["state_dict"]
-
 
     initial_model.load_state_dict(state_dict, strict=True)
     # for k, v in initial_model.parameters():
@@ -35,7 +33,6 @@ def indexes_to_one_hot(indexes, n_dims=None):
     # one_hots = one_hots.view(*indexes.shape, -1)
     # print(one_hots)
     return one_hots
-
 
 
 

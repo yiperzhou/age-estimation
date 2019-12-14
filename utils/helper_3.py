@@ -2,8 +2,9 @@ import numpy as np
 import torch
 
 
-class average_meter(object):
+class AverageMeter(object):
     """Computes and stores the average and current value"""
+
     def __init__(self):
         self.reset()
 
@@ -20,6 +21,33 @@ class average_meter(object):
         self.avg = self.sum / self.count
 
 
+def accuracy(output, target, topk=(1,)):
+    """Computes the precision@k for the specified values of k"""
+    maxk = max(topk)
+    batch_size = target.size(0)
+
+    try:
+        target = target.type(torch.cuda.LongTensor)
+
+    except ValueError as identifier:
+        try:
+            target = target.type(torch.LongTensor)
+        except ValueError as verr:
+            pass
+
+    # print("target: ", target)
+
+    _, pred = output.topk(maxk, 1, True, True)
+    pred = pred.t()
+    correct = pred.eq(target.view(1, -1).expand_as(pred))
+
+    res = []
+    for k in topk:
+        correct_k = correct[:k].view(-1).float().sum(0)
+        res.append(correct_k.mul_(100.0 / batch_size))
+    return res
+
+
 def calculate_age_loss(age_criterion, age_out, age_label):
     # age_label format is: [0,7,6,2] with batch_size = 4
     _, pred_age = torch.max(age_out, 1)
@@ -31,9 +59,8 @@ def calculate_age_loss(age_criterion, age_out, age_label):
     pred_ages = torch.FloatTensor(pred_ages)
     pred_ages = pred_ages.cuda()
 
-
     age_label = age_label.cuda()
-    age_label = np.reshape(age_label, (len(age_label),1))
+    age_label = np.reshape(age_label, (len(age_label), 1))
     age_label = age_label.type(torch.cuda.FloatTensor)
     age_label = torch.autograd.Variable(age_label)
 
@@ -43,7 +70,6 @@ def calculate_age_loss(age_criterion, age_out, age_label):
     age_loss = age_criterion(pred_ages, age_label)
 
     return age_loss
-
 
 
 def set_lr(optimizer, lr):
