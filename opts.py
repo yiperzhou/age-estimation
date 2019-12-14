@@ -12,12 +12,15 @@ parser.add_argument('--weight_decay', type=float, default=1e-6)
 
 parser.add_argument('--dataset', type=str, default="CVPR_16_ChaLearn", help="CVPR_16_ChaLearn")
 parser.add_argument('--model', type=str, default="MultiClassificationAlexNet",
-                    help="[MultiClassificationAlexNet, MultiClassificationMobileNetv1,MultiClassificationVGG16bn, MultiClassificationDenseNet121, MultiClassificationInceptionv3]")
+                    help="[MultiClassificationAlexNet, MultiClassificationMobileNetv1, "
+                         "MultiClassificationVGG16bn, MultiClassificationDenseNet121, "
+                         "MultiClassificationInceptionv3]")
 parser.add_argument('--lr_rate', type=float, default=0.00001, help='learning rate (default: 0.001)')
 
 # neural network hyperparamter
 parser.add_argument('--lr_schedule', type=float, default=8, help='learning rate schedule')
-parser.add_argument('--batch_size', type=int, default=32, metavar='N', help='input batch size for training (default: 32)')
+parser.add_argument('--batch_size', type=int, default=32, metavar='N', help='input batch size for training (default: '
+                                                                            '32)')
 
 parser.add_argument('--epoch', type=int, help="epoch number, default 1", default=60)
 
