@@ -4,28 +4,26 @@ project, multiple loss on age estimationn
 
 ## to do  
 
+- [ ] complete the AlexNet model, multiple granularity classification and regression loss together
 - [ ] finish the wrting *label distribution learning*  
 
 ## resource list  
 
 1. [overleaf link](https://www.overleaf.com/3118672724ytkrnhkxrfyr)  
-2. [source code, github link](https://github.com/yipersevere/age-estimation)  
 
 
-## folder function explaination  
+## resource list  
+
+1. [overleaf link](https://www.overleaf.com/3118672724ytkrnhkxrfyr)  
+2. [project materials in Dropbox]()
+
+##＃ folder function explaination  
 
 | folder                | description                  |
 | --------------------- | ---------------------------- |
 | ```result_analysis``` | experimental result analysis |
 | ```materials```       |                              |
 | ```other```           |                              |
-
-## resource list  
-
-1. [overleaf link](https://www.overleaf.com/3118672724ytkrnhkxrfyr)  
-2. [source code, github link](https://github.com/yipersevere/age-estimation)  
-3. [project materials in Dropbox]()
-
 
 ## idea 
 
