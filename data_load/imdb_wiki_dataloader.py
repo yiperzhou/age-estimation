@@ -7,9 +7,12 @@ from skimage import io
 from torch.utils.data import Dataset
 from torchvision import transforms
 
-# IMDB_WIKI dataset has 101 age classes. However, the last two classes are treated as one class. Therefore, AGE_CLS_UNIT = 100, instead of 101
+# IMDB_WIKI dataset has 101 age classes. However, the last two classes are treated as one class.
+# Therefore, AGE_CLS_UNIT = 100, instead of 101
 AGE_CLS_UNIT = 100
 AGE_CLS_UNIT_FG_NET = 70
+PROCESSED_IMDB_WIKI_DATASET_NARVI = "/home/zhouy/projects/Age-Gender-Pred/pics/"
+PROCESSED_IMDB_WIKI_DATASET_THINKSTATION = "/media/yi/harddrive/codes/Age-Gender-Pred/pics/"
 
 # distribution of IMDB-WIKi dataset I: IMDB-Wiki, sum(imdb_distr) = 393405, len(imdb_distr) = 10,000
 imdb_distr = [25, 63, 145, 54, 46, 113, 168, 232, 455, 556,
@@ -29,7 +32,8 @@ imdb_distr = [25, 63, 145, 54, 46, 113, 168, 232, 455, 556,
 def load_FGNet_data():
     # fg_net_data_path = ""
 
-    # distribution of test dataset: FG-NET, len(fg_distr) = 70, sum(fg_distr) = 376, check the excel table for data visualization
+    # distribution of test dataset: FG-NET, len(fg_distr) = 70,
+    # sum(fg_distr) = 376, check the excel table for data visualization
     fg_distr = [10, 10, 10, 10, 10, 10, 10, 10, 10, 9, 10, 10, 10, 10, 10, 10, 10, 10, 10,
                 9, 8, 8, 9, 9, 5, 7, 6, 6, 7, 6, 9, 5, 4, 6, 5, 7, 6, 3, 3, 5, 5, 4, 4, 2,
                 3, 5, 2, 2, 2, 3, 2, 3, 3, 2, 2, 2, 0, 0, 1, 0, 1, 3, 1, 1, 0, 0, 0, 1, 0, 0]
@@ -230,13 +234,14 @@ def image_transformer():
 
 def load_IMDB_WIKI_dataset(args):
     if args.working_machine == "thinkstation":
-        processed_imdb_wiki_dataset = "/media/yi/harddrive/codes/Age-Gender-Pred/pics/"
+        processed_imdb_wiki_dataset = PROCESSED_IMDB_WIKI_DATASET_THINKSTATION
 
         # imdb_crop_path = "/media/yi/harddrive/data/IMDB_only_face/imdb_crop"
         # wiki_crop_path = "/media/yi/harddrive/data/WIKI_only_face/wiki_crop"
 
     elif args.working_machine == "Narvi":
-        processed_imdb_wiki_dataset = "/home/zhouy/projects/Age-Gender-Pred/pics/"
+        processed_imdb_wiki_dataset = PROCESSED_IMDB_WIKI_DATASET_NARVI
+
 
     else:
         print("working machine should be  [thinkstation, Narvi]")
