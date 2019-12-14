@@ -2,8 +2,9 @@ import numpy as np
 import torch
 
 
-class average_meter(object):
+class AverageMeter(object):
     """Computes and stores the average and current value"""
+
     def __init__(self):
         self.reset()
 
@@ -58,9 +59,8 @@ def calculate_age_loss(age_criterion, age_out, age_label):
     pred_ages = torch.FloatTensor(pred_ages)
     pred_ages = pred_ages.cuda()
 
-
     age_label = age_label.cuda()
-    age_label = np.reshape(age_label, (len(age_label),1))
+    age_label = np.reshape(age_label, (len(age_label), 1))
     age_label = age_label.type(torch.cuda.FloatTensor)
     age_label = torch.autograd.Variable(age_label)
 
@@ -70,7 +70,6 @@ def calculate_age_loss(age_criterion, age_out, age_label):
     age_loss = age_criterion(pred_ages, age_label)
 
     return age_loss
-
 
 
 def set_lr(optimizer, lr):

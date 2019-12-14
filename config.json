@@ -59,4 +59,16 @@
 
         "tensorboard": true
     }
+    "data_loader": {
+        "type": "CVPR16ChaLearnDataLoader",
+        "args":{
+            "data_dir": "data/",
+            "batch_size": 128,
+            "shuffle": true,
+            "validation_split": 0.1,
+            "num_workers": 2
+        }
+    },
+
+
 }

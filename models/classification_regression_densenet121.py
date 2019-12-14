@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 from torchvision import models
 
+
 class RegressionAndClassificationDenseNet121(torch.nn.Module):
     def __init__(self, args):
         super(RegressionAndClassificationDenseNet121, self).__init__()
@@ -37,7 +38,7 @@ class RegressionAndClassificationDenseNet121(torch.nn.Module):
             nn.Linear(self.features_length, 256),
             nn.ReLU(inplace=True),
             nn.Dropout(p=0.5, inplace=False),
-            nn.Linear(256, 1)   # output layer, output one neurons, to do regression.
+            nn.Linear(256, 1)  # output layer, output one neurons, to do regression.
         )
 
     def get_age_cls_class(self):
@@ -88,4 +89,3 @@ class RegressionAndClassificationDenseNet121(torch.nn.Module):
             age_regression = self.age_regression(x)
 
         return [age_pred_100_classes, age_pred_20_classes, age_pred_10_classes, age_pred_5_classes], age_regression
-

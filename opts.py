@@ -13,7 +13,8 @@ parser.add_argument('--weight_decay', type=float, default=1e-6)
 parser.add_argument('--dataset', type=str, default="CVPR_16_ChaLearn", help="CVPR_16_ChaLearn")
 
 parser.add_argument('--model', type=str, default="RegressionAndClassificationDenseNet121",
-                    help="[RegressionAndClassificationVGG16bn, RegressionAndClassificationResNet50. RegressionAndClassificationDenseNet121, RegressionAndClassificationAlexNet]")
+                    help="[RegressionAndClassificationVGG16bn, RegressionAndClassificationResNet50. "
+                         "RegressionAndClassificationDenseNet121, RegressionAndClassificationAlexNet]")
 
 parser.add_argument('--lr_rate', type=float, default=0.00001, help='learning rate (default: 0.001)')
 

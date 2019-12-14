@@ -8,7 +8,8 @@ regression_and_classification_resnet50_model = "RegressionAndClassificationResNe
 regression_and_classification_densenet121_model = "RegressionAndClassificationDenseNet121"
 regression_and_classification_alexnet_model = "RegressionAndClassificationAlexNet"
 
-def get_model(args, logFile):
+
+def get_model(args, log_file):
 
     if args.model == regression_and_classification_resnet50_model:
         model = RegressionAndClassificationResNet50(args)

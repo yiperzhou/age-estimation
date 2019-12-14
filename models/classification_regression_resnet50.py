@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 from torchvision import models
 
+
 class RegressionAndClassificationResNet50(torch.nn.Module):
     def __init__(self, args):
         super(RegressionAndClassificationResNet50, self).__init__()
@@ -49,7 +50,7 @@ class RegressionAndClassificationResNet50(torch.nn.Module):
             nn.Linear(self.features_length, 256),
             nn.ReLU(inplace=True),
             nn.Dropout(p=0.5, inplace=False),
-            nn.Linear(256, 1)        # output layer
+            nn.Linear(256, 1)  # output layer
         )
 
     def get_age_cls_class(self):

@@ -1,6 +1,7 @@
 import torch.nn as nn
 from torchvision import models
 
+
 class RegressionAndClassificationAlexNet(nn.Module):
     def __init__(self, args):
         super(RegressionAndClassificationAlexNet, self).__init__()
@@ -8,7 +9,7 @@ class RegressionAndClassificationAlexNet(nn.Module):
         self.features_length = 9216
         self.args = args
         self.age_divide_100_classes, self.age_divide_20_classes, \
-        self.age_divide_10_classes, self.age_divide_5_classes = self.get_age_cls_class()
+            self.age_divide_10_classes, self.age_divide_5_classes = self.get_age_cls_class()
         self.age_clf_100_classes = nn.Sequential(
             nn.Linear(self.features_length, 256),
             nn.ReLU(inplace=True),
@@ -37,7 +38,7 @@ class RegressionAndClassificationAlexNet(nn.Module):
             nn.Linear(self.features_length, 256),
             nn.ReLU(inplace=True),
             nn.Dropout(p=0.5, inplace=False),
-            nn.Linear(256, 1)        # output layer
+            nn.Linear(256, 1)  # output layer
         )
 
     def get_age_cls_class(self):
@@ -88,7 +89,6 @@ class RegressionAndClassificationAlexNet(nn.Module):
 
         return [age_pred_100_classes, age_pred_20_classes, age_pred_10_classes, age_pred_5_classes], age_regression
 
+
 if __name__ == "__main__":
-
     print("done")
-

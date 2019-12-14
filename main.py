@@ -12,11 +12,18 @@ from train_valid.train_valid import train_valid
 from utils.helper import save_checkpoint
 from utils.helper_2 import log_variables_to_board, LOG
 from utils.utils_1 import get_model
-
+from parse_config import ConfigParser
 from opts import args
 
-def parse_args(args):
+ENTER_TRAIN_PHRASE = "...enter train phrase..."
+ENTER_VALID_PHRASE = "...enter valid phrase..."
+TRAIN = "train"
+VALID = "valid"
 
+global writer
+global logFile
+
+def parse_args(args):
     folder_sub_name = "_" + args.model + "_" + "mse_regression_classification_loss"
     return folder_sub_name
 
@@ -38,17 +45,14 @@ def main(**kwargs):
     tensorboard_folder = os.path.join(path, "Graph")
     os.makedirs(path)
     print("path: ", path)
-
-    global logFile
     logFile = path + os.sep + "log.txt"
     LOG(args, logFile)
-
-    global writer
     writer = SummaryWriter(tensorboard_folder)
     age_train_loader, age_test_loader = get_cvpr_age_data(args)
     model = get_model(args, logFile)
 
-    optimizer = optim.SGD(filter(lambda p: p.requires_grad, model.parameters()), momentum=0.9, lr=args.lr_rate, weight_decay=args.weight_decay)
+    optimizer = optim.SGD(filter(lambda p: p.requires_grad, model.parameters()), momentum=0.9,
+                          lr=args.lr_rate, weight_decay=args.weight_decay)
 
     age_cls_criterion = nn.CrossEntropyLoss()
     age_regression_criterion = nn.MSELoss()  # this is for age regression loss - mean squared error
@@ -69,23 +73,25 @@ def main(**kwargs):
 
     for epoch in range(0, args.epoch):
 
-        print("...enter train phrase...")
+        print(ENTER_TRAIN_PHRASE)
 
-        train_losses, lr, model = train_valid(model, [age_train_loader], [age_cls_criterion, age_regression_criterion], optimizer, epoch, logFile, args, "train")
+        train_losses, lr, model = train_valid(model, [age_train_loader], [age_cls_criterion, age_regression_criterion],
+                                              optimizer, epoch, logFile, args, TRAIN)
 
         # log_variables_to_board([epochs_train_age_rgs_l1_loss],
         #                         train_losses,
         #                         'train_age_mae_loss',
-        #                         "Train", tensorboard_folder, epoch, logFile, writer)
+        #                         "Train", tensorboard_folder, epoch, log_file, writer)
 
-        print("...enter valid phrase...")
-        val_losses, lr, model = train_valid(model,[age_test_loader], [age_cls_criterion, age_regression_criterion], optimizer, epoch, logFile, args, "valid")
+        print(ENTER_VALID_PHRASE)
+        val_losses, lr, model = train_valid(model, [age_test_loader], [age_cls_criterion, age_regression_criterion],
+                                            optimizer, epoch, logFile, args, VALID)
 
         # log_variables_to_board([epochs_valid_age_rgs_l1_loss],
         #                         val_losses,
         #                         ['val_age_mae_loss'],
         #                         ['val_total_loss', 'val_age_cls_loss', 'val_age_l1_mae_loss'],
-        #                         "Valid", tensorboard_folder, epoch, logFile, writer)
+        #                         "Valid", tensorboard_folder, epoch, log_file, writer)
 
         LOG("\n", logFile)
 
@@ -114,4 +120,6 @@ def main(**kwargs):
 
 
 if __name__ == "__main__":
+    config = ConfigParser.from_args(args, options)
+
     main()

@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 from torchvision import models
 
+
 class RegressionAndClassificationVGG16bn(torch.nn.Module):
     def __init__(self, args):
         super(RegressionAndClassificationVGG16bn, self).__init__()
@@ -10,7 +11,7 @@ class RegressionAndClassificationVGG16bn(torch.nn.Module):
         self.use_gpu = torch.cuda.is_available()
         self.args = args
         self.age_divide_100_classes, self.age_divide_20_classes, \
-        self.age_divide_10_classes, self.age_divide_5_classes = self.get_age_cls_class()
+            self.age_divide_10_classes, self.age_divide_5_classes = self.get_age_cls_class()
         self.age_clf_100_classes = nn.Sequential(
             nn.Linear(self.features_length, 256),
             nn.ReLU(inplace=True),
@@ -39,7 +40,7 @@ class RegressionAndClassificationVGG16bn(torch.nn.Module):
             nn.Linear(self.features_length, 256),
             nn.ReLU(inplace=True),
             nn.Dropout(p=0.5, inplace=False),
-            nn.Linear(256, 1)   # output layer, output one neurons, to do regression.
+            nn.Linear(256, 1)  # output layer, output one neurons, to do regression.
         )
 
     def get_age_cls_class(self):
