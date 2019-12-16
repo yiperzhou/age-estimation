@@ -1,7 +1,7 @@
 import datetime
 import os
+from sacred import Experiment
 
-import pandas as pd
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -10,10 +10,11 @@ from tensorboardX import SummaryWriter
 from data_load.cvpr_16_chalearn_dataloader import get_cvpr_age_data
 from train_valid.train_valid import train_valid
 from utils.helper import save_checkpoint
-from utils.helper_2 import log_variables_to_board, LOG
+from utils.helper_2 import LOG
 from utils.utils_1 import get_model
 from parse_config import ConfigParser
-from opts import args
+
+ex = Experiment('age_estimation_classification_regression_combination')
 
 ENTER_TRAIN_PHRASE = "...enter train phrase..."
 ENTER_VALID_PHRASE = "...enter valid phrase..."
@@ -23,11 +24,17 @@ VALID = "valid"
 global writer
 global logFile
 
+@ex.config
+def cfg():
+  C = 1.0
+  gamma = 0.
+
+
 def parse_args(args):
     folder_sub_name = "_" + args.model + "_" + "mse_regression_classification_loss"
     return folder_sub_name
 
-
+@ex.automain
 def main(**kwargs):
     global args
     for arg, v in kwargs.items():
@@ -64,7 +71,7 @@ def main(**kwargs):
     if use_gpu:
         torch.cuda.empty_cache()
         model = model.cuda()
-    #
+
     # epochs_train_age_rgs_mae_loss, epochs_valid_age_rgs_mae_loss = [], []
 
     epochs_train_lr = []
