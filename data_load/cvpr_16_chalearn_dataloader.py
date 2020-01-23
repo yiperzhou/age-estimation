@@ -17,9 +17,7 @@ AGE_TEST_DATASET_THINKSTATION = "/home/yi/Narvi_MLG/yizhou/AGE_ESTIMATION/CVPR_A
 AGE_TRAIN_DATASET_NARVI = "/sgn-data/MLG/yizhou/AGE_ESTIMATION/CVPR_AGE_5_points/TRAIN/"
 AGE_TEST_DATASET_NARVI = "/sgn-data/MLG/yizhou/AGE_ESTIMATION/CVPR_AGE_5_points/VALID/"
 
-RAW_CHALEARN_AGE_DATASET_AGE_FOLDER = "/media/yi/e7036176-287c-4b18-9609-9811b8e33769/ElasticNN/data/ChaLearn_AGE_CVPR_16"
-RAW_CHALEARN_AGE_DATASET_AGE_FOLDER_VALID = RAW_CHALEARN_AGE_DATASET_AGE_FOLDER + os.sep + "validation_data/valid"
-RAW_CHALEARN_AGE_DATASET_AGE_FOLDER_TRAIN = RAW_CHALEARN_AGE_DATASET_AGE_FOLDER + os.sep + "training_data/train"
+
 FOLDER_2_CLASSES = {'1': 0, '2': 1, '3': 2, '4': 3, '5': 4, '6': 5, '7': 6, '8': 7, '9': 8, '10': 9, '11': 10, '12': 11,
                     '13': 12, '14': 13, '15': 14, '16': 15, '17': 16, '18': 17, '19': 18, '20': 19, '21': 20, '22': 21,
                     '23': 22, '24': 23, '25': 24, '26': 25, '27': 26, '28': 27, '29': 28, '30': 29, '31': 30, '32': 31,
@@ -186,32 +184,3 @@ def load_chalearn_dataset(data_dir, resize=(224, 224)):
     dsets = {x: AGE_ImageFolder(os.path.join(data_dir, x), data_transforms[x]) for x in ['TRAIN', 'VALID', 'TEST']}
 
     return dsets
-
-
-def getstd(csv_path):
-    std_output = {}
-    for ann_file in [csv_path]:
-        with open(ann_file, "r") as fp:
-            for k, line in enumerate(fp):
-                if k == 0:  # skip header
-                    continue
-                name, age, std = line.split(",")
-                std_output[name] = float(std)
-    return std_output
-
-
-def load_raw_chalearn_age_dataset():
-    # load cvpr age dataset
-    age_folder = RAW_CHALEARN_AGE_DATASET_AGE_FOLDER
-    age_valid_folder = RAW_CHALEARN_AGE_DATASET_AGE_FOLDER_VALID
-    age_train_folder = RAW_CHALEARN_AGE_DATASET_AGE_FOLDER_TRAIN
-    age_test_folder = age_folder + os.sep + "test_data/test"
-
-    age_csv_train_file = age_folder + os.sep + 'training_data/train_gt.csv'
-    age_csv_valid_file = age_folder + os.sep + 'validation_data/valid_gt.csv'
-    age_csv_test_file = age_folder + os.sep + 'test_data/test_gt.csv'
-
-    STD_VALID = getstd(age_csv_valid_file)
-    STD_TEST = getstd(age_csv_test_file)
-
-    return age_train_folder, age_valid_folder, age_test_folder, age_csv_train_file, age_csv_valid_file, age_csv_test_file
