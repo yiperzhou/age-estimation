@@ -2,12 +2,13 @@ from models.classification_regression_resnet50 import RegressionAndClassificatio
 from models.classification_regression_vgg16_bn import RegressionAndClassificationVGG16bn
 from models.classification_regression_densenet121 import RegressionAndClassificationDenseNet121
 from models.classification_regression_alexnet import RegressionAndClassificationAlexNet
+from models.classification_regression_mobilenet_v1 import RegressionAndClassificationMobileNetv1
 
 regression_and_classification_vgg16bn_model = "RegressionAndClassificationVGG16bn"
 regression_and_classification_resnet50_model = "RegressionAndClassificationResNet50"
 regression_and_classification_densenet121_model = "RegressionAndClassificationDenseNet121"
 regression_and_classification_alexnet_model = "RegressionAndClassificationAlexNet"
-
+regression_and_classification_mobilenetv1_model = "RegressionAndClassificationMobileNetV1"
 
 def get_model(args, log_file):
 
@@ -23,8 +24,11 @@ def get_model(args, log_file):
     elif args.model == regression_and_classification_alexnet_model:
         model = RegressionAndClassificationDenseNet121(args)
 
+    elif args.model == regression_and_classification_mobilenetv1_model:
+        model = RegressionAndClassificationMobileNetv1(args)
+
     else:
-        NotImplementedError
+        raise NotImplementedError
 
     return model
 

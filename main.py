@@ -1,6 +1,6 @@
 import datetime
 import os
-from sacred import Experiment
+# from sacred import Experiment
 
 import torch
 import torch.nn as nn
@@ -13,8 +13,10 @@ from utils.helper import save_checkpoint
 from utils.helper_2 import LOG
 from utils.utils_1 import get_model
 from parse_config import ConfigParser
+from opts import args
 
-ex = Experiment('age_estimation_classification_regression_combination')
+
+# ex = Experiment('age_estimation_classification_regression_combination')
 
 ENTER_TRAIN_PHRASE = "...enter train phrase..."
 ENTER_VALID_PHRASE = "...enter valid phrase..."
@@ -23,23 +25,24 @@ VALID = "valid"
 
 global writer
 global logFile
-
-@ex.config
-def cfg():
-  C = 1.0
-  gamma = 0.
+# global args
+# @ex.config
+# def cfg():
+#   C = 1.0
+#   gamma = 0.
 
 
 def parse_args(args):
     folder_sub_name = "_" + args.model + "_" + "mse_regression_classification_loss"
     return folder_sub_name
 
-@ex.automain
+# @ex.automain
 def main(**kwargs):
     global args
     for arg, v in kwargs.items():
         args.__setattr__(arg, v)
 
+    print("args: ", args)
     # parse loss weight to sub folder name
     args.folder_sub_name = parse_args(args)
 
@@ -127,6 +130,6 @@ def main(**kwargs):
 
 
 if __name__ == "__main__":
-    config = ConfigParser.from_args(args, options)
+    # config = ConfigParser.from_args(args, options)
 
     main()

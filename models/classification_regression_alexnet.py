@@ -90,5 +90,5 @@ class RegressionAndClassificationAlexNet(nn.Module):
         return [age_pred_100_classes, age_pred_20_classes, age_pred_10_classes, age_pred_5_classes], age_regression
 
 
-if __name__ == "__main__":
-    print("done")
+# if __name__ == "__main__":
+#     print("done")
