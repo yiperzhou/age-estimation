@@ -17,7 +17,7 @@ parser.add_argument('--model', type=str, default="RegressionAndClassificationAle
                          "RegressionAndClassificationDenseNet121, RegressionAndClassificationAlexNet, "
                          "RegressionAndClassificationMobileNetV1")
 
-parser.add_argument('--lr_rate', type=float, default=0.001, help='learning rate (default: 0.001)')
+parser.add_argument('--lr_rate', type=float, default=0.00001, help='learning rate (default: 0.001)')
 
 # neural network hyperparamter
 parser.add_argument('--lr_schedule', type=float, default=8, help='learning rate schedule')
