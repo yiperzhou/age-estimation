@@ -40,7 +40,6 @@ def train_valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
     best_age_mae = 99.
     loss = 0
     age_cls_epoch_loss = AverageMeter()
-    age_l1_rgs_epoch_loss = AverageMeter()
     age_epoch_loss = AverageMeter()
     age_epoch_mae = AverageMeter()
     total_loss = AverageMeter()
@@ -50,7 +49,7 @@ def train_valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
     elif pharse == "valid":
         model.eval()
     else:
-        NotImplementedError
+        raise NotImplementedError
     torch.cuda.empty_cache()
     # epoch_start_time = time.time()
     age_cls_criterion = criterion[0]
@@ -94,12 +93,10 @@ def train_valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
             raise ValueError
 
         # age l1 regrssion to calculate the age MAE value
-        age_l1_calculation = nn.L1Loss()
-        age_loss_rgs_l1 = age_mae_criterion_encapsulation(age_l1_calculation, age_pred_100_classes, age_label)
-        age_epoch_mae.update(age_loss_rgs_l1.item(), 1)
+        age_mae = age_mae_criterion_encapsulation(nn.L1Loss(), age_pred_100_classes, age_label)
+        age_epoch_mae.update(age_mae.item(), 1)
 
         age_cls_epoch_loss.update(age_loss_cls.item(), 1)
-        age_l1_rgs_epoch_loss.update(age_loss_rgs_l1.item(), 1)
         loss = age_loss_cls
         total_loss.update(loss.item(), 1)
         if pharse == "train":
@@ -112,7 +109,7 @@ def train_valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
             print("pharse should be in [train, valid]")
             raise NotImplementedError
         
-    losses = [total_loss.avg, age_cls_epoch_loss.avg, age_l1_rgs_epoch_loss.avg]
+    losses = [total_loss.avg, age_cls_epoch_loss.avg]
     LOG("[" + pharse +"] [Loss  ], [total, cls, l1 ]: " + str(losses), logFile)
     LOG("[" + pharse +"] , MAE                  : " + str(age_epoch_mae.avg), logFile)
     try:

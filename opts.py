@@ -27,10 +27,10 @@ parser.add_argument('--epoch', type=int, help="epoch number, default 1", default
 parser.add_argument('--classification_loss', type=str, default ="10_classes",
                     help="age classification loss type, two options, (100_classes, 20_classes, 10_classes, 5_classes)")
 # working machine environment
-parser.add_argument('--working_machine', type=str, default="Narvi", help="[ThinkStation, Narvi]")
+parser.add_argument('--working_machine', type=str, default="ThinkStation", help="[ThinkStation, Narvi]")
 
 # [1, 1, 1, 1] => [100_classes, 20_classes, 10_classes, 5_classes]
-parser.add_argument('--age_classification_combination', type=list, default=[1, 1, 1, 0],
+parser.add_argument('--age_classification_combination', type=list, default=[1, 1, 1, 1],
                     help="100-classes age classification, 20-classes age classification, "
                     "10-classes age classification, 5-classes age classification")
 
