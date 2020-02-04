@@ -6,7 +6,7 @@ class RegressionAndClassificationAlexNet(nn.Module):
     def __init__(self, args):
         super(RegressionAndClassificationAlexNet, self).__init__()
         self.AlexNet_features = models.alexnet(pretrained=True).features
-        self.features_length = 9216
+        self.features_length = 4096
         self.args = args
         self.age_divide_100_classes, self.age_divide_20_classes, \
             self.age_divide_10_classes, self.age_divide_5_classes = self.get_age_cls_class()
@@ -90,5 +90,6 @@ class RegressionAndClassificationAlexNet(nn.Module):
         return [age_pred_100_classes, age_pred_20_classes, age_pred_10_classes, age_pred_5_classes], age_regression
 
 
-# if __name__ == "__main__":
-#     print("done")
+if __name__ == "__main__":
+    alexnet = RegressionAndClassificationAlexNet()
+    print("done")

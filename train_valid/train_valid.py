@@ -1,15 +1,16 @@
 import torch
+import torch.nn as nn
 
 from utils.helper_2 import LOG
 from utils.helper_3 import AverageMeter
 
 
-# def age_mae_criterion_encapsulation(age_criterion, age_out_cls, age_label):
-#     _, pred_ages = torch.max(age_out_cls, 1)
-#     pred_ages = pred_ages.type(torch.cuda.FloatTensor)
-#     age_label = age_label.type(torch.cuda.FloatTensor)
-#     age_loss_mae = age_criterion(pred_ages, age_label)
-#     return age_loss_mae
+def age_mae_criterion_encapsulation(age_criterion, age_out_cls, age_label):
+    _, pred_ages = torch.max(age_out_cls, 1)
+    pred_ages = pred_ages.type(torch.cuda.FloatTensor)
+    age_label = age_label.type(torch.cuda.FloatTensor)
+    age_loss_mae = age_criterion(pred_ages, age_label)
+    return age_loss_mae
 
 
 CLASSES_NUM_IS_100 = "100_classes"
@@ -57,7 +58,7 @@ def train_valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
     elif pharse == "valid":
         model.eval()
     else:
-        NotImplementedError
+        raise NotImplementedError
     torch.cuda.empty_cache()
     age_cls_criterion = criterion[0]
     age_mse_criterion = criterion[1]
@@ -69,25 +70,24 @@ def train_valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
         # age
         age_img = age_img.cuda()
         age_label = age_label.cuda().type(torch.cuda.FloatTensor)
+
+
         [age_pred_100_classes, age_pred_20_classes, age_pred_10_classes, age_pred_5_classes], age_pred_rgs = model(age_img)
 
-        if args.age_classification_combination == [1, 0, 0, 0]:
-            age_loss_cls_100_classes = age_cls_criterion_encapsulation(age_cls_criterion, age_pred_100_classes, age_label, CLASSES_NUM_IS_100)
-        elif args.age_classification_combination == [1, 1, 0, 0]:
-            age_loss_cls_100_classes = (age_cls_criterion, age_pred_100_classes, age_label, CLASSES_NUM_IS_100)
-            age_loss_cls_20_classes = age_cls_criterion_encapsulation(age_cls_criterion, age_pred_20_classes, age_label, CLASSES_NUM_IS_20)
-        elif args.age_classification_combination == [1, 1, 1, 0]:
-            age_loss_cls_100_classes = age_cls_criterion_encapsulation(age_cls_criterion, age_pred_100_classes, age_label, CLASSES_NUM_IS_100)
-            age_loss_cls_20_classes = age_cls_criterion_encapsulation(age_cls_criterion, age_pred_20_classes, age_label, CLASSES_NUM_IS_20)
-            age_loss_cls_10_classes = age_cls_criterion_encapsulation(age_cls_criterion, age_pred_10_classes, age_label, CLASSES_NUM_IS_10)
-        elif args.age_classification_combination == [1, 1, 1, 1]:
-            age_loss_cls_100_classes = age_cls_criterion_encapsulation(age_cls_criterion, age_pred_100_classes, age_label, CLASSES_NUM_IS_100)
-            age_loss_cls_20_classes = age_cls_criterion_encapsulation(age_cls_criterion, age_pred_20_classes, age_label, CLASSES_NUM_IS_20)
-            age_loss_cls_10_classes = age_cls_criterion_encapsulation(age_cls_criterion, age_pred_10_classes, age_label, CLASSES_NUM_IS_10)
-            age_loss_cls_5_classes = age_cls_criterion_encapsulation(age_cls_criterion, age_pred_5_classes, age_label, CLASSES_NUM_IS_5)
+        if args.age_classification_combination == [1, 1, 1, 1]:
+            age_100_classes_CE_loss = age_cls_criterion_encapsulation(age_cls_criterion, age_pred_100_classes, age_label, CLASSES_NUM_IS_100)
+            age_20_classes_CE_loss = age_cls_criterion_encapsulation(age_cls_criterion, age_pred_20_classes, age_label, CLASSES_NUM_IS_20)
+            age_10_classes_CE_loss = age_cls_criterion_encapsulation(age_cls_criterion, age_pred_10_classes, age_label, CLASSES_NUM_IS_10)
+            age_5_classes_CE_loss = age_cls_criterion_encapsulation(age_cls_criterion, age_pred_5_classes, age_label, CLASSES_NUM_IS_5)
+
+            age_loss_cls = torch.add(torch.add(torch.add(age_100_classes_CE_loss, age_20_classes_CE_loss), age_10_classes_CE_loss), age_5_classes_CE_loss)
+            # print("age loss cls 100 classes: ", age_100_classes_CE_loss)
+            # print("age_5_classes_CE_loss: ", age_5_classes_CE_loss)
+            # print("age ")
+
         else:
-            print("age_divide_100_classes, age_divide_20_classes, age_divide_10_classes, age_divide_5_classes")
-            ValueError
+            print("validate the regression branch based on the four classification branches")
+            raise ValueError
 
         # print("age_pred_rgs.size(): ", age_pred_rgs.size())
         # print("age_label.size()   : ", age_label.size())
@@ -95,45 +95,39 @@ def train_valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
 
         # print("age_pred_rgs: ", age_pred_rgs)
 
+        # print("age pred rgs: ", age_pred_rgs)
+        # print("age label: ", age_label)
+
+
         age_loss_rgs_mse = age_mse_criterion(age_pred_rgs, age_label)
 
-        # age_epoch_mae.update(age_loss_rgs_l1.item(), 1)
-        if args.age_classification_combination == [1, 0, 0, 0]:
-            age_loss_cls = age_loss_cls_100_classes
-        elif args.age_classification_combination == [1, 1, 0, 0]:
-            age_loss_cls = age_loss_cls_100_classes + age_loss_cls_20_classes
-        
-        elif  args.age_classification_combination == [1, 1, 1, 0]:
-            age_loss_cls = age_loss_cls_100_classes + age_loss_cls_20_classes + age_loss_cls_10_classes  
-        
-        elif  args.age_classification_combination == [1, 1, 1, 1]:
-            age_loss_cls = age_loss_cls_100_classes + age_loss_cls_20_classes + age_loss_cls_10_classes + age_loss_cls_5_classes
-        else:
-            raise ValueError
+        # print("age mean squared error: ", age_loss_rgs_mse)
+        # print("four cross entropy losses: ", age_loss_cls)
 
-        age_cls_epoch_loss.update(age_loss_cls.item(), 1)
-        age_mae_rgs_epoch_loss.update(age_loss_rgs_mse.item(), 1)
 
-        # print("age_loss_cls    : ", age_loss_cls.item())
-        # print("age loss rgs mse: ", age_loss_rgs_mse.item())
-
-        total_loss = age_loss_cls + age_loss_rgs_mse
-        total_loss_scalar.update(total_loss.item(), 1)
+        total_loss = torch.add(age_loss_cls, age_loss_rgs_mse)
 
         if pharse == "train":
             total_loss.backward()
             optimizer.step()
         elif pharse == "valid":
-            # # use emsemble technique to calculate age error, use the mean value of the 100-classes classification and regression
-            # age_diff_mean = torch.mean(torch.stack([age_loss_cls_100_classes, age_loss_rgs_mse]))
-
-            # print("age diff mean: ", age_diff_mean)
-            age_epoch_mae.update(age_loss_cls_100_classes.item(), 1)
-
             continue
         else:
             print("pharse should be in [train, valid]")
-            NotImplementedError
+            raise NotImplementedError
+
+        total_loss_scalar.update(total_loss.item(), 1)
+
+        age_cls_epoch_loss.update(age_loss_cls.item(), 1)
+        age_mae_rgs_epoch_loss.update(age_loss_rgs_mse.item(), 1)
+
+        # print("age_loss_cls    : ", age_loss_cls.item())
+        # print("age loss rgs mse: ", age_loss_rgs_mse.item())        
+
+        # age l1 regrssion to calculate the age MAE value
+        age_mae = age_mae_criterion_encapsulation(nn.L1Loss(), age_pred_100_classes, age_label)
+        age_epoch_mae.update(age_mae.item(), 1)
+
 
     losses = [total_loss_scalar.avg, age_cls_epoch_loss.avg, age_mae_rgs_epoch_loss.avg]
     LOG("[" + pharse +"] [Loss  ], [total, cls, mse ]: " + str(losses), logFile)
