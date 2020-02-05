@@ -4,14 +4,11 @@ import torch.nn as nn
 from utils.helper_2 import LOG
 from utils.helper_3 import AverageMeter
 
-
-
-
-
 CLASSES_NUM_IS_100 = "100_classes"
 CLASSES_NUM_IS_20 = "20_classes"
 CLASSES_NUM_IS_10 = "10_classes"
 CLASSES_NUM_IS_5 = "5_classes"
+
 
 def age_mae_criterion_encapsulation(age_criterion, age_out_cls, age_label):
     _, pred_ages = torch.max(age_out_cls, 1)
@@ -24,11 +21,10 @@ def age_mae_criterion_encapsulation(age_criterion, age_out_cls, age_label):
 def age_mapping_function(origin_value, age_divide):
     origin_value = origin_value.cpu()
     y_true_rgs = torch.div(origin_value, age_divide)
-    return  y_true_rgs
+    return y_true_rgs
 
 
 def age_rgs_criterion_encapsulation(age_criterion, pred_ages_rgs, age_label, classification_type):
-
     if classification_type == CLASSES_NUM_IS_100:
         age_divide = 1
     elif classification_type == CLASSES_NUM_IS_20:
@@ -92,22 +88,30 @@ def train_valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
         age_img = age_img.cuda()
         age_label = age_label.cuda().type(torch.cuda.FloatTensor)
 
-
         # # [age_pred_100_classes, age_pred_20_classes, age_pred_10_classes, age_pred_5_classes], [age_pred_rgs_100_classes, age_pred_rgs_20_classes] = model(age_img)
         # temp1, temp2 = model(age_img)
         # print(temp1)
         # print()
         # print(temp2)
 
-        [age_pred_100_classes, age_pred_20_classes, age_pred_10_classes, age_pred_5_classes], [age_pred_rgs_100_classes, age_pred_rgs_20_classes] = model(age_img)
+        [age_pred_100_classes, age_pred_20_classes, age_pred_10_classes, age_pred_5_classes], [age_pred_rgs_100_classes,
+                                                                                               age_pred_rgs_20_classes,
+                                                                                               age_pred_rgs_10_classes] = model(
+            age_img)
 
         if args.age_classification_combination == [1, 1, 1, 1]:
-            age_100_classes_CE_loss = age_cls_criterion_encapsulation(age_cls_criterion, age_pred_100_classes, age_label, CLASSES_NUM_IS_100)
-            age_20_classes_CE_loss = age_cls_criterion_encapsulation(age_cls_criterion, age_pred_20_classes, age_label, CLASSES_NUM_IS_20)
-            age_10_classes_CE_loss = age_cls_criterion_encapsulation(age_cls_criterion, age_pred_10_classes, age_label, CLASSES_NUM_IS_10)
-            age_5_classes_CE_loss = age_cls_criterion_encapsulation(age_cls_criterion, age_pred_5_classes, age_label, CLASSES_NUM_IS_5)
+            age_100_classes_CE_loss = age_cls_criterion_encapsulation(age_cls_criterion, age_pred_100_classes,
+                                                                      age_label, CLASSES_NUM_IS_100)
+            age_20_classes_CE_loss = age_cls_criterion_encapsulation(age_cls_criterion, age_pred_20_classes, age_label,
+                                                                     CLASSES_NUM_IS_20)
+            age_10_classes_CE_loss = age_cls_criterion_encapsulation(age_cls_criterion, age_pred_10_classes, age_label,
+                                                                     CLASSES_NUM_IS_10)
+            age_5_classes_CE_loss = age_cls_criterion_encapsulation(age_cls_criterion, age_pred_5_classes, age_label,
+                                                                    CLASSES_NUM_IS_5)
 
-            age_loss_cls = torch.add(torch.add(torch.add(age_100_classes_CE_loss, age_20_classes_CE_loss), age_10_classes_CE_loss), age_5_classes_CE_loss)
+            age_loss_cls = torch.add(
+                torch.add(torch.add(age_100_classes_CE_loss, age_20_classes_CE_loss), age_10_classes_CE_loss),
+                age_5_classes_CE_loss)
             # print("age loss cls 100 classes: ", age_100_classes_CE_loss)
             # print("age_5_classes_CE_loss: ", age_5_classes_CE_loss)
             # print("age ")
@@ -125,14 +129,15 @@ def train_valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
         # print("age pred rgs: ", age_pred_rgs_100_classes)
         # print("age label: ", age_label)
 
-
         age_loss_rgs_100_class_mse = age_mse_criterion(age_pred_rgs_100_classes, age_label)
-        age_loss_rgs_20_class_mse = age_rgs_criterion_encapsulation(age_mse_criterion, age_pred_rgs_20_classes, age_label, CLASSES_NUM_IS_20)
-        age_loss_rgs_mse = age_loss_rgs_100_class_mse + age_loss_rgs_20_class_mse
+        age_loss_rgs_20_class_mse = age_rgs_criterion_encapsulation(age_mse_criterion, age_pred_rgs_20_classes,
+                                                                    age_label, CLASSES_NUM_IS_20)
+        age_loss_rgs_10_class_mse = age_rgs_criterion_encapsulation(age_mse_criterion, age_pred_rgs_10_classes,
+                                                                    age_label, CLASSES_NUM_IS_10)
+        age_loss_rgs_mse = age_loss_rgs_100_class_mse + age_loss_rgs_20_class_mse + age_loss_rgs_10_class_mse
 
         # print("age mean squared error: ", age_loss_rgs_mse)
         # print("four cross entropy losses: ", age_loss_cls)
-
 
         total_loss = age_loss_cls + age_loss_rgs_mse
 
@@ -142,7 +147,7 @@ def train_valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
         age_mae_rgs_epoch_loss.update(age_loss_rgs_mse.item(), 1)
 
         # print("age_loss_cls    : ", age_loss_cls.item())
-        # print("age loss rgs mse: ", age_loss_rgs_mse.item())        
+        # print("age loss rgs mse: ", age_loss_rgs_mse.item())
 
         # age l1 regrssion to calculate the age MAE value
         age_mae = age_mae_criterion_encapsulation(nn.L1Loss(), age_pred_100_classes, age_label)
@@ -158,13 +163,13 @@ def train_valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
             raise NotImplementedError
 
     losses = [total_loss_scalar.avg, age_cls_epoch_loss.avg, age_mae_rgs_epoch_loss.avg]
-    LOG("[" + pharse +"] [Loss  ], [total, cls, mse ]: " + str(losses), logFile)
-    LOG(" 2 age regression, 100 and 20 age classes: ", logFile)
-    LOG("[" + pharse +"] , MAE                  : " + str(age_epoch_mae.avg), logFile)
+    LOG("[" + pharse + "] [Loss  ], [total, cls, mse ]: " + str(losses), logFile)
+    LOG(" 3 age regression, 100 20  and 10 age classes: ", logFile)
+    LOG("[" + pharse + "] , MAE                  : " + str(age_epoch_mae.avg), logFile)
     try:
         lr = float(str(optimizer).split("\n")[3].split(" ")[-1])
     except:
         lr = 100
     LOG("lr: " + str(lr), logFile)
-    
+
     return losses, lr, model

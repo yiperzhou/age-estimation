@@ -157,6 +157,13 @@ class RegressionAndClassificationMobileNetv1(torch.nn.Module):
             nn.Linear(256, 1)  # output layer
         )
 
+        self.age_regression_10_classes = nn.Sequential(
+            nn.Linear(self.features_length, 256),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=0.5, inplace=False),
+            nn.Linear(256, 1)  # output layer
+        )
+
 
     def get_age_cls_class(self):
         age_divide_100_classes = False
