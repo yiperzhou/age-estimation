@@ -5,6 +5,14 @@ from utils.helper_2 import LOG
 from utils.helper_3 import AverageMeter
 
 
+
+
+
+CLASSES_NUM_IS_100 = "100_classes"
+CLASSES_NUM_IS_20 = "20_classes"
+CLASSES_NUM_IS_10 = "10_classes"
+CLASSES_NUM_IS_5 = "5_classes"
+
 def age_mae_criterion_encapsulation(age_criterion, age_out_cls, age_label):
     _, pred_ages = torch.max(age_out_cls, 1)
     pred_ages = pred_ages.type(torch.cuda.FloatTensor)
@@ -13,16 +21,29 @@ def age_mae_criterion_encapsulation(age_criterion, age_out_cls, age_label):
     return age_loss_mae
 
 
-CLASSES_NUM_IS_100 = "100_classes"
-CLASSES_NUM_IS_20 = "20_classes"
-CLASSES_NUM_IS_10 = "10_classes"
-CLASSES_NUM_IS_5 = "5_classes"
-
-
 def age_mapping_function(origin_value, age_divide):
     origin_value = origin_value.cpu()
     y_true_rgs = torch.div(origin_value, age_divide)
     return  y_true_rgs
+
+
+def age_rgs_criterion_encapsulation(age_criterion, pred_ages_rgs, age_label, classification_type):
+
+    if classification_type == CLASSES_NUM_IS_100:
+        age_divide = 1
+    elif classification_type == CLASSES_NUM_IS_20:
+        age_divide = 5
+    elif classification_type == CLASSES_NUM_IS_10:
+        age_divide = 10
+    elif classification_type == CLASSES_NUM_IS_5:
+        age_divide = 20
+    else:
+        print("ground truth age classes type value is wrong")
+        raise ValueError
+    mapped_age_label = age_mapping_function(age_label, age_divide)
+    mapped_age_label = mapped_age_label.type(torch.cuda.FloatTensor)
+    age_rgs_loss = age_criterion(pred_ages_rgs, mapped_age_label)
+    return age_rgs_loss
 
 
 def age_cls_criterion_encapsulation(age_criterion, age_out_cls, age_label, classification_type):
@@ -72,7 +93,13 @@ def train_valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
         age_label = age_label.cuda().type(torch.cuda.FloatTensor)
 
 
-        [age_pred_100_classes, age_pred_20_classes, age_pred_10_classes, age_pred_5_classes], age_pred_rgs = model(age_img)
+        # # [age_pred_100_classes, age_pred_20_classes, age_pred_10_classes, age_pred_5_classes], [age_pred_rgs_100_classes, age_pred_rgs_20_classes] = model(age_img)
+        # temp1, temp2 = model(age_img)
+        # print(temp1)
+        # print()
+        # print(temp2)
+
+        [age_pred_100_classes, age_pred_20_classes, age_pred_10_classes, age_pred_5_classes], [age_pred_rgs_100_classes, age_pred_rgs_20_classes] = model(age_img)
 
         if args.age_classification_combination == [1, 1, 1, 1]:
             age_100_classes_CE_loss = age_cls_criterion_encapsulation(age_cls_criterion, age_pred_100_classes, age_label, CLASSES_NUM_IS_100)
@@ -89,32 +116,25 @@ def train_valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
             print("validate the regression branch function based on the four classification branches")
             raise ValueError
 
-        # print("age_pred_rgs.size(): ", age_pred_rgs.size())
+        # print("age_pred_rgs_100_classes.size(): ", age_pred_rgs_100_classes.size())
         # print("age_label.size()   : ", age_label.size())
         # age mse regrssion loss
 
-        # print("age_pred_rgs: ", age_pred_rgs)
+        # print("age_pred_rgs_100_classes: ", age_pred_rgs_100_classes)
 
-        # print("age pred rgs: ", age_pred_rgs)
+        # print("age pred rgs: ", age_pred_rgs_100_classes)
         # print("age label: ", age_label)
 
 
-        age_loss_rgs_mse = age_mse_criterion(age_pred_rgs, age_label)
+        age_loss_rgs_100_class_mse = age_mse_criterion(age_pred_rgs_100_classes, age_label)
+        age_loss_rgs_20_class_mse = age_rgs_criterion_encapsulation(age_mse_criterion, age_pred_rgs_20_classes, age_label, CLASSES_NUM_IS_20)
+        age_loss_rgs_mse = age_loss_rgs_100_class_mse + age_loss_rgs_20_class_mse
 
         # print("age mean squared error: ", age_loss_rgs_mse)
         # print("four cross entropy losses: ", age_loss_cls)
 
 
-        total_loss = torch.add(age_loss_cls, age_loss_rgs_mse)
-
-        if pharse == "train":
-            total_loss.backward()
-            optimizer.step()
-        elif pharse == "valid":
-            continue
-        else:
-            print("pharse should be in [train, valid]")
-            raise NotImplementedError
+        total_loss = age_loss_cls + age_loss_rgs_mse
 
         total_loss_scalar.update(total_loss.item(), 1)
 
@@ -128,9 +148,18 @@ def train_valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
         age_mae = age_mae_criterion_encapsulation(nn.L1Loss(), age_pred_100_classes, age_label)
         age_epoch_mae.update(age_mae.item(), 1)
 
+        if pharse == "train":
+            total_loss.backward()
+            optimizer.step()
+        elif pharse == "valid":
+            continue
+        else:
+            print("pharse should be in [train, valid]")
+            raise NotImplementedError
 
     losses = [total_loss_scalar.avg, age_cls_epoch_loss.avg, age_mae_rgs_epoch_loss.avg]
     LOG("[" + pharse +"] [Loss  ], [total, cls, mse ]: " + str(losses), logFile)
+    LOG(" 2 age regression, 100 and 20 age classes: ", logFile)
     LOG("[" + pharse +"] , MAE                  : " + str(age_epoch_mae.avg), logFile)
     try:
         lr = float(str(optimizer).split("\n")[3].split(" ")[-1])

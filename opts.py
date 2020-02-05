@@ -12,7 +12,7 @@ parser.add_argument('--weight_decay', type=float, default=1e-6)
 
 parser.add_argument('--dataset', type=str, default="CVPR_16_ChaLearn", help="CVPR_16_ChaLearn")
 
-parser.add_argument('--model', type=str, default="RegressionAndClassificationAlexNet",
+parser.add_argument('--model', type=str, default="RegressionAndClassificationResNet50",
                     help="[RegressionAndClassificationVGG16bn, RegressionAndClassificationResNet50, "
                          "RegressionAndClassificationDenseNet121, RegressionAndClassificationAlexNet, "
                          "RegressionAndClassificationMobileNetV1")
@@ -22,9 +22,9 @@ parser.add_argument('--lr_rate', type=float, default=0.001, help='learning rate 
 # neural network hyperparamter
 parser.add_argument('--lr_schedule', type=float, default=8, help='learning rate schedule')
 
-parser.add_argument('--batch_size', type=int, default=2, metavar='N',help='input batch size for training (default: 32)')
+parser.add_argument('--batch_size', type=int, default=32, metavar='N',help='input batch size for training (default: 32)')
 
-parser.add_argument('--epoch', type=int, help="epoch number, default 1", default=60)
+parser.add_argument('--epoch', type=int, help="epoch number, default 1", default=80)
 
 parser.add_argument('--load_IMDB_WIKI_pretrained_model', type=bool, default=False, help="[False, True]")
 
