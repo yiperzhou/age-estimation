@@ -44,5 +44,7 @@ parser.add_argument('--age_classification_combination', type=list, default=[1, 1
                     help="100-classes age classification, 20-classes age classification, "
                     "10-classes age classification, 5-classes age classification")
 
+parser.add_argument('--git-branch', type=str, help="git branch for this experiments", default="mse-regression-three-branches-100-classes-and-20-classes-10-classes")
+
 # Init Environment
 args = parser.parse_args()
