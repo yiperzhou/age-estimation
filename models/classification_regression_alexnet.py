@@ -46,22 +46,7 @@ class RegressionAndClassificationAlexNet(nn.Module):
         age_divide_20_classes = False
         age_divide_10_classes = False
         age_divide_5_classes = False
-        if self.args.age_classification_combination == [1, 0, 0, 0]:
-            age_divide_100_classes = True
-            age_divide_20_classes = False
-            age_divide_10_classes = False
-            age_divide_5_classes = False
-        elif self.args.age_classification_combination == [1, 1, 0, 0]:
-            age_divide_100_classes = True
-            age_divide_20_classes = True
-            age_divide_10_classes = False
-            age_divide_5_classes = False
-        elif self.args.age_classification_combination == [1, 1, 1, 0]:
-            age_divide_100_classes = True
-            age_divide_20_classes = True
-            age_divide_10_classes = True
-            age_divide_5_classes = False
-        elif self.args.age_classification_combination == [1, 1, 1, 1]:
+        if self.args.age_classification_combination == [1, 1, 1, 1]:
             age_divide_100_classes = True
             age_divide_20_classes = True
             age_divide_10_classes = True
@@ -75,17 +60,9 @@ class RegressionAndClassificationAlexNet(nn.Module):
     def forward(self, x):
         x = self.AlexNet_features(x)
         x = x.view(x.size(0), -1)
-        age_pred_100_classes, age_pred_20_classes, age_pred_10_classes, age_pred_5_classes = None, None, None, None
-        if self.age_divide_100_classes == True:
-            age_pred_100_classes = self.age_clf_100_classes(x)
-        if self.age_divide_20_classes == True:
-            age_pred_20_classes = self.age_clf_20_classes(x)
-        if self.age_divide_10_classes == True:
-            age_pred_10_classes = self.age_clf_10_classes(x)
-        if self.age_divide_5_classes == True:
-            age_pred_5_classes = self.age_clf_5_classes(x)
-        if self.args.mse_regression_loss == True:
-            age_regression = self.age_regression(x)
+        # add the four classification branches
+        age_pred_100_classes, age_pred_20_classes, age_pred_10_classes, age_pred_5_classes = self.age_clf_100_classes(x), self.age_clf_20_classes(x), self.age_clf_10_classes(x), self.age_clf_5_classes(x)
+        age_regression = self.age_regression(x)
 
         return [age_pred_100_classes, age_pred_20_classes, age_pred_10_classes, age_pred_5_classes], age_regression
 

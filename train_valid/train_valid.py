@@ -86,7 +86,7 @@ def train_valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
             # print("age ")
 
         else:
-            print("validate the regression branch based on the four classification branches")
+            print("validate the regression branch function based on the four classification branches")
             raise ValueError
 
         # print("age_pred_rgs.size(): ", age_pred_rgs.size())
