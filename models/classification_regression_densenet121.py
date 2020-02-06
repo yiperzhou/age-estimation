@@ -48,7 +48,12 @@ class RegressionAndClassificationDenseNet121(torch.nn.Module):
             nn.Linear(256, 1)  # output layer
         )
 
-
+        self.age_regression_5_classes = nn.Sequential(
+            nn.Linear(self.features_length, 256),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=0.5, inplace=False),
+            nn.Linear(256, 1)  # output layer
+        )
 
 
     def get_age_cls_class(self):
@@ -96,6 +101,6 @@ class RegressionAndClassificationDenseNet121(torch.nn.Module):
         if self.age_divide_5_classes == True:
             age_pred_5_classes = self.age_clf_5_classes(x)
         if self.args.mse_regression_loss == True:
-            [age_regression_100_classes, age_regression_20_classes] = self.age_regression_100_classes(x), self.age_regression_20_classes(x)
+            [age_regression_100_classes, age_regression_20_classes, age_regression_10_classes, age_regression_5_classes] = self.age_regression_100_classes(x), self.age_regression_20_classes(x), self.age_regression_10_classes(x), self.age_regression_5_classes(x)
 
-        return [age_pred_100_classes, age_pred_20_classes, age_pred_10_classes, age_pred_5_classes], [age_regression_100_classes, age_regression_20_classes]
+        return [age_pred_100_classes, age_pred_20_classes, age_pred_10_classes, age_pred_5_classes], [age_regression_100_classes, age_regression_20_classes, age_regression_5_classes]

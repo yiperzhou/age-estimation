@@ -96,7 +96,8 @@ def train_valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
 
         [age_pred_100_classes, age_pred_20_classes, age_pred_10_classes, age_pred_5_classes], [age_pred_rgs_100_classes,
                                                                                                age_pred_rgs_20_classes,
-                                                                                               age_pred_rgs_10_classes] = model(
+                                                                                               age_pred_rgs_10_classes,
+                                                                                               age_pred_rgs_5_classes] = model(
             age_img)
 
         if args.age_classification_combination == [1, 1, 1, 1]:
@@ -134,7 +135,9 @@ def train_valid(model, loader, criterion, optimizer, epoch, logFile, args, phars
                                                                     age_label, CLASSES_NUM_IS_20)
         age_loss_rgs_10_class_mse = age_rgs_criterion_encapsulation(age_mse_criterion, age_pred_rgs_10_classes,
                                                                     age_label, CLASSES_NUM_IS_10)
-        age_loss_rgs_mse = age_loss_rgs_100_class_mse + age_loss_rgs_20_class_mse + age_loss_rgs_10_class_mse
+        age_loss_rgs_5_class_mse = age_rgs_criterion_encapsulation(age_mse_criterion, age_pred_rgs_5_classes,
+                                                                    age_label, CLASSES_NUM_IS_5)
+        age_loss_rgs_mse = age_loss_rgs_100_class_mse + age_loss_rgs_20_class_mse + age_loss_rgs_10_class_mse + age_loss_rgs_5_class_mse
 
         # print("age mean squared error: ", age_loss_rgs_mse)
         # print("four cross entropy losses: ", age_loss_cls)
